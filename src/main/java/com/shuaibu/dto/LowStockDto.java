@@ -1,7 +1,6 @@
 package com.shuaibu.dto;
 
 import java.time.LocalDate;
-
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -14,7 +13,7 @@ public class LowStockDto {
 
     @NotEmpty(message = "* Product name is mandatory")
     private String name;
-    
+
     @NotNull(message = "* Price is mandatory")
     private Double price;
 

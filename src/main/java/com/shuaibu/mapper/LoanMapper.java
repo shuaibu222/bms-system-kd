@@ -11,7 +11,7 @@ public class LoanMapper {
                 .staffId(model.getStaffId())
                 .amount(model.getAmount())
                 .purpose(model.getPurpose())
-                .loanDate(model.getLoanDate())
+                .date(model.getDate())
                 .amountRepaid(model.getAmountRepaid())
                 .build();
     }
@@ -22,7 +22,7 @@ public class LoanMapper {
                 .staffId(dto.getStaffId())
                 .amount(dto.getAmount())
                 .purpose(dto.getPurpose())
-                .loanDate(dto.getLoanDate())
+                .date(dto.getDate())
                 .amountRepaid(dto.getAmountRepaid())
                 .build();
     }

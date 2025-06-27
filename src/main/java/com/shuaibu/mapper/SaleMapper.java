@@ -6,14 +6,14 @@ import com.shuaibu.model.SaleItemModel;
 import com.shuaibu.model.SaleModel;
 
 public class SaleMapper {
-    
+
     public static SaleDto mapToDto(SaleModel saleModel) {
         return SaleDto.builder()
                 .id(saleModel.getId())
                 .qtnNum(saleModel.getQtnNum())
                 .customerName(saleModel.getCustomerName())
                 .totalAmount(saleModel.getTotalAmount())
-                .paymentMethod(saleModel.getPaymentMethod())
+                .phone(saleModel.getPhone())
                 .saleDateTime(saleModel.getSaleDateTime())
                 .build();
     }
@@ -24,7 +24,7 @@ public class SaleMapper {
                 .qtnNum(saleDto.getQtnNum())
                 .customerName(saleDto.getCustomerName())
                 .totalAmount(saleDto.getTotalAmount())
-                .paymentMethod(saleDto.getPaymentMethod())
+                .phone(saleDto.getPhone())
                 .saleDateTime(saleDto.getSaleDateTime())
                 .build();
     }

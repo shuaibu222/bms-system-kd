@@ -34,7 +34,7 @@ public class InvoiceController {
     private final UserRepository userRepository;
 
     public InvoiceController(InvoiceService invoiceService, InvoiceRepository invoiceRepository,
-                            SaleRepository saleRepository, UserRepository userRepository) {
+            SaleRepository saleRepository, UserRepository userRepository) {
         this.invoiceService = invoiceService;
         this.invoiceRepository = invoiceRepository;
         this.saleRepository = saleRepository;
@@ -57,7 +57,7 @@ public class InvoiceController {
     public String getQuotationByQtnNum(@RequestParam String qtnNum, Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserModel userModel = userRepository.findByUsername(authentication.getName());
-        
+
         SaleModel quotation = saleRepository.findByQtnNum(qtnNum);
         SaleDto saleDto = SaleMapper.mapToDto(quotation);
         saleDto.setSalesAgent(userModel.getFullName());
@@ -74,7 +74,7 @@ public class InvoiceController {
 
     @PostMapping
     public String createInvoice(@Valid @ModelAttribute("invoice") InvoiceDto invoice,
-                                BindingResult result, Model model) {
+            BindingResult result, Model model) {
         if (result.hasErrors()) {
             result.getAllErrors().forEach(error -> System.out.println(error.toString()));
             model.addAttribute("invoice", invoice);
@@ -93,8 +93,8 @@ public class InvoiceController {
 
     @PostMapping("/update/{id}")
     public String updateInvoice(@PathVariable Long id,
-                                @Valid @ModelAttribute("invoice") InvoiceDto invoice,
-                                BindingResult result, Model model) {
+            @Valid @ModelAttribute("invoice") InvoiceDto invoice,
+            BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("invoice", invoice);
             return "invoices/edit";
@@ -131,10 +131,4 @@ public class InvoiceController {
         }
     }
 
-
-    @GetMapping("/send-email")
-    public String sendInvoiceEmail(@RequestParam String email) {
-        invoiceService.sendInvoiceEmail(email);
-        return "redirect:/invoices/success?emailSent";
-    }
 }

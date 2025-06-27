@@ -1,6 +1,6 @@
 package com.shuaibu.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -13,15 +13,11 @@ public class SalesReturnDto {
 
     private Long id;
 
-    @NotEmpty(message = "* Customer name is required")
-    private String customerName;
-
-    @NotNull(message = "* Total amount is required")
-    private Double totalAmount;
+    private String invNum;
 
     @NotEmpty(message = "* Reason is required")
     private String reason;
 
     @NotNull(message = "* Sale return date and time is mandatory")
-    private LocalDateTime saleRDateTime;
+    private LocalDate date;
 }

@@ -1,7 +1,6 @@
 package com.shuaibu.dto;
 
-import java.time.LocalDateTime;
-
+import java.time.LocalDate;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -32,5 +31,6 @@ public class PurchaseReturnDto {
     private String reason;
 
     @NotNull(message = "* Purchase return date and time is mandatory")
-    private LocalDateTime pReturnDateTime;
+    private LocalDate date;
+
 }

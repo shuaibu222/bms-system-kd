@@ -8,20 +8,18 @@ public class SalesReturnMapper {
     public static SalesReturnDto mapToDto(SalesReturnModel salesReturnModel) {
         return SalesReturnDto.builder()
                 .id(salesReturnModel.getId())
-                .customerName(salesReturnModel.getCustomerName())
-                .totalAmount(salesReturnModel.getTotalAmount())
+                .invNum(salesReturnModel.getInvNum())
                 .reason(salesReturnModel.getReason())
-                .saleRDateTime(salesReturnModel.getSaleRDateTime())
+                .date(salesReturnModel.getDate())
                 .build();
     }
 
     public static SalesReturnModel mapToModel(SalesReturnDto salesReturnDto) {
         return SalesReturnModel.builder()
                 .id(salesReturnDto.getId())
-                .customerName(salesReturnDto.getCustomerName())
-                .totalAmount(salesReturnDto.getTotalAmount())
+                .invNum(salesReturnDto.getInvNum())
                 .reason(salesReturnDto.getReason())
-                .saleRDateTime(salesReturnDto.getSaleRDateTime())
+                .date(salesReturnDto.getDate())
                 .build();
     }
 }

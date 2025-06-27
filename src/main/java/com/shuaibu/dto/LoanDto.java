@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Builder
 public class LoanDto {
     private Long id;
-    
+
     @NotNull(message = "* Staff ID is required")
     private Long staffId;
 
@@ -21,7 +21,8 @@ public class LoanDto {
     private String purpose;
 
     @NotNull(message = "* Loan date is required")
-    private LocalDate loanDate;
+    private LocalDate date;
 
     private Double amountRepaid;
+
 }

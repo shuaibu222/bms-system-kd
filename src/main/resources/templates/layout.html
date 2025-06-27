@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-US" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
 <head th:fragment="header">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=yes">
@@ -10,6 +11,7 @@
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <link rel="stylesheet" th:href="@{/fonts/css/all.min.css}">
 </head>
+
 <body>
     <div class="grid-wrapper">
         <!-- Sidebar Section -->
@@ -32,19 +34,30 @@
                         </a>
                         <ul class="submenu">
                             <!-- Sales generate quotation -->
-                            <li sec:authorize="hasRole('ADMIN') or hasRole('SALESPERSON')"><a href="/sales">POS</a></li>
-                            <li sec:authorize="hasRole('ADMIN') or hasRole('CASHIER')"><a href="/invoices">Invoice</a></li>
+                            <li sec:authorize="hasRole('ADMIN') or hasRole('SALESPERSON')"><a href="/sales">New Sale</a>
+                            </li>
+                            <li sec:authorize="hasRole('ADMIN') or hasRole('CASHIER')"><a href="/invoices">New
+                                    Invoice</a></li>
                             <li sec:authorize="hasRole('ADMIN')"><a href="/sales/list">Sales List</a></li>
-                            <li sec:authorize="hasRole('ADMIN')"><a href="/invoices/list">Invoice List</a></li>
+                            <li sec:authorize="hasRole('ADMIN')"><a href="/invoices/list">Invoices List</a></li>
                         </ul>
                     </li>
-                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                    <!-- <li sec:authorize="hasRole('ADMIN')" class="nav-item">
                         <a class="nav-head">
                             <i class="fas fa-shopping-cart"></i> Purchase
                         </a>
                         <ul class="submenu">
-                            <li><a href="/purchases">Purchases</a></li>
-                            <!-- <li><a href="/purchase-returns">Purchase Return</a></li> -->
+                            <li><a href="/purchase-returns">Purchase Return</a></li>
+                        </ul>
+                    </li> -->
+                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                        <a class="nav-head">
+                            <i class="fas fa-money-bill-wave"></i> Assets
+                        </a>
+                        <ul class="submenu">
+                            <li><a href="/expenses">Staff Loan</a></li>
+                            <li><a href="/expenses">Debtors</a></li>
+                            <li><a href="/expenses">Suspense Account</a></li>
                         </ul>
                     </li>
                     <li sec:authorize="hasRole('ADMIN')" class="nav-item">
@@ -58,24 +71,22 @@
                     <!-- Inventory -->
                     <li sec:authorize="hasRole('ADMIN')" class="nav-item">
                         <a class="nav-head">
-                            <i class="fas fa-box"></i> Inventory
+                            <i class="fas fa-box"></i> Stock
                         </a>
                         <ul class="submenu">
                             <li><a href="/products">Products</a></li>
                             <li><a href="/products/lowstocks">Low Stocks</a></li>
-                            <li><a href="/category">Categories</a></li>
-                            <li><a href="/units">Units</a></li>
+                            <li><a href="/category">Purchase History</a></li>
                         </ul>
                     </li>
                     <!-- Customers -->
                     <li sec:authorize="hasRole('ADMIN')" class="nav-item">
                         <a class="nav-head">
-                            <i class="fas fa-users"></i> People
+                            <i class="fas fa-users"></i> Customers
                         </a>
                         <ul class="submenu">
-                            <li><a href="/customers">Debtors(Customers)</a></li>
-                            <li><a href="/suppliers">Creditors(Suppliers)</a></li>
-                            <li><a href="/stores">Stores</a></li>
+                            <li><a href="/customers">Customers</a></li>
+                            <li><a href="/suppliers">Customer Ledger</a></li>
                         </ul>
                     </li>
                     <!-- Reports -->
@@ -84,11 +95,10 @@
                             <i class="fas fa-chart-bar"></i> Reports
                         </a>
                         <ul class="submenu">
-                            <li><a href="/products/reports">Daily Summary</a></li>
-                            <li><a href="/sales/reports">Sales Reports</a></li>
-                            <li><a href="/purchases/reports">Purchase Reports</a></li>
-                            <li><a href="/profits/reports">Profit Reports</a></li>
-                            <li><a href="/ledgers/reports">Stock & Financial Ledger</a></li>
+                            <li><a href="/sales/reports">Sales Report</a></li>
+                            <li><a href="/purchases/reports">Purchase Report</a></li>
+                            <li><a href="/purchases/reports">Payments Report</a></li>
+                            <li><a href="/ledgers/reports">Main Ledger</a></li>
                         </ul>
                     </li>
                     <!-- Employees -->
@@ -97,7 +107,8 @@
                             <i class="fas fa-user-cog"></i> Employees
                         </a>
                         <ul class="submenu">
-                            <li><a href="/users">Users Management</a></li>
+                            <li><a href="/users">Staffs Management</a></li>
+                            <li><a href="/users">Users Accounts</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -121,7 +132,7 @@
                             <ul id="low-stock-list"></ul>
                         </div>
                     </div>
-                </div>                            
+                </div>
                 <div class="svg">
                     <i class="fas fa-navicon" id="sidebar-toggle"></i>
                 </div>
@@ -132,7 +143,7 @@
                     <li class="bell-icon">
                         <a href="#"><i class="fas fa-bell"></i></a>
                         <span class="spinner-dot" style="display: none;"></span>
-                    </li>                    
+                    </li>
                     <button id="theme-toggle" class="theme-toggle">
                         <i id="theme-icon" class="fas fa-moon"></i>
                     </button>
@@ -147,7 +158,7 @@
         </div>
     </div>
     <script th:src="@{/js/script.js}"></script>
-    
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const themeToggle = document.getElementById("theme-toggle");
@@ -199,7 +210,7 @@
                 overlay.style.display = "none";
             });
         });
-        
+
         document.addEventListener("DOMContentLoaded", function () {
             const lowStockList = document.getElementById("low-stock-list");
             const spinnerDot = document.querySelector(".spinner-dot"); // Use the existing spinner-dot
@@ -228,7 +239,7 @@
                                 productLink.style.color = "white";
                                 productLink.className = "lowstock-link";
                                 productLink.style.textDecoration = "none"; // Optional: Remove underline
-                                
+
                                 listItem.appendChild(productLink);
                                 lowStockList.appendChild(listItem);
                             });
@@ -247,40 +258,41 @@
         });
 
         document.addEventListener("DOMContentLoaded", function () {
-        // Function to set the active navigation item
-        function setActiveNav() {
-            // Get the current URL path
-            const currentPath = window.location.pathname;
+            // Function to set the active navigation item
+            function setActiveNav() {
+                // Get the current URL path
+                const currentPath = window.location.pathname;
 
-            // Select all navigation links
-            const navLinks = document.querySelectorAll(".nav-main a");
+                // Select all navigation links
+                const navLinks = document.querySelectorAll(".nav-main a");
 
-            // Loop through all navigation links
-            navLinks.forEach(link => {
-                // Get the href attribute of the link
-                const linkPath = link.getAttribute("href");
+                // Loop through all navigation links
+                navLinks.forEach(link => {
+                    // Get the href attribute of the link
+                    const linkPath = link.getAttribute("href");
 
-                // Check if the link's href matches the current path
-                if (currentPath === linkPath) {
-                    // Add the 'active' class to the matching link
-                    link.classList.add("active");
+                    // Check if the link's href matches the current path
+                    if (currentPath === linkPath) {
+                        // Add the 'active' class to the matching link
+                        link.classList.add("active");
 
-                    // If the link is inside a submenu, also highlight its parent
-                    const parentLi = link.closest("li.nav-item");
-                    if (parentLi) {
-                        parentLi.classList.add("active");
+                        // If the link is inside a submenu, also highlight its parent
+                        const parentLi = link.closest("li.nav-item");
+                        if (parentLi) {
+                            parentLi.classList.add("active");
+                        }
+                    } else {
+                        // Remove the 'active' class from non-matching links
+                        link.classList.remove("active");
                     }
-                } else {
-                    // Remove the 'active' class from non-matching links
-                    link.classList.remove("active");
-                }
-            });
-        }
+                });
+            }
 
-        // Call the function to set the active navigation item
-        setActiveNav();
-    });
+            // Call the function to set the active navigation item
+            setActiveNav();
+        });
 
-    </script>    
+    </script>
 </body>
+
 </html>

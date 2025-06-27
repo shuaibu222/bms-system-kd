@@ -112,7 +112,7 @@ public class MainLedgerService {
 
         // Staff loans total
         double staffLoans = loanRepo.findAll().stream()
-                .filter(l -> !l.getLoanDate().isAfter(date))
+                .filter(l -> !l.getDate().isAfter(date))
                 .mapToDouble(l -> l.getAmount() - (l.getAmountRepaid() != null ? l.getAmountRepaid() : 0))
                 .sum();
 
@@ -183,7 +183,7 @@ public class MainLedgerService {
                 .sum();
 
         double staffLoans = loanRepo.findAll().stream()
-                .filter(l -> !l.getLoanDate().isAfter(endDate))
+                .filter(l -> !l.getDate().isAfter(endDate))
                 .mapToDouble(l -> l.getAmount()
                         - (l.getAmountRepaid() != null ? l.getAmountRepaid() : 0))
                 .sum();

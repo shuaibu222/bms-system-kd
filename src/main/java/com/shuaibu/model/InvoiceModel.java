@@ -6,6 +6,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,12 +27,23 @@ public class InvoiceModel {
     private String invNum;
     private Long quotationId;
     private Double totalAmount;
-    private Double cashPaid;
-    private Double cardPaid;
-    private Double otherPaid;
-    private Double totalPaid; // Computed field
-    private Double balanceDue; // Remaining balance
+    private Double invoiceValue;
+    private Double balanceDue;
     private String paymentStatus;
     private String paymentMethod;
     private LocalDate invoiceDateTime;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+        updatedAt = createdAt;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

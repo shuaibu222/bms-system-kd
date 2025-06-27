@@ -14,7 +14,7 @@ public class PurchaseReturnMapper {
                 .storeName(purchaseReturnModel.getStoreName())
                 .totalAmount(purchaseReturnModel.getTotalAmount())
                 .reason(purchaseReturnModel.getReason())
-                .pReturnDateTime(purchaseReturnModel.getPReturnDateTime())
+                .date(purchaseReturnModel.getDate())
                 .build();
     }
 
@@ -27,7 +27,7 @@ public class PurchaseReturnMapper {
                 .storeName(purchaseReturnDto.getStoreName())
                 .totalAmount(purchaseReturnDto.getTotalAmount())
                 .reason(purchaseReturnDto.getReason())
-                .pReturnDateTime(purchaseReturnDto.getPReturnDateTime())
+                .date(purchaseReturnDto.getDate())
                 .build();
     }
 }

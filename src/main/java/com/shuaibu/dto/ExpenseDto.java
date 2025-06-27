@@ -20,6 +20,5 @@ public class ExpenseDto {
     @NotNull(message = "* Amount is required")
     private BigDecimal amount;
 
-    @NotNull(message = "* Date is required")
     private LocalDate date;
 }

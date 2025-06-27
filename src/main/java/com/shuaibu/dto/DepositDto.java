@@ -23,4 +23,5 @@ public class DepositDto {
 
     @NotNull(message = "* Deposit date is required")
     private LocalDate depositDate;
+
 }

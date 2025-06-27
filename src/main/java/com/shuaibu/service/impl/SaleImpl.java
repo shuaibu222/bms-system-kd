@@ -1,12 +1,10 @@
 package com.shuaibu.service.impl;
 
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import com.shuaibu.dto.SaleDto;
 import com.shuaibu.dto.SaleItemDto;
-import com.shuaibu.model.InvoiceModel;
 import com.shuaibu.model.ProductModel;
 import com.shuaibu.model.SaleItemModel;
 import com.shuaibu.model.SaleModel;
@@ -15,15 +13,11 @@ import com.shuaibu.repository.ProductRepository;
 import com.shuaibu.repository.SaleRepository;
 import com.shuaibu.service.SaleService;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.OptionalDouble;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -34,15 +28,11 @@ public class SaleImpl implements SaleService {
 
     private final SaleRepository saleRepository;
     private final ProductRepository productRepository;
-    private final JavaMailSender javaMailSender;
-    private final InvoiceRepository invoiceRepository;
 
     public SaleImpl(SaleRepository saleRepository, ProductRepository productRepository,
             JavaMailSender javaMailSender, InvoiceRepository invoiceRepository) {
         this.saleRepository = saleRepository;
         this.productRepository = productRepository;
-        this.javaMailSender = javaMailSender;
-        this.invoiceRepository = invoiceRepository;
     }
 
     @Override
@@ -58,7 +48,7 @@ public class SaleImpl implements SaleService {
                         .id(sale.getId())
                         .customerName(sale.getCustomerName())
                         .totalAmount(sale.getTotalAmount())
-                        .paymentMethod(sale.getPaymentMethod())
+                        .phone(sale.getPhone())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -74,7 +64,7 @@ public class SaleImpl implements SaleService {
                 .qtnNum(generateQuotationNumber())
                 .customerName(saleDto.getCustomerName())
                 .totalAmount(saleDto.getTotalAmount())
-                .paymentMethod(saleDto.getPaymentMethod())
+                .phone(saleDto.getPhone())
                 .saleDateTime(saleDto.getSaleDateTime())
                 .build();
 
@@ -133,7 +123,7 @@ public class SaleImpl implements SaleService {
                 .qtnNum(latestSale.getQtnNum())
                 .customerName(latestSale.getCustomerName())
                 .totalAmount(latestSale.getTotalAmount())
-                .paymentMethod(latestSale.getPaymentMethod())
+                .phone(latestSale.getPhone())
                 .saleDateTime(latestSale.getSaleDateTime())
                 .items(latestSale.getItems().stream().map(item -> SaleItemDto.builder()
                         .id(item.getId())

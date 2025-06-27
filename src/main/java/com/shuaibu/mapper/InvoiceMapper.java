@@ -11,10 +11,7 @@ public class InvoiceMapper {
                 .invNum(invoiceModel.getInvNum())
                 .quotationId(invoiceModel.getQuotationId())
                 .totalAmount(invoiceModel.getTotalAmount())
-                .cashPaid(invoiceModel.getCashPaid())
-                .cardPaid(invoiceModel.getCardPaid())
-                .otherPaid(invoiceModel.getOtherPaid())
-                .totalPaid(invoiceModel.getTotalPaid())
+                .invoiceValue(invoiceModel.getInvoiceValue())
                 .balanceDue(invoiceModel.getBalanceDue())
                 .paymentStatus(invoiceModel.getPaymentStatus())
                 .paymentMethod(invoiceModel.getPaymentMethod())
@@ -22,17 +19,14 @@ public class InvoiceMapper {
                 .build();
     }
 
-    public static InvoiceModel mapToModel(InvoiceDto invoiceDto) {        
+    public static InvoiceModel mapToModel(InvoiceDto invoiceDto) {
 
         return InvoiceModel.builder()
                 .id(invoiceDto.getId())
                 .invNum(invoiceDto.getInvNum())
                 .quotationId(invoiceDto.getQuotationId())
                 .totalAmount(invoiceDto.getTotalAmount())
-                .cashPaid(invoiceDto.getCashPaid())
-                .cardPaid(invoiceDto.getCardPaid())
-                .otherPaid(invoiceDto.getOtherPaid())
-                .totalPaid(invoiceDto.getTotalPaid())
+                .invoiceValue(invoiceDto.getInvoiceValue())
                 .balanceDue(invoiceDto.getBalanceDue())
                 .paymentStatus(invoiceDto.getPaymentStatus())
                 .paymentMethod(invoiceDto.getPaymentMethod())

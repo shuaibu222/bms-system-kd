@@ -14,15 +14,11 @@ public class SaleDto {
     private Long id;
 
     private String qtnNum;
-    
-    @NotEmpty(message = "* Customer name is mandatory")
     private String customerName;
+    private Integer phone;
 
     @NotNull(message = "* Total amount is mandatory")
     private Double totalAmount;
-
-    @NotEmpty(message = "* Payment method is mandatory")
-    private String paymentMethod;
 
     @NotNull(message = "* Sales date is mandatory")
     private LocalDate saleDateTime;
@@ -31,4 +27,5 @@ public class SaleDto {
 
     @NotEmpty(message = "* Sale items are mandatory")
     private List<SaleItemDto> items;
+
 }

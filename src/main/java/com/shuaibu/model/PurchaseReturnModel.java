@@ -1,11 +1,13 @@
 package com.shuaibu.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,5 +30,12 @@ public class PurchaseReturnModel {
     private String storeName;
     private Double totalAmount;
     private String reason; // e.g., Defective, Wrong Item
-    private LocalDateTime pReturnDateTime;
+    private LocalDate date;
+
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+    }
 }
