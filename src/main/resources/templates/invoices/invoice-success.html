@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+
+<head>
+    <title>Invoice Success</title>
+    <script>
+        function printReceipt() {
+            fetch("/invoices/latest")
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Invoice details:", data);
+                    const printWindow = window.open("", "_blank");
+                    printWindow.document.write(`
+                        <html>
+                        <head>
+                            <title>Receipt</title>
+                            <style>
+                                @media print {
+                                    @page {
+                                        margin: 0;
+                                        size: auto;
+                                    }
+                                    body {
+                                        margin: 0;
+                                        padding: 0;
+                                    }
+                                    * {
+                                        margin: 0;
+                                        padding: 0;
+                                        box-sizing: border-box;
+                                    }
+                                    body {
+                                        font-family: 'Roboto', sans-serif;
+                                        font-size: 12px !important;
+                                        width: 70mm;
+                                        margin: 0 auto;
+                                        padding: 10px;
+                                        background: #fff;
+                                        color: #333;
+                                    }
+                                    .receipt-container {
+                                        display: flex;
+                                        flex-direction: column;
+                                        align-items: center;
+                                        border: 1px solid #ddd;
+                                        padding: 10px;
+                                        background: #fff;
+                                        border-radius: 8px;
+                                    }
+                                    .store-name {
+                                        font-size: 16px;
+                                        font-weight: bold;
+                                        text-transform: uppercase;
+                                        margin-bottom: 10px;
+                                        color: #333;
+                                    }
+                                    .store-address {
+                                        font-size: 0.7rem;
+                                        margin-bottom: 10px;
+                                        color: #333;
+                                        text-align: center;
+                                    }
+                                    .divider {
+                                        border-top: 1px solid #ddd;
+                                        margin: 10px 0;
+                                        width: 100%;
+                                    }
+                                    .receipt-header {
+                                        width: 100%;
+                                        font-size: 12px;
+                                        margin-bottom: 10px;
+                                        text-align: left;
+                                    }
+                                    .quotation-title {
+                                        font-size: 0.8rem;
+                                        font-weight: bold;
+                                        text-align: center;
+                                        margin-bottom: 0.5rem;
+                                    }
+                                    .header-row {
+                                        display: flex;
+                                        justify-content: space-between;
+                                        width: 100%;
+                                        margin-bottom: 5px;
+                                    }
+                                    .header-row span {
+                                        font-family: 'Roboto', sans-serif;
+                                        color: #555;
+                                    }
+                                    table {
+                                        width: 100%;
+                                        font-size: 10px;
+                                        border-collapse: collapse;
+                                        text-align: left;
+                                        margin-top: 10px;
+                                        background: #fff;
+                                        border: 1px solid #ddd;
+                                    }
+                                    th, td {
+                                        padding: 0.3rem;
+                                        border: 1px solid #ddd;
+                                    }
+                                    th {
+                                        font-weight: bold;
+                                        text-transform: uppercase;
+                                        text-align: left;
+                                        color: #333;
+                                        background: #f9f9f9;
+                                    }
+                                    td {
+                                        color: #555;
+                                    }
+                                    .price, .total {
+                                        text-align: right;
+                                    }
+                                    .total-container {
+                                        display: flex;
+                                        justify-content: space-between;
+                                        font-weight: bold;
+                                        margin-top: 15px;
+                                        font-size: 14px;
+                                        color: #333;
+                                        padding: 10px;
+                                        border: 1px solid #ddd;
+                                        background: #f9f9f9;
+                                        border-radius: 4px;
+                                    }
+                                    .footer {
+                                        font-size: 10px;
+                                        margin-top: 15px;
+                                        text-align: center;
+                                        color: #777;
+                                        font-style: italic;
+                                    }
+                                }
+                            </style>
+                        </head>
+                        <body onload="window.print(); setTimeout(() => window.close(), 500);">
+                            <div class="receipt-container">
+                                <div class="store-name">MY STORE</div>
+                                <div class="divider"></div>
+                                <div class="store-address">Garawa, Tsamiya Babba, Gezawa LGA, Kano, Kano State.</div>
+                                <div class="divider"></div>
+
+                                <div class="receipt-header">
+                                    <div class="quotation-title">Invoice Receipt</div>
+                                    <div class="header-row"><span>Invoice No.:</span> <span>${data.invNum}</span></div>
+                                    <div class="header-row"><span>Amount Paid:</span> <span>₦${data.totalAmount.toLocaleString()}</span></div>
+                                    <div class="header-row">
+                                        <span>Due Balance:</span>
+                                        <span>
+                                            ${(data.balanceDue) < 0 ? '-' : ''}₦${Math.abs(data.balanceDue).toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <div class="header-row"><span>Payment Status:</span> <span>${data.paymentStatus}</span></div>
+                                    <div class="header-row"><span>Payment Method:</span> <span>${data.paymentMethod}</span></div>
+                                    <div class="header-row"><span>Date:</span> <span>${data.invoiceDateTime}</span></div>
+                                    <div class="header-row"><span>Cashier:</span> <span>${data.cashierAgent}</span></div>
+                                </div>
+                                <div class="divider"></div>
+
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Qty</th>
+                                            <th>Unit Price</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${data.saleDto.items.map(item => `
+                                            <tr>
+                                                <td>${item.productName}</td>
+                                                <td>${item.quantity}</td>
+                                                <td class="price">₦${item.price.toLocaleString()}</td>
+                                                <td class="total">₦${(item.quantity * item.price).toLocaleString()}</td>
+                                            </tr>
+                                        `).join("")}
+                                    </tbody>
+                                </table>
+
+                                <div class="divider"></div>
+                                <div class="total-container">
+                                    <span>Total:</span> <span>₦${data.totalAmount.toLocaleString()}</span>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <p class="footer">Thank you for shopping with us!</p>
+                            </div>
+                        </body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                })
+                .catch(error => console.error("Error fetching invoice details:", error));
+        }
+
+        function sendEmail() {
+            const email = document.getElementById("customerEmail").value;
+            const sendButton = document.querySelector(".send-email");
+
+            if (!email) {
+                alert("Enter customer email.");
+                return;
+            }
+
+            sendButton.classList.add("sending");
+            sendButton.innerHTML = "Sending...";
+
+            fetch(`/invoices/send-email?email=${encodeURIComponent(email)}`)
+                .then(response => {
+                    if (response.ok) {
+                        setTimeout(() => {
+                            sendButton.classList.remove("sending");
+                            sendButton.classList.add("success");
+                            sendButton.innerHTML = '<i class="fa-solid fa-check"></i> Email Sent!';
+                        }, 1500);
+                    } else {
+                        alert("Failed to send email.");
+                        sendButton.classList.remove("sending");
+                        sendButton.innerHTML = '<i class="fa-solid fa-envelope"></i> Send Email';
+                    }
+                })
+                .catch(() => {
+                    alert("Error sending email.");
+                    sendButton.classList.remove("sending");
+                    sendButton.innerHTML = '<i class="fa-solid fa-envelope"></i> Send Email';
+                });
+        }
+    </script>
+</head>
+<body>
+    <section layout:fragment="body">
+        <div class="success-container">
+            <i class="fa-regular fa-circle-check success-icon"></i>
+            <h1 class="success-message">Invoice Created Successfully!</h1>
+            <p class="success-subtext">You can print the receipt or send it via email.</p>
+
+            <div class="button-group">
+                <button class="button send-email-btn" onclick="printReceipt()">
+                    <i class="fa-solid fa-print"></i> Print
+                </button>
+                <a class="button send-email-btn" href="/invoices" style="text-decoration: none; color: white;">
+                    <i class="fa-solid fa-arrow-left"></i> Back
+                </a>
+            </div>
+
+            <div class="email-section">
+                <label for="customerEmail">Customer Email:</label>
+                <input type="email" id="customerEmail" placeholder="Enter customer email">
+            </div>
+
+            <div class="button-group">
+                <button class="button send-email" onclick="sendEmail()">
+                    <i class="fa-solid fa-envelope"></i> Send Email
+                </button>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

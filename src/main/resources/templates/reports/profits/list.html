@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Profit Report</title>
+    <script>
+        // Reuse the existing JavaScript functions for sending email and printing
+        function sendProfitReportByEmail() {
+            const email = document.getElementById('emailAddress').value;
+            const startDate = document.getElementById('reportStartDate').innerText.trim();
+            const endDate = document.getElementById('reportEndDate').innerText.trim();
+            const sendButton = document.querySelector(".send-btn");
+
+            if (!email || !startDate || !endDate) {
+                alert('Please enter an email and ensure the report has a valid date range.');
+                return;
+            }
+
+            // Show sending state
+            sendButton.classList.add("sending");
+            sendButton.innerHTML = "Sending...";
+
+            fetch(`/profits/send-report?email=${encodeURIComponent(email)}&startDate=${startDate}&endDate=${endDate}`, {
+                method: 'GET',
+            })
+            .then(response => {
+                if (response.ok) {
+                    setTimeout(() => {
+                        sendButton.classList.remove("sending");
+                        sendButton.classList.add("success");
+                        sendButton.style.backgroundColor = "#4CAF50";
+                        sendButton.innerHTML = '<i class="fa-solid fa-check"></i> Email Sent!';
+                    }, 1500); // Simulated delay for a smooth transition
+                } else {
+                    alert('Failed to send report.');
+                    sendButton.classList.remove("sending");
+                    sendButton.innerHTML = '<i class="fa-solid fa-envelope"></i> Send Report';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while sending the report.');
+                sendButton.classList.remove("sending");
+                sendButton.innerHTML = '<i class="fa-solid fa-envelope"></i> Send Report';
+            });
+        }
+
+        function fetchProfitReport() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (!startDate || !endDate) {
+                alert('Please select a start and end date.');
+                return;
+            }
+
+            fetch(`/profits/reports/${startDate}/${endDate}`)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, "text/html");
+                    const newReportContent = doc.querySelector(".report-container"); // Extract only report section
+
+                    if (newReportContent) {
+                        document.querySelector(".report-container").innerHTML = newReportContent.innerHTML;
+                    } else {
+                        console.error("Report container not found in response.");
+                        alert("Failed to load report content.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching profit report:", error);
+                    alert("Failed to fetch profit report.");
+                });
+        }
+
+        function printReport() {
+            window.print();
+        }
+    </script>
+</head>
+<body>
+    <section class="report-container" layout:fragment="body">
+        <div class="report-header">
+            <h1>📊 Profit Report</h1>
+            <p><strong>From:</strong> <span id="reportStartDate" th:text="${startDate}"></span> 
+                &nbsp; <strong>To:</strong> <span id="reportEndDate" th:text="${endDate}"></span></p>
+        </div>        
+
+        <!-- Date Range Filter -->
+        <form class="filter-form" onsubmit="event.preventDefault(); fetchProfitReport();">
+            <input type="date" id="startDate" name="startDate" required />
+            <input type="date" id="endDate" name="endDate" required />
+            <button type="submit">Fetch Reports</button>
+        </form>
+
+        <!-- Key Metrics -->
+        <table border="1" class="profit-table">
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Amount (₦)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Total Sales</td>
+                    <td th:text="${totalSales}"></td>
+                </tr>
+                <tr>
+                    <td>Cost of Goods Sold</td>
+                    <td th:text="${costOfGoodsSold}"></td>
+                </tr>
+                <tr>
+                    <td>Gross Profit</td>
+                    <td th:text="${grossProfit}"></td>
+                </tr>
+                <tr>
+                    <td>Operating Expenses</td>
+                    <td th:text="${operatingExpenses}"></td>
+                </tr>
+                <tr>
+                    <td>Net Profit</td>
+                    <td th:text="${netProfit}"></td>
+                </tr>
+                <tr>
+                    <td>Other Income</td>
+                    <td th:text="${otherIncome}"></td>
+                </tr>
+                <tr>
+                    <td>Other Expenses</td>
+                    <td th:text="${otherExpenses}"></td>
+                </tr>
+                <tr>
+                    <td><strong>Total Profit</strong></td>
+                    <td><strong th:text="${totalProfit}"></strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Print Button -->
+        <div class="report-actions">
+            <button class="btn print-btn" onclick="printReport()">
+                <span>🖨️ Print Report</span>
+            </button>
+            
+            <form class="email-form" onsubmit="event.preventDefault(); sendProfitReportByEmail();">
+                <div class="email-input-group">
+                    <input type="email" id="emailAddress" placeholder="Recipient email" required />
+                    <button type="submit" class="btn send-btn">
+                        <span>📩 Send Report</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+
+<head>
+    <title>Sale Success</title>
+    <script>
+
+        function sendEmail() {
+            const email = document.getElementById("customerEmail").value;
+            const sendButton = document.querySelector(".send-email");
+
+            if (!email) {
+                alert("Enter customer email.");
+                return;
+            }
+
+            // Show spinner and disable button
+            sendButton.classList.add("sending");
+            sendButton.innerHTML = "Sending...";
+
+            fetch(`/sales/send-email?email=${encodeURIComponent(email)}`)
+                .then(response => {
+                    if (response.ok) {
+                        // Show success state
+                        setTimeout(() => {
+                            sendButton.classList.remove("sending");
+                            sendButton.classList.add("success");
+                            sendButton.innerHTML = '<i class="fa-solid fa-check"></i> Email Sent!';
+                        }, 1500); // Simulated delay for a smoother transition
+                    } else {
+                        alert("Failed to send email.");
+                        sendButton.classList.remove("sending");
+                        sendButton.innerHTML = '<i class="fa-solid fa-envelope"></i> Send Email';
+                    }
+                })
+                .catch(() => {
+                    alert("Error sending email.");
+                    sendButton.classList.remove("sending");
+                    sendButton.innerHTML = '<i class="fa-solid fa-envelope"></i> Send Email';
+                });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("/sales/latest")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.qtnNum) {
+                        document.getElementById("continuePaymentBtn").href = `/invoices/search?qtnNum=${encodeURIComponent(data.qtnNum)}`;
+                    } else {
+                        console.error("Quotation number not found in response.");
+                    }
+                })
+                .catch(error => console.error("Error fetching sale details:", error));
+        });
+
+        function printReceipt() {
+            fetch("/sales/latest")
+                .then(response => response.json())
+                .then(data => {
+                    const printWindow = window.open("", "_blank");
+                    printWindow.document.write(`
+                        <html>
+                        <head>
+                            <title>Receipt</title>
+                            <style>
+                                @media print {
+                                    /* Remove headers and footers */
+                                    @page {
+                                        margin: 0;
+                                        size: auto;
+                                    }
+                                    body {
+                                        margin: 0;
+                                        padding: 0;
+                                    }
+
+                                    /* Reset Styles */
+                                    * {
+                                        margin: 0;
+                                        padding: 0;
+                                        box-sizing: border-box;
+                                    }
+
+                                    /* Set Print Page to 58mm Width */
+                                    body {
+                                        font-family: 'Roboto', sans-serif; /* Friendly and modern font */
+                                        font-size: 12px !important; /* Slightly larger font for readability */
+                                        width: 70mm;
+                                        margin: 0 auto;
+                                        padding: 10px;
+                                        background: #fff;
+                                        color: #333;
+                                    }
+
+                                    /* Receipt Container */
+                                    .receipt-container {
+                                        display: flex;
+                                        flex-direction: column;
+                                        align-items: center;
+                                        border: 1px solid #ddd; /* Lighter border */
+                                        padding: 10px;
+                                        background: #fff;
+                                        border-radius: 8px; /* Rounded corners */
+                                    }
+
+                                    /* Store Name */
+                                    .store-name {
+                                        font-size: 16px;
+                                        font-weight: bold;
+                                        text-transform: uppercase;
+                                        margin-bottom: 10px;
+                                        color: #333;
+                                    }
+                                    .store-address {
+                                        font-size: 0.7rem;
+                                        margin-bottom: 10px;
+                                        color: #333;
+                                        text-align: center;
+                                    }
+
+                                    /* Divider */
+                                    .divider {
+                                        border-top: 1px solid #ddd; /* Lighter divider */
+                                        margin: 10px 0;
+                                        width: 100%;
+                                    }
+
+                                    /* Header Section */
+                                    .receipt-header {
+                                        width: 100%;
+                                        font-size: 12px;
+                                        margin-bottom: 10px;
+                                        text-align: left;
+                                    }
+                                    .quotation-title {
+                                        font-size: 0.8rem;
+                                        font-weight: bold;
+                                        text-align: center;
+                                        margin-bottom: 0.5rem;
+                                    }
+                                    .header-row {
+                                        display: flex;
+                                        justify-content: space-between;
+                                        width: 100%;
+                                        margin-bottom: 5px;
+                                    }
+                                    .header-row span {
+                                        font-family: 'Roboto', sans-serif;
+                                        color: #555;
+                                    }
+
+                                    /* Items Table */
+                                    table {
+                                        width: 100%;
+                                        font-size: 10px;
+                                        border-collapse: collapse;
+                                        text-align: left;
+                                        margin-top: 10px;
+                                        background: #fff;
+                                        border: 1px solid #ddd; /* Lighter border */
+                                    }
+                                    th, td {
+                                        padding: 0.3rem;
+                                        border: 1px solid #ddd; /* Lighter border */
+                                    }
+                                    th {
+                                        font-weight: bold;
+                                        text-transform: uppercase;
+                                        text-align: left;
+                                        color: #333;
+                                        background: #f9f9f9; /* Lighter background */
+                                    }
+                                    td {
+                                        color: #555;
+                                    }
+                                    .price, .total {
+                                        text-align: right;
+                                    }
+
+                                    /* Total Section */
+                                    .total-container {
+                                        display: flex;
+                                        justify-content: space-between;
+                                        font-weight: bold;
+                                        margin-top: 15px;
+                                        font-size: 14px;
+                                        color: #333;
+                                        padding: 10px;
+                                        border: 1px solid #ddd; /* Lighter border */
+                                        background: #f9f9f9; /* Lighter background */
+                                        border-radius: 4px; /* Rounded corners */
+                                    }
+
+                                    /* Footer */
+                                    .footer {
+                                        font-size: 10px;
+                                        margin-top: 15px;
+                                        text-align: center;
+                                        color: #777;
+                                        font-style: italic;
+                                    }
+                                }
+                            </style>
+                        </head>
+                        <body onload="window.print(); setTimeout(() => window.close(), 500);">
+                            <div class="receipt-container">
+                                <div class="store-name">MY STORE</div>
+                                <div class="divider"></div>
+                                <div class="store-address">Garawa, Tsamiya Babba, Gezawa LGA, Kano, Kano State.</div>
+                                <div class="divider"></div>
+
+                                <div class="receipt-header">
+                                    <div class="quotation-title">Quotation Reciept</div>
+                                    <div class="header-row"><span>Quotation No.:</span> <span>${data.qtnNum}</span></div>
+                                    <div class="header-row"><span>Customer:</span> <span>${data.customerName}</span></div>
+                                    <div class="header-row"><span>Date:</span> <span>${data.saleDateTime}</span></div>
+                                    <div class="header-row"><span>Sales Agent:</span> <span>${data.salesAgent}</span></div>
+                                </div>
+                                <div class="divider"></div>
+
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Qty</th>
+                                            <th>Unit Price</th>
+                                            <th class="price">Total Price</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${data.items.map(item => `
+                                            <tr>
+                                                <td>${item.productName}</td>
+                                                <td>${item.quantity}</td>
+                                                <td class="price">₦${item.price.toLocaleString()}</td>
+                                                <td class="total">₦${(item.quantity * item.price).toLocaleString()}</td>
+                                            </tr>
+                                        `).join("")}
+                                    </tbody>
+                                </table>
+
+                                <div class="divider"></div>
+                                <div class="total-container">
+                                    <span>Total:</span> <span>₦${data.totalAmount.toLocaleString()}</span>
+                                </div>
+                                <div class="divider"></div>
+
+                                <p class="footer">Thank you for shopping with us!</p>
+                            </div>
+                        </body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                })
+                .catch(error => console.error("Error fetching sale details:", error));
+        }
+    </script>
+</head>
+<body>
+    <section layout:fragment="body">
+        <div class="success-container">
+            <i class="fa-regular fa-circle-check success-icon"></i> <!-- Font Awesome Success Icon -->
+            <h1 class="success-message">Quotation Generated Successfully!</h1>
+            <p class="success-subtext">You can print the receipt or send it via email.</p>
+
+            <!-- Sale Details Section -->
+            <div id="saleDetails"></div>
+
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button class="button send-email-btn" onclick="printReceipt()">
+                    <i class="fa-solid fa-print"></i> Print
+                </button>
+                <a class="button send-email-btn" href="/sales" style="text-decoration: none; color: white;">
+                    <i class="fa-solid fa-arrow-left"></i> Back
+                </a>
+            </div>
+            <div class="button-group" sec:authorize="hasRole('ADMIN') or hasRole('CASHIER')">
+                <a class="button send-email-btn" id="continuePaymentBtn" style="text-decoration: none; color: white;">
+                    <i class="fa-solid fa-credit-card"></i> Continue to Payment
+                </a>
+            </div>
+
+            <!-- Email Input Section -->
+            <div class="email-section">
+                <label for="customerEmail">Customer Email:</label>
+                <input type="email" id="customerEmail" placeholder="Enter customer email">
+            </div>
+
+            <!-- http://localhost:8080/invoices/search?qtnNum=QTN-475987 -->
+
+            <!-- Send Email Button -->
+            <div class="button-group">
+                <button class="button send-email" onclick="sendEmail()">
+                    <i class="fa-solid fa-envelope"></i> Send Email
+                </button>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

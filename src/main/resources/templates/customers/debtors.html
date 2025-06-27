@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+    <title>Debtors</title>
+    <script>
+        // Search Functionality
+        function searchCustomers() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.table-container tbody tr');
+
+            rows.forEach(row => {
+                const name = row.cells[1].textContent.toLowerCase();
+                const phone = row.cells[2].textContent.toLowerCase();
+                const email = row.cells[3].textContent.toLowerCase();
+
+                if (name.includes(input) || phone.includes(input) || email.includes(input)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <section layout:fragment="body">
+        <article class="list-page">
+            <div class="list-header">
+                <h1>Debtors</h1>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input aria-label="search customer" type="text" id="searchInput" placeholder="🔍 Search Customers..." onkeyup="searchCustomers()">
+            </div>
+
+            <!-- Table Section -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>S/N</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Balance</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="customer : ${customers}">
+                        <td th:text="${customer.id}"></td>
+                        <td th:text="${customer.name}"></td>
+                        <td th:text="${customer.phone}"></td>
+                        <td>₦<span th:text="${#numbers.formatDecimal(customer.balance, 1, 'COMMA', 2, 'POINT')}"></span></td>
+                        <td>
+                            <a class="dynamic-link" th:href="@{'/customers/deposits/' + ${customer.id}}">
+                                Deposit
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tr class="total-row">
+                        <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                        <td th:text="'₦' + ${#numbers.formatDecimal(totalDebt, 0, 'COMMA', 2, 'POINT')}" class="total-amount"></td>
+                    </tr>
+                </table>
+            </div>
+        </article>
+    </section>
+</body>
+</html>

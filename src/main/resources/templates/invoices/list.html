@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+    <title>Invoice Management</title>
+    <style>
+        /* Add your CSS here */
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .search-container input {
+            width: 300px;
+            padding: 10px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .search-container button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        // Search Functionality for Quotations
+        function searchQuotation() {
+            const qtnNum = document.getElementById('qtnNum').value;
+            if (qtnNum) {
+                window.location.href = '/invoices/search?qtnNum=' + qtnNum;
+            }
+        }
+    </script>
+</head>
+<body>
+    <section layout:fragment="body">
+        <article class="list-page">
+            <div class="list-header">
+                <h1>📄 Invoice Management</h1>
+            </div>
+
+            <!-- Search Bar for Quotations -->
+            <div class="search-container">
+                <input type="text" id="qtnNum" placeholder="🔍 Search Quotation by Number..." />
+                <button onclick="searchQuotation()">Search</button>
+            </div>
+
+            <!-- Invoice Form -->
+            <div th:if="${quotation != null}" class="invoice-form">
+                <h2>Create Invoice</h2>
+                <form th:action="@{/invoices}" method="post" th:object="${invoice}">
+                    <input type="hidden" name="quotationId" th:value="${quotation.id}" />
+                    <input type="hidden" name="totalAmount" th:value="${quotation.totalAmount}" />
+                    <section>
+                        <div class="form-group">
+                            <label for="cashPaid">Cash Paid:</label>
+                            <input type="number" id="cashPaid" th:field="*{cashPaid}" step="0.01" />
+                        </div>
+                        <div class="form-group">
+                            <label for="cardPaid">Card Paid:</label>
+                            <input type="number" id="cardPaid" th:field="*{cardPaid}" step="0.01" />
+                        </div>
+                        <div class="form-group">
+                            <label for="otherPaid">Other Paid:</label>
+                            <input type="number" id="otherPaid" th:field="*{otherPaid}" step="0.01" />
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentStatus">Payment Status:</label>
+                            <select id="paymentStatus" th:field="*{paymentStatus}">
+                                <option value="Paid">Paid</option>
+                                <option value="Unpaid">Unpaid</option>
+                                <option value="Partial">Partial</option>
+                                <option value="Credit">Credit</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentMethod">Payment Method:</label>
+                            <select id="paymentMethod" th:field="*{paymentMethod}">
+                                <option value="Card">Card</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Hybrid">Hybrid</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="invoiceDateTime">Invoice Date:</label>
+                            <input type="date" id="invoiceDateTime" th:field="*{invoiceDateTime}" required />
+                        </div>
+                    </section>
+                    <button type="submit">Create Invoice</button>
+                </form>
+            </div>
+
+            <!-- Display Quotation Details -->
+            <div th:if="${quotation != null}" class="quotation-details">
+                <div class="receipt-container">
+                    <div class="store-name">MY STORE</div>
+                    <div class="divider"></div>
+                    <div class="store-address">Garawa, Tsamiya Babba, Gezawa LGA, Kano, Kano State.</div>
+                    <div class="divider"></div>
+
+                    <div class="receipt-header">
+                        <div class="quotation-title">Quotation Receipt</div>
+                        <div class="header-row"><span>Quotation No.:</span> <span th:text="${quotation.qtnNum}"></span></div>
+                        <div class="header-row"><span>Customer:</span> <span th:text="${quotation.customerName}"></span></div>
+                        <div class="header-row"><span>Date:</span> <span th:text="${#temporals.format(quotation.saleDateTime, 'yyyy-MM-dd')}"></span></div>
+                        <div class="header-row"><span>Sales Agent:</span> <span th:text="${quotation.salesAgent}"></span></div>
+                    </div>
+                    <div class="divider"></div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Store</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item : ${items}">
+                                <td th:text="${item.productName}"></td>
+                                <td th:text="${item.store}"></td>
+                                <td th:text="${item.quantity}"></td>
+                                <td th:text="'₦' + ${#numbers.formatDecimal(item.price, 0, 'COMMA', 2, 'POINT')}"></td>
+                                <td th:text="'₦' + ${#numbers.formatDecimal(item.price * item.quantity, 0, 'COMMA', 2, 'POINT')}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="divider"></div>
+                    <div class="total-container">
+                        <span>Total:</span> <span th:text="'₦' + ${#numbers.formatDecimal(quotation.totalAmount, 0, 'COMMA', 2, 'POINT')}"></span>
+                    </div>
+                    <div class="divider"></div>
+
+                    <p class="footer">Thank you for shopping with us!</p>
+                </div>
+            </div>
+
+            <!-- Display Error if Quotation Not Found -->
+            <div th:if="${error != null}" class="params error">
+                <p th:text="${error}"></p>
+            </div>
+        </article>
+    </section>
+</body>
+</html>

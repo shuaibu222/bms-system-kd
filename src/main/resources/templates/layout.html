@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head th:fragment="header">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=yes">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <link rel="icon" href="data:,">
+    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">POS System</title>
+    <title>POS System</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/fonts/css/all.min.css}">
+</head>
+<body>
+    <div class="grid-wrapper">
+        <!-- Sidebar Section -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2 class="team-switcher">Business System</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="nav-main">
+                    <!-- Dashboard -->
+                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                        <a href="/dashboard" class="nav-head dashboard">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <!-- Sales -->
+                    <li class="nav-item">
+                        <a class="nav-head">
+                            <i class="fas fa-cash-register"></i> Sales
+                        </a>
+                        <ul class="submenu">
+                            <!-- Sales generate quotation -->
+                            <li sec:authorize="hasRole('ADMIN') or hasRole('SALESPERSON')"><a href="/sales">POS</a></li>
+                            <li sec:authorize="hasRole('ADMIN') or hasRole('CASHIER')"><a href="/invoices">Invoice</a></li>
+                            <li sec:authorize="hasRole('ADMIN')"><a href="/sales/list">Sales List</a></li>
+                            <li sec:authorize="hasRole('ADMIN')"><a href="/invoices/list">Invoice List</a></li>
+                        </ul>
+                    </li>
+                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                        <a class="nav-head">
+                            <i class="fas fa-shopping-cart"></i> Purchase
+                        </a>
+                        <ul class="submenu">
+                            <li><a href="/purchases">Purchases</a></li>
+                            <!-- <li><a href="/purchase-returns">Purchase Return</a></li> -->
+                        </ul>
+                    </li>
+                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                        <a class="nav-head">
+                            <i class="fas fa-money-bill-wave"></i> Expenses
+                        </a>
+                        <ul class="submenu">
+                            <li><a href="/expenses">Expenses</a></li>
+                        </ul>
+                    </li>
+                    <!-- Inventory -->
+                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                        <a class="nav-head">
+                            <i class="fas fa-box"></i> Inventory
+                        </a>
+                        <ul class="submenu">
+                            <li><a href="/products">Products</a></li>
+                            <li><a href="/products/lowstocks">Low Stocks</a></li>
+                            <li><a href="/category">Categories</a></li>
+                            <li><a href="/units">Units</a></li>
+                        </ul>
+                    </li>
+                    <!-- Customers -->
+                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                        <a class="nav-head">
+                            <i class="fas fa-users"></i> People
+                        </a>
+                        <ul class="submenu">
+                            <li><a href="/customers">Debtors(Customers)</a></li>
+                            <li><a href="/suppliers">Creditors(Suppliers)</a></li>
+                            <li><a href="/stores">Stores</a></li>
+                        </ul>
+                    </li>
+                    <!-- Reports -->
+                    <li sec:authorize="hasRole('ADMIN') or hasRole('MANAGER')" class="nav-item">
+                        <a class="nav-head">
+                            <i class="fas fa-chart-bar"></i> Reports
+                        </a>
+                        <ul class="submenu">
+                            <li><a href="/products/reports">Daily Summary</a></li>
+                            <li><a href="/sales/reports">Sales Reports</a></li>
+                            <li><a href="/purchases/reports">Purchase Reports</a></li>
+                            <li><a href="/profits/reports">Profit Reports</a></li>
+                            <li><a href="/ledgers/reports">Stock & Financial Ledger</a></li>
+                        </ul>
+                    </li>
+                    <!-- Employees -->
+                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                        <a class="nav-head">
+                            <i class="fas fa-user-cog"></i> Employees
+                        </a>
+                        <ul class="submenu">
+                            <li><a href="/users">Users Management</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <p>@ POS System Inc.</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Section -->
+        <div class="main-content">
+            <!-- Navbar Section -->
+            <nav class="navbar">
+                <div id="notification-modal" class="notification-modal hidden">
+                    <div class="notification-content">
+                        <div class="notification-header">
+                            <h2>Notifications</h2>
+                            <button id="close-modal"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="notification-body">
+                            <ul id="low-stock-list"></ul>
+                        </div>
+                    </div>
+                </div>                            
+                <div class="svg">
+                    <i class="fas fa-navicon" id="sidebar-toggle"></i>
+                </div>
+                <ul>
+                    <p>
+                        Welcome, <span sec:authentication="name"></span>
+                    </p>
+                    <li class="bell-icon">
+                        <a href="#"><i class="fas fa-bell"></i></a>
+                        <span class="spinner-dot" style="display: none;"></span>
+                    </li>                    
+                    <button id="theme-toggle" class="theme-toggle">
+                        <i id="theme-icon" class="fas fa-moon"></i>
+                    </button>
+                    <li>
+                        <a href="/logout"><i class="fas fa-arrow-right-from-bracket"></i></a>
+                    </li>
+                </ul>
+            </nav>
+            <main class="main-section" layout:fragment="body">
+                <!-- Main content will be injected here -->
+            </main>
+        </div>
+    </div>
+    <script th:src="@{/js/script.js}"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const themeToggle = document.getElementById("theme-toggle");
+            const themeIcon = document.getElementById("theme-icon");
+
+            // Check for stored theme preference
+            if (localStorage.getItem("theme") === "dark") {
+                document.documentElement.setAttribute("data-theme", "dark");
+                themeIcon.classList.replace("fa-moon", "fa-sun");
+            }
+
+            themeToggle.addEventListener("click", function () {
+                if (document.documentElement.getAttribute("data-theme") === "dark") {
+                    document.documentElement.setAttribute("data-theme", "light");
+                    themeIcon.classList.replace("fa-sun", "fa-moon");
+                    localStorage.setItem("theme", "light");
+                } else {
+                    document.documentElement.setAttribute("data-theme", "dark");
+                    themeIcon.classList.replace("fa-moon", "fa-sun");
+                    localStorage.setItem("theme", "dark");
+                }
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const bellIcon = document.querySelector(".bell-icon");
+            const notificationModal = document.getElementById("notification-modal");
+            const closeModal = document.getElementById("close-modal");
+            const overlay = document.createElement("div");
+
+            overlay.classList.add("modal-overlay");
+            document.body.appendChild(overlay);
+
+            // Open Modal
+            bellIcon.addEventListener("click", function () {
+                notificationModal.style.display = "block";
+                overlay.style.display = "block";
+            });
+
+            // Close Modal
+            closeModal.addEventListener("click", function () {
+                notificationModal.style.display = "none";
+                overlay.style.display = "none";
+            });
+
+            // Close Modal when clicking outside
+            overlay.addEventListener("click", function () {
+                notificationModal.style.display = "none";
+                overlay.style.display = "none";
+            });
+        });
+        
+        document.addEventListener("DOMContentLoaded", function () {
+            const lowStockList = document.getElementById("low-stock-list");
+            const spinnerDot = document.querySelector(".spinner-dot"); // Use the existing spinner-dot
+
+            function fetchLowStockProducts() {
+                fetch('/api/low-stock')
+                    .then(response => response.json())
+                    .then(data => {
+                        // ✅ Show or hide spinner-dot based on count
+                        if (data.count > 0) {
+                            spinnerDot.style.display = "inline-block"; // Show spinner-dot
+                        } else {
+                            spinnerDot.style.display = "none"; // Hide spinner-dot
+                        }
+
+                        // ✅ Update notification modal content
+                        lowStockList.innerHTML = ""; // Clear old list
+                        if (data.products.length > 0) {
+                            data.products.forEach(product => {
+                                const listItem = document.createElement("li");
+
+                                // ✅ Create a link for each low-stock product
+                                const productLink = document.createElement("a");
+                                productLink.href = `/products/lowstocks`;
+                                productLink.textContent = `⚠️ ${product} is low in stock!`;
+                                productLink.style.color = "white";
+                                productLink.className = "lowstock-link";
+                                productLink.style.textDecoration = "none"; // Optional: Remove underline
+                                
+                                listItem.appendChild(productLink);
+                                lowStockList.appendChild(listItem);
+                            });
+                        } else {
+                            lowStockList.innerHTML = "<li>No low-stock items.</li>";
+                        }
+                    })
+                    .catch(error => console.error("Error fetching low-stock data:", error));
+            }
+
+            // ✅ Fetch low-stock products every 5 seconds
+            setInterval(fetchLowStockProducts, 5000);
+
+            // ✅ Initial fetch
+            fetchLowStockProducts();
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+        // Function to set the active navigation item
+        function setActiveNav() {
+            // Get the current URL path
+            const currentPath = window.location.pathname;
+
+            // Select all navigation links
+            const navLinks = document.querySelectorAll(".nav-main a");
+
+            // Loop through all navigation links
+            navLinks.forEach(link => {
+                // Get the href attribute of the link
+                const linkPath = link.getAttribute("href");
+
+                // Check if the link's href matches the current path
+                if (currentPath === linkPath) {
+                    // Add the 'active' class to the matching link
+                    link.classList.add("active");
+
+                    // If the link is inside a submenu, also highlight its parent
+                    const parentLi = link.closest("li.nav-item");
+                    if (parentLi) {
+                        parentLi.classList.add("active");
+                    }
+                } else {
+                    // Remove the 'active' class from non-matching links
+                    link.classList.remove("active");
+                }
+            });
+        }
+
+        // Call the function to set the active navigation item
+        setActiveNav();
+    });
+
+    </script>    
+</body>
+</html>

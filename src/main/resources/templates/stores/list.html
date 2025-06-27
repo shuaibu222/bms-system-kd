@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+    <title>Store Management</title>
+    <script>
+        // Open the "Add Store" modal
+        function openAddStoreModal() {
+            document.getElementById('addStoreModal').style.display = 'block';
+        }
+
+        // Close the "Add Store" modal
+        function closeAddStoreModal() {
+            document.getElementById('addStoreModal').style.display = 'none';
+        }
+
+        // Open the "Delete Store" modal
+        function openDeleteModal(storeId) {
+            const modal = document.getElementById('deleteModal');
+            modal.style.display = 'block';
+
+            // Set delete confirmation action
+            const confirmBtn = document.getElementById('confirmDelete');
+            confirmBtn.onclick = function() {
+                window.location.href = '/stores/delete/' + storeId;
+            };
+        }
+
+        function closeModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+
+        // Search Functionality
+        function searchStore() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.table-container tbody tr');
+
+            rows.forEach(row => {
+                const name = row.cells[1].textContent.toLowerCase();
+
+                if (name.includes(input)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <section layout:fragment="body">
+        <article class="list-page">
+            <div class="list-header">
+                <h1>👥 Store Management</h1>
+                <button class="open-modal-btn" onclick="openAddStoreModal()">+ Add Store</button>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="🔍 Search Stores..." onkeyup="searchStore()">
+            </div>
+            
+
+            <!-- Success/Error Messages -->
+            <div class="params success" th:if="${param.success}">
+                You successfully created a store.
+            </div>
+            <div class="params success" th:if="${param.updateSuccess}">
+                You successfully updated a store.
+            </div>
+            <div class="params error" th:if="${param.error}">
+                Store deleted successfully.
+            </div>
+
+            <!-- Table Section -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>S/N</th>
+                        <th>Name</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="store : ${stores}">
+                        <td th:text="${store.id}"></td>
+                        <td th:text="${store.name}"></td>
+                        <td>
+                            <a class="dynamic-link" th:href="@{'/stores/edit/' + ${store.id}}">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="javascript:void(0);" class="dynamic-link" th:onclick="'openDeleteModal(' + ${store.id} + ')'">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </article>
+
+        <!-- Modal for delete confirmation -->
+        <div id="deleteModal" class="modal">
+            <div class="modal-content">
+                <h2>Are you sure you want to delete this store?</h2>
+                <div class="modal-buttons">
+                    <button id="confirmDelete" class="confirm-btn">Yes, Delete</button>
+                    <button onclick="closeModal()" class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for Adding a Store -->
+        <div id="addStoreModal" class="modal" th:style="${#fields.hasErrors('store.*')} ? 'display:block;' : 'display:none;'">
+            <div class="modal-content">
+                <h2>Add Store</h2>
+                <form th:action="@{/stores}" th:object="${store}" method="post">
+                    <div class="modal-form">
+                        <div class="form-group">
+                            <label for="name">Name:</label>
+                            <input type="text" id="name" placeholder="e.g. John Doe" th:field="*{name}" />
+                            <p class="error-message" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+                        </div>
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="submit" class="confirm-btn">Save</button>
+                        <button type="button" class="cancel-btn" onclick="closeAddStoreModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

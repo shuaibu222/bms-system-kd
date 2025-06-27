@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout}">
+<head>
+    <title>Ledgers Report</title>
+    <script>
+        function sendLedgerReportByEmail() {
+            const email = document.getElementById('emailAddress').value;
+            const startDate = document.getElementById('reportStartDate').innerText.trim();
+            const endDate = document.getElementById('reportEndDate').innerText.trim();
+            const productName = document.getElementById('selectedProductName').innerText.trim();
+            const storeName = document.getElementById('selectedStoreName').innerText.trim();
+            const sendButton = document.querySelector(".send-btn");
+
+            if (!email || !startDate || !endDate || !productName || !storeName) {
+                alert('Please enter an email and ensure all report details are selected.');
+                return;
+            }
+
+            sendButton.classList.add("sending");
+            sendButton.innerHTML = "Sending...";
+
+            fetch(`/ledgers/send-report?email=${encodeURIComponent(email)}&productName=${encodeURIComponent(productName)}&storeName=${encodeURIComponent(storeName)}&startDate=${startDate}&endDate=${endDate}`, {
+                method: 'GET',
+            })
+            .then(response => {
+                if (response.ok) {
+                    setTimeout(() => {
+                        sendButton.classList.remove("sending");
+                        sendButton.classList.add("success");
+                        sendButton.style.backgroundColor = "#4CAF50";
+                        sendButton.innerHTML = '<i class="fa-solid fa-check"></i> Email Sent!';
+                    }, 1500);
+                } else {
+                    alert('Failed to send report.');
+                    sendButton.classList.remove("sending");
+                    sendButton.innerHTML = '<i class="fa-solid fa-envelope"></i> Send Report';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while sending the report.');
+                sendButton.classList.remove("sending");
+                sendButton.innerHTML = '<i class="fa-solid fa-envelope"></i> Send Report';
+            });
+        }
+
+        function fetchLedgerReport() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const productName = document.getElementById('productSelect').value;
+            const storeName = document.getElementById('storeSelect').value;
+
+            if (!startDate || !endDate || !productName || !storeName) {
+                alert('Please select a start date, end date, product, and store.');
+                return;
+            }
+
+            fetch(`/ledgers/reports/${productName}/${storeName}/${startDate}/${endDate}`)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, "text/html");
+                    const newReportContent = doc.querySelector(".report-container"); // Extract only report section
+
+                    if (newReportContent) {
+                        document.querySelector(".report-container").innerHTML = newReportContent.innerHTML;
+                    } else {
+                        console.error("Report container not found in response.");
+                        alert("Failed to load report content.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching ledger report:", error);
+                    alert("Failed to fetch ledger report.");
+                });
+        }
+
+        function printReport() {
+            window.print();
+        }
+    </script>
+</head>
+<body>
+    <section class="report-container" layout:fragment="body">
+        <div class="report-header">
+            <h1>📊 Ledger Report</h1>
+            <p><strong>From:</strong> <span style="text-decoration: underline; margin-right: 1rem;" id="reportStartDate" th:text="${startDate}"></span>
+                <strong>To:</strong> <span style="text-decoration: underline; margin-right: 1rem;" id="reportEndDate" th:text="${endDate}"></span>
+                <strong>Product Name:</strong> <span style="text-decoration: underline; margin-right: 1rem;" id="selectedProductName" th:text="${productName}"></span>
+                <strong>Store Name:</strong> <span style="text-decoration: underline; margin-right: 1rem;" id="selectedStoreName" th:text="${storeName}"></span></p>            
+        </div>        
+
+        <!-- Date Range Filter -->
+        <form class="filter-form" onsubmit="event.preventDefault(); fetchLedgerReport();">
+            <select id="productSelect">
+                <option value="" disabled selected>--Select Product--</option>
+                <option th:each="productName : ${products}" th:value="${productName.name}" th:text="${productName.name} + ' - ' + ${productName.store}"></option>
+            </select>
+            <select id="storeSelect">
+                <option value="" disabled selected>--Select Store--</option>
+                <option th:each="store : ${stores}" th:value="${store.name}" th:text="${store.name}"></option>
+            </select>
+            <input type="date" id="startDate" name="startDate" required />
+            <input type="date" id="endDate" name="endDate" required />
+            <button type="submit">Fetch Reports</button>
+        </form>     
+
+        <!-- Table Section -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Product</th>
+                        <th>Stock In</th>
+                        <th>Stock Out</th>
+                        <th>Stock Balance</th>
+                        <th>Stock In Total</th>
+                        <th>Stock Out Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Loop through ledger entries -->
+                    <tr th:each="entry : ${ledgerEntries}">
+                        <td th:text="${entry.date}"></td>
+                        <td th:text="${productName}"></td>
+                        <td th:text="${entry.stockIn}"></td>
+                        <td th:text="${entry.stockOut}"></td>
+                        <td th:text="${entry.stockBalance}"></td>
+                        <td th:text="'₦' + ${#numbers.formatDecimal(entry.unitPrice * entry.stockIn, 0, 'COMMA', 2, 'POINT')}"></td>
+                        <td th:text="'₦' + ${#numbers.formatDecimal(entry.unitPrice * entry.stockOut, 0, 'COMMA', 2, 'POINT')}"></td>
+                    </tr>
+
+                    <!-- Totals Row -->
+                    <!-- <tr>
+                        <td colspan="2"><strong>Totals</strong></td>
+                        <td><strong th:text="${#numbers.formatDecimal(#aggregates.sum(ledgerEntries.![stockIn]), 0, 'COMMA', 0, 'POINT')}"></strong></td>
+                        <td><strong th:text="${#numbers.formatDecimal(#aggregates.sum(ledgerEntries.![stockOut]), 0, 'COMMA', 0, 'POINT')}"></strong></td>
+                        <td></td>
+                        <td><strong th:text="'₦' + ${#numbers.formatDecimal(#aggregates.sum(ledgerEntries.![unitPrice * stockIn]), 0, 'COMMA', 2, 'POINT')}"></strong></td>
+                        <td><strong th:text="'₦' + ${#numbers.formatDecimal(#aggregates.sum(ledgerEntries.![unitPrice * stockOut]), 0, 'COMMA', 2, 'POINT')}"></strong></td>
+                    </tr> -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Print Button -->
+        <div class="report-actions">
+            <button class="btn print-btn" onclick="printReport()">
+                <span>🖨️ Print Report</span>
+            </button>
+            
+            <form class="email-form" onsubmit="event.preventDefault(); sendLedgerReportByEmail();">
+                <div class="email-input-group">
+                    <input type="email" id="emailAddress" placeholder="Recipient email" />
+                    <button type="submit" class="btn send-btn">
+                        <span>📩 Send Report</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+</html>

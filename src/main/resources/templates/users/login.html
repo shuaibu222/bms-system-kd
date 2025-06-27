@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/fonts/css/all.min.css}">
+    <style>
+        /* General Styles */
+        body {
+            margin: 0;
+            font-family: 'Gotham', sans-serif;
+            background-color: var(--color-background-primary);
+            color: var(--color-text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .split-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .left-section, .right-section {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .left-section {
+            background-color: var(--color-background-highlight);
+            color: white; /* White text for the left section */
+            text-align: center;
+        }
+
+        .left-section h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+            color: white; /* Ensure text is white */
+        }
+
+        .left-section img {
+            width: 200px;
+            height: auto;
+            margin-bottom: 1rem;
+            filter: brightness(0) invert(1); /* Make logo white */
+        }
+
+        .right-section {
+            background-color: var(--color-background-secondary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            max-width: 400px;
+            width: 100%;
+            padding: 2rem;
+            background-color: var(--color-background-secondary);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .login-container h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--color-text-primary);
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .input-group label {
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--color-text-primary);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            background-color: var(--color-input);
+            color: var(--color-text-primary);
+            outline: none;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: var(--color-background-highlight);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--color-background-highlight);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--color-background-hover);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .params {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .success {
+            background-color: var(--color-accent);
+            color: var(--color-accent-foreground);
+        }
+
+        .error {
+            background-color: var(--color-destructive);
+            color: var(--color-destructive-foreground);
+        }
+
+        .logout {
+            background-color: var(--color-muted);
+            color: var(--color-muted-foreground);
+        }
+
+        footer {
+            margin-top: 2rem;
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+        }
+
+        footer a {
+            color: var(--color-link-hover);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .split-container {
+                flex-direction: column;
+            }
+
+            .left-section, .right-section {
+                flex: none;
+                height: 50%;
+            }
+
+            .left-section h1 {
+                font-size: 2rem;
+            }
+
+            .left-section img {
+                width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="split-container">
+        <!-- Left Section: Company Name and Logo -->
+        <div class="left-section">
+            <div>
+                <img th:src="@{/images/logo.png}" alt="Company Logo">
+                <h1>Company Name Here</h1>
+            </div>
+        </div>
+
+        <!-- Right Section: Login Form -->
+        <div class="right-section">
+            <div class="login-container">
+                <h2>Welcome Back</h2>
+                <div class="params success" th:if="${param.success}">
+                    You successfully registered. Please use your credentials to log in.
+                </div>
+                <div class="params error" th:if="${param.error}">
+                    Username or Password incorrect.
+                </div>
+                <div class="params logout" th:if="${param.logout}">
+                    You've been logged out.
+                </div>
+                <form th:action="@{/login}" method="post">
+                    <div class="input-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit">Login</button>
+                </form>
+                <footer>
+                    <div>
+                        @ <span id="year"></span> Asyyl SMS Co.
+                    </div>
+                    <div>
+                        For Complaints: <a href="mailto:asyylsms@gmail.com">asyylsms@gmail.com</a>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set the current year in the footer
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

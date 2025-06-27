@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout}"
+>
+<head>
+    <title>Access Denied</title>
+</head>
+<body>
+    <section layout:fragment="body">
+        <div style="align-self: center; display: flex; flex-direction: column; gap: 1rem; align-items: center; margin-top: 3rem">
+            <i class="fa fa-ban" style="font-size: 10rem; color: #ff253a"></i>
+            <h1>Access Denied!</h1>
+            <p>You do not have permission to access this page.</p>
+            <a href="/dashboard" style="padding: 0.8rem 1.5rem; align-self: center; margin-top: 1.5rem; text-decoration: none; cursor: pointer; width: fit-content; text-align: center; background: black; color: white; border-radius: 0.5rem">
+                <i class="fa fa-arrow-left" style="font-size: 1rem; margin-right: 0.2rem"></i> Dashboard
+            </a>
+        </div>
+    </section>
+</body>
+</html>

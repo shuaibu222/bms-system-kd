@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Purchase Report</title>
+</head>
+<body>
+    <section class="report-container" layout:fragment="body">
+        <div class="report-header">
+            <h1>Purchase Report</h1>
+            <p><strong>From:</strong> <span id="reportStartDate" th:text="${startDate}"></span> 
+                <strong>To:</strong> <span id="reportEndDate" th:text="${endDate}"></span></p>
+        </div>
+
+        <!-- Date Range Filter -->
+        <form class="filter-form" th:action="@{/products/purchases-report}" method="get">
+            <input aria-label="start date" type="date" id="startDate" name="startDate" th:value="${startDate}">
+            <input aria-label="end date" type="date" id="endDate" name="endDate" th:value="${endDate}">
+            <button type="submit" class="btn">Generate Report</button>
+        </form>
+
+        <!-- Key Metrics -->
+        <div class="report-summary">
+            <div class="metric">
+                <span class="label">Total Purchases:</span>
+                <span class="value" th:text="'₦' + ${#numbers.formatDecimal(totalPurchases, 0, 'COMMA', 2, 'POINT')}"></span>
+            </div>
+            <div class="metric">
+                <span class="label">Total Transactions:</span>
+                <span class="value" th:text="${totalTransactions}"></span>
+            </div>
+            <!-- <div class="metric">
+                <span class="label">Highest Purchase:</span>
+                <span class="value" th:text="'₦' + ${#numbers.formatDecimal(maxPurchase, 0, 'COMMA', 2, 'POINT')}"></span>
+            </div>
+            <div class="metric">
+                <span class="label">Lowest Purchase:</span>
+                <span class="value" th:text="'₦' + ${#numbers.formatDecimal(minPurchase, 0, 'COMMA', 2, 'POINT')}"></span>
+            </div> -->
+        </div>
+
+        <!-- Table Section -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>S/N</th>
+                        <th>Product Name</th>
+                        <th>Unit Price</th>
+                        <th>Quantity</th>
+                        <th>Total Amount</th>
+                        <th>Purchase Date</th>
+                        <th>Expiry Date</th>
+                        <th>NAFDAC No.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="purchase, index : ${purchaseReports}">
+                        <td th:text="${index.count}"></td>
+                        <td th:text="${purchase.name}"></td>
+                        <td th:text="'₦' + ${#numbers.formatDecimal(purchase.price, 0, 'COMMA', 2, 'POINT')}"></td>
+                        <td th:text="${purchase.quantity}"></td>
+                        <td th:text="'₦' + ${#numbers.formatDecimal(purchase.price * purchase.quantity, 0, 'COMMA', 2, 'POINT')}"></td>
+                        <td th:text="${#temporals.format(purchase.lowStockDate, 'dd MMM yyyy')}"></td>
+                        <td th:text="${purchase.expiryDate != null} ? ${#temporals.format(purchase.expiryDate, 'dd MMM yyyy')} : 'N/A'"></td>
+                        <td th:text="${purchase.nafdac} ?: 'N/A'"></td>
+                    </tr>
+                    <!-- Total Row -->
+                    <tr class="total-row">
+                        <td colspan="4" class="text-right"><strong>Total:</strong></td>
+                        <td th:text="'₦' + ${#numbers.formatDecimal(totalPurchases, 0, 'COMMA', 2, 'POINT')}" class="total-amount"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Actions -->
+        <div class="report-actions">
+            <button class="btn" onclick="window.print()">Print Report</button>
+        </div>
+    </section>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}"
+    lang="en">
+<head>
+    <title>Update Low Stock Products</title>
+</head>
+<body>
+    <section layout:fragment="body">
+        <article class="edit-page">
+            <a href="/products/lowstocks" class="back-btn">
+                <i class="fa fa-arrow-left"></i> Back
+            </a>
+
+            <div class="list-header">
+                <h1>📦 Update Stock</h1>
+            </div>
+
+            <form role="form" th:action="@{/products/lowstocks/update/{id}(id=${product.id})}" class="list-form-layout" th:object="${product}" method="post">
+                <div class="list-form">
+                    <input type="text" id="name" placeholder="e.g. Apple" th:field="*{name}" hidden />
+                    <select id="store" th:field="*{store}" hidden>
+                        <option value="" disabled selected>Select Store</option>
+                        <option th:each="store : ${stores}" th:value="${store.name}" th:text="${store.name}"></option>
+                    </select>
+                    <input type="number" id="price" placeholder="e.g. 10.99" th:field="*{price}" hidden />
+                    
+                    <div class="form-group">
+                        <label for="quantity">Quantity:</label>
+                        <input type="number" id="quantity" placeholder="e.g. 10.99" th:field="*{quantity}" />
+                        <p class='error-message' th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></p>
+                    </div>
+                    <input type="number" id="lowQuantityAlert" placeholder="e.g. 100" th:field="*{lowQuantityAlert}" hidden />
+                    <select id="category" th:field="*{category}" hidden>
+                        <option value="" disabled selected>Select Category</option>
+                        <option th:each="category : ${categories}" th:value="${category.name}" th:text="${category.name}"></option>
+                    </select>        
+                </div>
+                <div class="form-group-btn">
+                    <button type="submit">Update</button>
+                </div>
+            </form>
+        </article>
+    </section>
+</body>
+</html>

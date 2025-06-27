@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}" lang="en">
+<head>
+    <title>Edit Expense</title>
+</head>
+<body>
+    <section layout:fragment="body">
+        <article class="edit-page">
+            <a href="/expenses" class="back-btn">
+                <i class="fa fa-arrow-left"></i> Back
+            </a>
+            
+            <div class="list-header">
+                <h1>💰 Edit Expense</h1>
+            </div>
+
+            <!-- Edit Expense Form -->
+            <form th:action="@{/expenses/update/{id}(id=${expense.id})}" th:object="${expense}" class="list-form-layout" method="post">
+                <div class="list-form">
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <input type="text" id="description" th:field="*{description}" />
+                        <p class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount:</label>
+                        <input type="number" id="amount" th:field="*{amount}" />
+                        <p class="error-message" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date:</label>
+                        <input type="date" id="date" th:field="*{date}" />
+                        <p class="error-message" th:if="${#fields.hasErrors('date')}" th:errors="*{date}"></p>
+                    </div>
+                </div>
+                <div class="form-group-btn">
+                    <button type="submit">Update</button>
+                </div>
+            </form>
+        </article>
+    </section>
+</body>
+</html>

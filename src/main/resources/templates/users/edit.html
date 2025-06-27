@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout}"
+        lang="en">
+<head>
+    <title>Edit User</title>
+</head>
+<body>
+<section layout:fragment="body">
+    <article class="edit-page">
+        <a href="/users" class="back-btn">
+            <i class="fa fa-arrow-left"></i> Back
+        </a>
+        
+        <div class="list-header">
+            <h1>👤 Edit User</h1>
+        </div>
+
+        <form th:action="@{/users/update/{id}(id=${user.id})}" th:object="${user}" class="list-form-layout" method="post">
+            <div class="list-form">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" th:field="*{username}" />
+                    <p class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" th:field="*{password}" />
+                    <p class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+                </div>
+                <div class="form-group">
+                    <label for="fullName">Full Name:</label>
+                    <input type="text" id="fullName" th:field="*{fullName}" />
+                </div>
+                <div class="form-group">
+                    <label for="isActive">Active:</label>
+                    <select id="isActive" th:field="*{isActive}">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="role">Role:</label>
+                    <select id="role" th:field="*{role}">
+                        <option value="" disabled selected>Choose Role</option>
+                        <option value="MANAGER">Manager</option>
+                        <option value="ADMIN">Admin</option>
+                        <option value="SALESPERSON">Salesperson</option>
+                        <option value="CASHIER">Cashier</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group-btn">
+                <button type="submit">Update</button>
+            </div>
+        </form>
+    </article>
+</section>
+</body>
+</html>
