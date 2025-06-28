@@ -38,8 +38,8 @@
                             </li>
                             <li sec:authorize="hasRole('ADMIN') or hasRole('CASHIER')"><a href="/invoices">New
                                     Invoice</a></li>
-                            <li sec:authorize="hasRole('ADMIN')"><a href="/sales/list">Sales List</a></li>
-                            <li sec:authorize="hasRole('ADMIN')"><a href="/invoices/list">Invoices List</a></li>
+                            <!-- <li sec:authorize="hasRole('ADMIN')"><a href="/sales/list">Sales List</a></li>
+                            <li sec:authorize="hasRole('ADMIN')"><a href="/invoices/list">Invoices List</a></li> -->
                         </ul>
                     </li>
                     <!-- <li sec:authorize="hasRole('ADMIN')" class="nav-item">
@@ -55,9 +55,9 @@
                             <i class="fas fa-money-bill-wave"></i> Assets
                         </a>
                         <ul class="submenu">
-                            <li><a href="/expenses">Staff Loan</a></li>
-                            <li><a href="/expenses">Debtors</a></li>
-                            <li><a href="/expenses">Suspense Account</a></li>
+                            <li><a href="/loans">Staff Loan</a></li>
+                            <li><a href="/customers/debtors">Debtors</a></li>
+                            <li><a href="/suspenses">Suspense Account</a></li>
                         </ul>
                     </li>
                     <li sec:authorize="hasRole('ADMIN')" class="nav-item">
@@ -76,7 +76,7 @@
                         <ul class="submenu">
                             <li><a href="/products">Products</a></li>
                             <li><a href="/products/lowstocks">Low Stocks</a></li>
-                            <li><a href="/category">Purchase History</a></li>
+                            <!-- <li><a href="/category">Purchase History</a></li> -->
                         </ul>
                     </li>
                     <!-- Customers -->
@@ -86,7 +86,7 @@
                         </a>
                         <ul class="submenu">
                             <li><a href="/customers">Customers</a></li>
-                            <li><a href="/suppliers">Customer Ledger</a></li>
+                            <li><a href="/customers/ledger">Customer Ledger</a></li>
                         </ul>
                     </li>
                     <!-- Reports -->
@@ -107,7 +107,7 @@
                             <i class="fas fa-user-cog"></i> Employees
                         </a>
                         <ul class="submenu">
-                            <li><a href="/users">Staffs Management</a></li>
+                            <li><a href="/staffs">Staffs Management</a></li>
                             <li><a href="/users">Users Accounts</a></li>
                         </ul>
                     </li>

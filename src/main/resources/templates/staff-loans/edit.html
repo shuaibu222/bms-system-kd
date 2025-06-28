@@ -1,55 +1,62 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}" lang="en">
+
 <head>
     <title>Edit Loan</title>
 </head>
+
 <body>
-<section layout:fragment="body">
-    <article class="edit-page">
-        <a href="/loans" class="back-btn">
-            <i class="fa fa-arrow-left"></i> Back
-        </a>
+    <section layout:fragment="body">
+        <article class="edit-page">
+            <a href="/loans" class="back-btn">
+                <i class="fa fa-arrow-left"></i> Back
+            </a>
 
-        <div class="list-header">
-            <h1>💼 Edit Staff Loan</h1>
-        </div>
+            <div class="list-header">
+                <h1>💼 Edit Staff Loan</h1>
+            </div>
 
-        <form th:action="@{/loans/update/{id}(id=${loan.id})}" th:object="${loan}" class="list-form-layout" method="post">
-            <div class="list-form">
-                <div class="form-group">
-                    <label for="staffId">Staff Name:</label>
-                    <select id="staffId" th:field="*{staffId}">
-                        <option value="" disabled selected>Select Name</option>
-                        <option th:each="staff : ${staffList}" th:value="${staff.id}" th:text="${staff.name}"></option>
-                    </select>
-                    <p class="error-message" th:if="${#fields.hasErrors('staffId')}" th:errors="*{staffId}"></p>
+            <form th:action="@{/loans/update/{id}(id=${loan.id})}" th:object="${loan}" class="list-form-layout"
+                method="post">
+                <div class="list-form">
+                    <div class="form-group">
+                        <label for="staffId">Staff Name:</label>
+                        <select id="staffId" th:field="*{staffId}">
+                            <option value="" disabled selected>Select Name</option>
+                            <option th:each="staff : ${staffList}" th:value="${staff.id}" th:text="${staff.name}">
+                            </option>
+                        </select>
+                        <p class="error-message" th:if="${#fields.hasErrors('staffId')}" th:errors="*{staffId}"></p>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount:</label>
+                        <input type="number" id="amount" th:field="*{amount}" />
+                        <p class="error-message" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>
+                    </div>
+                    <div class="form-group">
+                        <label for="purpose">Purpose:</label>
+                        <input type="text" id="purpose" th:field="*{purpose}" />
+                        <p class="error-message" th:if="${#fields.hasErrors('purpose')}" th:errors="*{purpose}"></p>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Loan Date:</label>
+                        <input type="date" id="date" th:field="*{date}" />
+                        <p class="error-message" th:if="${#fields.hasErrors('date')}" th:errors="*{date}"></p>
+                    </div>
+                    <div class="form-group">
+                        <label for="amountRepaid">Amount Repaid:</label>
+                        <input type="number" id="amountRepaid" th:field="*{amountRepaid}" />
+                        <p class="error-message" th:if="${#fields.hasErrors('amountRepaid')}"
+                            th:errors="*{amountRepaid}"></p>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="amount">Amount:</label>
-                    <input type="number" id="amount" th:field="*{amount}" />
-                    <p class="error-message" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>
+                <div class="form-group-btn">
+                    <button type="submit">Update</button>
                 </div>
-                <div class="form-group">
-                    <label for="purpose">Purpose:</label>
-                    <input type="text" id="purpose" th:field="*{purpose}" />
-                    <p class="error-message" th:if="${#fields.hasErrors('purpose')}" th:errors="*{purpose}"></p>
-                </div>
-                <div class="form-group">
-                    <label for="loanDate">Loan Date:</label>
-                    <input type="date" id="loanDate" th:field="*{loanDate}" />
-                    <p class="error-message" th:if="${#fields.hasErrors('loanDate')}" th:errors="*{loanDate}"></p>
-                </div>
-                <div class="form-group">
-                    <label for="amountRepaid">Amount Repaid:</label>
-                    <input type="number" id="amountRepaid" th:field="*{amountRepaid}" />
-                    <p class="error-message" th:if="${#fields.hasErrors('amountRepaid')}" th:errors="*{amountRepaid}"></p>
-                </div>
-            </div>
-            <div class="form-group-btn">
-                <button type="submit">Update</button>
-            </div>
-        </form>
-    </article>
-</section>
+            </form>
+        </article>
+    </section>
 </body>
+
 </html>

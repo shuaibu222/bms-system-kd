@@ -16,6 +16,8 @@ public interface SaleRepository extends JpaRepository<SaleModel, Long> {
 
     Optional<SaleModel> findTopByOrderByIdDesc();
 
+    List<SaleModel> findByPhoneAndSaleDateTimeBetween(Integer phone, LocalDate startDate, LocalDate endDate);
+
     SaleModel findByQtnNum(String qtnNum);
 
 }

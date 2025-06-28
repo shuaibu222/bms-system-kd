@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
 <head>
     <title>Customer Management</title>
     <script>
@@ -20,7 +22,7 @@
 
             // Set delete confirmation action
             const confirmBtn = document.getElementById('confirmDelete');
-            confirmBtn.onclick = function() {
+            confirmBtn.onclick = function () {
                 window.location.href = '/customers/delete/' + customerId;
             };
         }
@@ -48,6 +50,7 @@
         }
     </script>
 </head>
+
 <body>
     <section layout:fragment="body">
         <article class="list-page">
@@ -55,12 +58,12 @@
                 <h1>👥 Customer Management</h1>
                 <button class="open-modal-btn" onclick="openAddCustomerModal()">+ Add Customer</button>
             </div>
-            
+
             <!-- Search Bar -->
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="🔍 Search Customers..." onkeyup="searchCustomers()">
             </div>
-            
+
 
             <!-- Success/Error Messages -->
             <div class="params success" th:if="${param.success}">
@@ -77,29 +80,32 @@
             <div class="table-container">
                 <table>
                     <thead>
-                    <tr>
-                        <th>S/N</th>
-                        <th>Name</th>
-                        <th>Phone</th>
-                        <th>Email</th>
-                        <th>Actions</th>
-                    </tr>
+                        <tr>
+                            <th>S/N</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Address</th>
+                            <th>Balance</th>
+                            <th>Actions</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="customer : ${customers}">
-                        <td th:text="${customer.id}"></td>
-                        <td th:text="${customer.name}"></td>
-                        <td th:text="${customer.phone}"></td>
-                        <td th:text="${customer.email}"></td>
-                        <td>
-                            <a class="dynamic-link" th:href="@{'/customers/edit/' + ${customer.id}}">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a href="javascript:void(0);" class="dynamic-link" th:onclick="'openDeleteModal(' + ${customer.id} + ')'">
-                                <i class="fas fa-trash-alt"></i>
-                            </a>
-                        </td>
-                    </tr>
+                        <tr th:each="customer : ${customers}">
+                            <td th:text="${customer.id}"></td>
+                            <td th:text="${customer.name}"></td>
+                            <td th:text="${customer.phone}"></td>
+                            <td th:text="${customer.address}"></td>
+                            <td th:text="${customer.balance}"></td>
+                            <td>
+                                <a class="dynamic-link" th:href="@{'/customers/edit/' + ${customer.id}}">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="javascript:void(0);" class="dynamic-link"
+                                    th:onclick="'openDeleteModal(' + ${customer.id} + ')'">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -117,7 +123,8 @@
         </div>
 
         <!-- Modal for Adding a Customer -->
-        <div id="addCustomerModal" class="modal" th:style="${#fields.hasErrors('customer.*')} ? 'display:block;' : 'display:none;'">
+        <div id="addCustomerModal" class="modal"
+            th:style="${#fields.hasErrors('customer.*')} ? 'display:block;' : 'display:none;'">
             <div class="modal-content">
                 <h2>Add Customer</h2>
                 <form th:action="@{/customers}" th:object="${customer}" method="post">
@@ -133,9 +140,9 @@
                             <p class="error-message" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></p>
                         </div>
                         <div class="form-group">
-                            <label for="email">Email:</label>
-                            <input type="email" id="email" placeholder="e.g. john@example.com" th:field="*{email}" />
-                            <p class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+                            <label for="address">address:</label>
+                            <input type="address" id="address" th:field="*{address}" />
+                            <p class="error-message" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></p>
                         </div>
                     </div>
                     <div class="modal-buttons">
@@ -149,4 +156,5 @@
 
     </section>
 </body>
+
 </html>
