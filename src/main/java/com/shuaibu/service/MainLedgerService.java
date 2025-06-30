@@ -131,7 +131,7 @@ public class MainLedgerService {
         double salesAmount = invoiceRepo.findAll().stream()
                 .filter(baseFilter)
                 .filter(inv -> paymentMethod.equalsIgnoreCase(inv.getPaymentMethod()))
-                .mapToDouble(InvoiceModel::getTotalAmount)
+                .mapToDouble(InvoiceModel::getInvoiceValue)
                 .sum();
 
         if (salesAmount > 0) {

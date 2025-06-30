@@ -1,6 +1,8 @@
 package com.shuaibu.service;
 
 import com.shuaibu.dto.CustomerDto;
+import com.shuaibu.dto.DepositDto;
+
 import java.util.List;
 
 public interface CustomerService {
@@ -13,4 +15,7 @@ public interface CustomerService {
     void deleteCustomer(Long id);
 
     void saveAll(List<CustomerDto> customers);
+
+    void makeDeposit(DepositDto depositDto);
+
 }

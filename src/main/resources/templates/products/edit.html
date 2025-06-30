@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html
-    xmlns:th="http://www.thymeleaf.org"
-    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{layout}"
-    lang="en">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}" lang="en">
+
 <head>
     <title>Edit Product</title>
 </head>
+
 <body>
     <section layout:fragment="body">
         <article class="edit-page">
@@ -18,7 +17,8 @@
                 <h1>📦 Edit Product</h1>
             </div>
 
-            <form role="form" th:action="@{/products/update/{id}(id=${product.id})}" class="list-form-layout" th:object="${product}" method="post">
+            <form role="form" th:action="@{/products/update/{id}(id=${product.id})}" class="list-form-layout"
+                th:object="${product}" method="post">
                 <div class="list-form">
                     <div class="form-group">
                         <label for="name">Name:</label>
@@ -26,50 +26,12 @@
                         <p class='error-message' th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
                     </div>
                     <div class="form-group">
-                        <label for="unit">Unit:</label>
-                        <select id="unit" th:field="*{unit}">
-                            <option value="" disabled selected>Select Unit</option>
-                            <option th:each="unit : ${units}" th:value="${unit.name}" th:text="${unit.name}"></option>
-                        </select>
-                        <p class="error-message" th:if="${#fields.hasErrors('unit')}" th:errors="*{unit}"></p>
-                    </div>
-                    <div class="form-group">
-                        <label for="store">Store:</label>
-                        <select id="store" th:field="*{store}">
-                            <option value="" disabled selected>Select Store</option>
-                            <option th:each="store : ${stores}" th:value="${store.name}" th:text="${store.name}"></option>
-                        </select>
-                        <p class="error-message" th:if="${#fields.hasErrors('store')}" th:errors="*{store}"></p>
-                    </div>
-                    <div class="form-group">
-                        <label for="price">Price:</label>
-                        <input type="number" id="price" placeholder="e.g. 10.99" th:field="*{price}" />
-                        <p class='error-message' th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></p>
-                    </div>
-                    <div class="form-group">
-                        <label for="cost">Cost of Good:</label>
-                        <input type="number" id="cost" placeholder="e.g. 10.99" th:field="*{cost}" />
-                        <p class='error-message' th:if="${#fields.hasErrors('cost')}" th:errors="*{cost}"></p>
-                    </div>
-                    <div class="form-group">
-                        <label for="quantity">Quantity:</label>
-                        <input type="number" id="quantity" placeholder="e.g. 10.99" th:field="*{quantity}" />
-                        <p class='error-message' th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></p>
-                    </div>
-                    
-                    <div class="form-group">
                         <label for="lowQuantityAlert">Low Quantity Alert:</label>
-                        <input type="number" id="lowQuantityAlert" placeholder="e.g. 100" th:field="*{lowQuantityAlert}" />
-                        <p class='error-message' th:if="${#fields.hasErrors('lowQuantityAlert')}" th:errors="*{lowQuantityAlert}"></p>
+                        <input type="number" id="lowQuantityAlert" placeholder="e.g. 100"
+                            th:field="*{lowQuantityAlert}" />
+                        <p class='error-message' th:if="${#fields.hasErrors('lowQuantityAlert')}"
+                            th:errors="*{lowQuantityAlert}"></p>
                     </div>
-                    <div class="form-group">
-                        <label for="category">Category:</label>
-                        <select id="category" th:field="*{category}">
-                            <option value="" disabled selected>Select Category</option>
-                            <option th:each="category : ${categories}" th:value="${category.name}" th:text="${category.name}"></option>
-                        </select>
-                        <p class="error-message" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></p>
-                    </div>                    
                 </div>
                 <div class="form-group-btn">
                     <button type="submit">Update</button>
@@ -78,4 +40,5 @@
         </article>
     </section>
 </body>
+
 </html>

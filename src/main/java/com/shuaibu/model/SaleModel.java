@@ -23,7 +23,7 @@ public class SaleModel {
 
     private String qtnNum;
     private String customerName;
-    private Integer phone;
+    private String phone;
     private Double totalAmount;
     private LocalDate saleDateTime;
 

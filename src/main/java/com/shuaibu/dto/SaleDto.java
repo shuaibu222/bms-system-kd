@@ -15,7 +15,7 @@ public class SaleDto {
 
     private String qtnNum;
     private String customerName;
-    private Integer phone;
+    private String phone;
 
     @NotNull(message = "* Total amount is mandatory")
     private Double totalAmount;

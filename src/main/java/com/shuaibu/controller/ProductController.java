@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import com.shuaibu.dto.LowStockDto;
 import com.shuaibu.dto.ProductDto;
 import com.shuaibu.model.ProductModel;
 import com.shuaibu.repository.ExpenseRepository;
@@ -102,7 +103,6 @@ public class ProductController {
                 .filter(p -> p.getQuantity() <= p.getLowQuantityAlert())
                 .toList();
 
-        model.addAttribute("product", new ProductModel());
         model.addAttribute("products", productModels);
         return "lowstocks/list";
     }
@@ -125,6 +125,27 @@ public class ProductController {
         product.setId(id);
         productService.saveOrUpdateProduct(product);
         return "redirect:/products/lowstocks?success";
+    }
+
+    @GetMapping("/purchases/update/{id}")
+    public String showPurchaseForm(@PathVariable Long id, Model model) {
+        ProductDto product = productService.getProductById(id); // ✅ fetch product
+        model.addAttribute("product", product); // map to form dto
+        return "purchases/edit";
+    }
+
+    @PostMapping("/purchases/update/{id}")
+    public String handlePurchaseUpdate(@PathVariable Long id,
+            @ModelAttribute("lowStockDto") @Valid LowStockDto dto,
+            BindingResult result,
+            Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("lowStockDto", dto);
+            return "purchases/edit";
+        }
+
+        productService.handlePurchaseAndUpdateProduct(id, dto); // ✅ combined logic
+        return "redirect:/products/lowstocks?purchaseSuccess";
     }
 
 }

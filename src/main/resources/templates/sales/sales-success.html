@@ -1,46 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en-US" 
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
 
 <head>
     <title>Sale Success</title>
     <script>
-
-        function sendEmail() {
-            const email = document.getElementById("customerEmail").value;
-            const sendButton = document.querySelector(".send-email");
-
-            if (!email) {
-                alert("Enter customer email.");
-                return;
-            }
-
-            // Show spinner and disable button
-            sendButton.classList.add("sending");
-            sendButton.innerHTML = "Sending...";
-
-            fetch(`/sales/send-email?email=${encodeURIComponent(email)}`)
-                .then(response => {
-                    if (response.ok) {
-                        // Show success state
-                        setTimeout(() => {
-                            sendButton.classList.remove("sending");
-                            sendButton.classList.add("success");
-                            sendButton.innerHTML = '<i class="fa-solid fa-check"></i> Email Sent!';
-                        }, 1500); // Simulated delay for a smoother transition
-                    } else {
-                        alert("Failed to send email.");
-                        sendButton.classList.remove("sending");
-                        sendButton.innerHTML = '<i class="fa-solid fa-envelope"></i> Send Email';
-                    }
-                })
-                .catch(() => {
-                    alert("Error sending email.");
-                    sendButton.classList.remove("sending");
-                    sendButton.innerHTML = '<i class="fa-solid fa-envelope"></i> Send Email';
-                });
-        }
-
         document.addEventListener("DOMContentLoaded", function () {
             fetch("/sales/latest")
                 .then(response => response.json())
@@ -257,6 +221,7 @@
         }
     </script>
 </head>
+
 <body>
     <section layout:fragment="body">
         <div class="success-container">
@@ -299,4 +264,5 @@
         </div>
     </section>
 </body>
+
 </html>

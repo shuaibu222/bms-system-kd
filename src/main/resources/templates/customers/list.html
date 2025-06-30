@@ -4,6 +4,17 @@
 
 <head>
     <title>Customer Management</title>
+    <style>
+        .balance-debtor {
+            color: green;
+            font-weight: bold;
+        }
+
+        .balance-creditor {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
     <script>
         // Open the "Add Customer" modal
         function openAddCustomerModal() {
@@ -61,7 +72,8 @@
 
             <!-- Search Bar -->
             <div class="search-container">
-                <input type="text" id="searchInput" placeholder="🔍 Search Customers..." onkeyup="searchCustomers()">
+                <input aria-label="search" type="text" id="searchInput" placeholder="🔍 Search Customers..."
+                    onkeyup="searchCustomers()">
             </div>
 
 
@@ -95,18 +107,45 @@
                             <td th:text="${customer.name}"></td>
                             <td th:text="${customer.phone}"></td>
                             <td th:text="${customer.address}"></td>
-                            <td th:text="${customer.balance}"></td>
                             <td>
+                                <span th:class="${customer.balance < 0} ? 'balance-creditor' : 'balance-debtor'"
+                                    th:text="'₦' + ${#numbers.formatDecimal(customer.balance, 1, 'COMMA', 2, 'POINT')}"></span>
+                                <span th:if="${customer.balance < 0}">(Creditor)</span>
+                                <span th:if="${customer.balance >= 0}">(Debtor)</span>
+                            </td>
+                            </td>
+                            <td>
+                                <a class="dynamic-link" th:href="@{'/customers/deposits/' + ${customer.id}}">
+                                    Deposit
+                                </a>
                                 <a class="dynamic-link" th:href="@{'/customers/edit/' + ${customer.id}}">
-                                    <i class="fas fa-edit"></i>
+                                    Edit
                                 </a>
                                 <a href="javascript:void(0);" class="dynamic-link"
                                     th:onclick="'openDeleteModal(' + ${customer.id} + ')'">
-                                    <i class="fas fa-trash-alt"></i>
+                                    Delete
                                 </a>
                             </td>
                         </tr>
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" style="text-align: right;"><strong>Total Debtors:</strong></td>
+                            <td colspan="2" class="balance-debtor"
+                                th:text="'₦' + ${#numbers.formatDecimal(totalDebtors, 1, 'COMMA', 2, 'POINT')}"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="text-align: right;"><strong>Total Creditors:</strong></td>
+                            <td colspan="2" class="balance-creditor"
+                                th:text="'₦' + ${#numbers.formatDecimal(totalCreditors, 1, 'COMMA', 2, 'POINT')}"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="text-align: right;"><strong>Total Balance:</strong></td>
+                            <td colspan="2"
+                                th:text="'₦' + ${#numbers.formatDecimal(totalBalance, 1, 'COMMA', 2, 'POINT')}"></td>
+                        </tr>
+                    </tfoot>
+
                 </table>
             </div>
         </article>

@@ -59,15 +59,15 @@ public class InvoiceController {
         UserModel userModel = userRepository.findByUsername(authentication.getName());
 
         SaleModel quotation = saleRepository.findByQtnNum(qtnNum);
-        SaleDto saleDto = SaleMapper.mapToDto(quotation);
-        saleDto.setSalesAgent(userModel.getFullName());
 
         if (quotation != null) {
-            model.addAttribute("quotation", saleDto);
-            model.addAttribute("items", quotation.getItems());
-            model.addAttribute("invoice", new InvoiceModel()); // Add an empty invoice model for the form
-        } else {
-            model.addAttribute("error", "Quotation not found");
+            // Create invoice with default value
+            InvoiceModel invoice = new InvoiceModel();
+            invoice.setInvoiceValue(quotation.getTotalAmount()); // THIS IS THE KEY LINE
+
+            model.addAttribute("quotation", quotation);
+            model.addAttribute("agent", userModel.getFullName());
+            model.addAttribute("invoice", invoice); // Pass the prepared invoice
         }
         return "invoices/list"; // Return to the same view with the quotation and invoice form
     }
@@ -80,8 +80,18 @@ public class InvoiceController {
             model.addAttribute("invoice", invoice);
             return "invoices/list";
         }
-        invoiceService.saveOrUpdateInvoice(invoice);
-        return "redirect:/invoices/success";
+
+        // Add debug logging
+        System.out.println("Received invoice data: " + invoice);
+        System.out.println("Quotation ID: " + invoice.getQuotationId());
+
+        try {
+            invoiceService.saveOrUpdateInvoice(invoice);
+            return "redirect:/invoices/success";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            return "invoices/list";
+        }
     }
 
     @GetMapping("/edit/{id}")

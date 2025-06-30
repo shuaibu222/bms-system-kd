@@ -1,8 +1,12 @@
 package com.shuaibu.controller;
 
 import com.shuaibu.dto.CustomerDto;
+import com.shuaibu.dto.DepositDto;
 import com.shuaibu.model.CustomerModel;
+import com.shuaibu.model.DepositModel;
 import com.shuaibu.model.SaleModel;
+import com.shuaibu.repository.CustomerRepository;
+import com.shuaibu.repository.DepositRepository;
 import com.shuaibu.repository.SaleRepository;
 import com.shuaibu.service.CustomerService;
 
@@ -22,17 +26,33 @@ import jakarta.validation.Valid;
 public class CustomerController {
 
     private final CustomerService customerService;
-    private final SaleRepository saleRepository;
+    private final CustomerRepository customerRepository;
+    private final DepositRepository depositRepository;
 
-    public CustomerController(CustomerService customerService, SaleRepository saleRepository) {
+    public CustomerController(CustomerService customerService, SaleRepository saleRepository,
+            CustomerRepository customerRepository, DepositRepository depositRepository) {
         this.customerService = customerService;
-        this.saleRepository = saleRepository;
+        this.customerRepository = customerRepository;
+        this.depositRepository = depositRepository;
     }
 
     @GetMapping
     public String showCustomerList(Model model) {
-        model.addAttribute("customers", customerService.getAllCustomers());
+        List<CustomerDto> customers = customerService.getAllCustomers();
+
+        double totalBalance = customers.stream().mapToDouble(CustomerDto::getBalance).sum();
+        double totalDebtors = customers.stream().filter(c -> c.getBalance() >= 0).mapToDouble(CustomerDto::getBalance)
+                .sum();
+        double totalCreditors = customers.stream().filter(c -> c.getBalance() < 0).mapToDouble(CustomerDto::getBalance)
+                .sum();
+
+        model.addAttribute("customers", customers);
         model.addAttribute("customer", new CustomerModel());
+
+        model.addAttribute("totalBalance", totalBalance);
+        model.addAttribute("totalDebtors", totalDebtors);
+        model.addAttribute("totalCreditors", totalCreditors);
+
         return "customers/list";
     }
 
@@ -89,16 +109,39 @@ public class CustomerController {
         return "redirect:/customers?error";
     }
 
+    @GetMapping("/deposits/{id}")
+    public String showDepositForm(@PathVariable Long id, Model model) {
+        DepositModel deposit = new DepositModel();
+        deposit.setCustomerId(id);
+        model.addAttribute("deposit", deposit);
+        return "customers/deposit";
+    }
+
+    @PostMapping("/deposits/{id}")
+    public String makeDeposit(@PathVariable Long id,
+            @ModelAttribute("deposit") @Valid DepositDto depositDto,
+            BindingResult result,
+            Model model) {
+        if (result.hasErrors()) {
+            return "customers/deposit";
+        }
+
+        depositDto.setCustomerId(id);
+        customerService.makeDeposit(depositDto);
+        return "redirect:/customers?success";
+    }
+
     @GetMapping("/ledger")
     public String showCustomerLedger(
             @RequestParam(required = false) String accountNo,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
             Model model) {
-        List<SaleModel> salesReports = List.of();
-        double totalSales = 0.0;
+
+        List<DepositModel> depositReports = List.of();
+        double totalDeposits = 0.0;
         int totalTransactions = 0;
-        String customerName = null;
+        CustomerModel customer = null;
 
         model.addAttribute("accountNo", accountNo);
         model.addAttribute("startDate", startDate);
@@ -106,32 +149,35 @@ public class CustomerController {
 
         if (accountNo != null && !accountNo.isBlank()) {
             try {
-                Integer phone = Integer.parseInt(accountNo);
+                customer = customerRepository.findByPhone(accountNo).get();
+                if (customer != null) {
+                    Long customerId = customer.getId();
 
-                LocalDate start = (startDate != null && !startDate.isBlank()) ? LocalDate.parse(startDate) : null;
-                LocalDate end = (endDate != null && !endDate.isBlank()) ? LocalDate.parse(endDate) : null;
+                    LocalDate start = (startDate != null && !startDate.isBlank()) ? LocalDate.parse(startDate) : null;
+                    LocalDate end = (endDate != null && !endDate.isBlank()) ? LocalDate.parse(endDate) : null;
 
-                if (start != null && end != null) {
-                    salesReports = saleRepository.findByPhoneAndSaleDateTimeBetween(phone, start, end);
+                    if (start != null && end != null) {
+                        depositReports = depositRepository.findByCustomerIdAndDepositDateBetween(customerId, start,
+                                end);
+                    } else {
+                        depositReports = depositRepository.findByCustomerId(customerId);
+                    }
+
+                    totalDeposits = depositReports.stream().mapToDouble(DepositModel::getTotalAmount).sum();
+                    totalTransactions = depositReports.size();
                 }
 
-                totalSales = salesReports.stream().mapToDouble(SaleModel::getTotalAmount).sum();
-                totalTransactions = salesReports.size();
-
-                if (!salesReports.isEmpty()) {
-                    customerName = salesReports.get(0).getCustomerName();
-                }
-
-            } catch (NumberFormatException e) {
-                System.out.println(e);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
-        model.addAttribute("salesReports", salesReports);
-        model.addAttribute("totalSales", totalSales);
+        model.addAttribute("depositReports", depositReports);
+        model.addAttribute("totalDeposits", totalDeposits);
         model.addAttribute("totalTransactions", totalTransactions);
-        model.addAttribute("customer", customerName != null ? customerName : null);
+        model.addAttribute("customer", customer);
 
         return "customers/ledger";
     }
+
 }

@@ -18,7 +18,6 @@ public class DepositDto {
     @NotNull(message = "* Payment method is required")
     private String paymentMethod;
 
-    @NotNull(message = "* Purpose is required")
     private String purpose;
 
     @NotNull(message = "* Deposit date is required")

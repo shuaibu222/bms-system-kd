@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,16 +10,24 @@
         let cart = [];
         let totalAmount = 0;
 
-        function addToCart(id, name, price, store) {
-            const existingItem = cart.find(item => item.id === id && item.store === store);
+        function addToCart(id, name, price) {
+            const quantityInput = document.getElementById('quantity-' + id);
+            const quantity = parseInt(quantityInput.value) || 1;
+
+            if (quantity <= 0) {
+                alert("Please enter a valid quantity");
+                return;
+            }
+
+            const existingItem = cart.find(item => item.id === id);
             if (existingItem) {
-                existingItem.quantity += 1;
+                existingItem.quantity += quantity;
             } else {
-                cart.push({ id, name, price, quantity: 1, store });
+                cart.push({ id, name, price, quantity });
             }
             updateCart();
+            quantityInput.value = '1'; // Reset quantity input
         }
-
 
         function removeFromCart(id) {
             cart = cart.filter(item => item.id !== id);
@@ -38,7 +48,7 @@
                 const cartItem = document.createElement('div');
                 cartItem.className = 'cart-item';
                 cartItem.innerHTML = `
-                    <span>${item.name} (${item.store}) x ${item.quantity}</span>
+                    <span>${item.name} x ${item.quantity}</span>
                     <span>₦${Number((item.price * item.quantity).toFixed(2)).toLocaleString()}</span>
                     <button onclick="removeFromCart(${item.id})">Remove</button>
                 `;
@@ -56,21 +66,20 @@
             let products = document.querySelectorAll(".product-item");
 
             products.forEach(product => {
-                let productName = product.textContent.toLowerCase();
+                let productName = product.querySelector('.product-name').textContent.toLowerCase();
                 product.style.display = productName.includes(searchValue) ? "flex" : "none";
             });
-
-            // Ensure cart actions remain functional after filtering
-            updateCart();
         }
-        async function checkout() {
-            const customerName = document.getElementById("customerSelect").value;
-            const saleDate = document.getElementById("saleDate").value;
 
-            if (!customerName) {
-                alert("Please select a customer.");
-                return;
-            }
+        function toggleCustomerFields() {
+            const customerType = document.querySelector('input[name="customerType"]:checked').value;
+            document.getElementById('existingCustomerFields').style.display = customerType === 'existing' ? 'block' : 'none';
+            document.getElementById('newCustomerFields').style.display = customerType === 'new' ? 'block' : 'none';
+        }
+
+        async function checkout() {
+            const customerType = document.querySelector('input[name="customerType"]:checked').value;
+            const saleDate = document.getElementById('saleDate').value;
 
             if (!saleDate) {
                 alert("Please select a sale date.");
@@ -82,13 +91,30 @@
                 return;
             }
 
+            let customerName = '';
+            let phone = '';
+
+            if (customerType === 'existing') {
+                phone = document.getElementById('customerPhone').value.trim();
+                if (phone === '') {
+                    alert("Please enter customer phone number.");
+                    return;
+                }
+            } else {
+                customerName = document.getElementById('newCustomerName').value.trim();
+                if (customerName === '') {
+                    alert("Please enter customer name.");
+                    return;
+                }
+            }
+
             const orderData = {
                 customerName: customerName,
+                phone: phone,
                 saleDateTime: saleDate,
                 totalAmount: totalAmount,
                 items: cart.map(item => ({
                     productName: item.name,
-                    store: item.store, // Include store name
                     quantity: item.quantity,
                     price: item.price
                 }))
@@ -113,8 +139,12 @@
             }
         }
 
+        document.addEventListener('DOMContentLoaded', function () {
+            toggleCustomerFields();
+        });
     </script>
 </head>
+
 <body>
     <section layout:fragment="body">
         <div class="pos-container">
@@ -125,29 +155,49 @@
                 </div>
                 <div id="productList">
                     <div th:each="product : ${products}" class="product-item">
-                        <span th:text="${product.name} + ' (' + ${product.store} + ') - ₦' + ${#numbers.formatDecimal(product.price, 0, 'COMMA', 2, 'POINT')}"></span>
-                        <span th:class="${product.quantity > 0} ? 'stock-in' : 'stock-out'" th:text="${product.quantity > 0} ? 'stock-in' : 'stock-out'"></span>
-                        <button th:attr="onclick='addToCart(' + ${product.id} + ', \'' + ${product.name} + '\', ' + ${product.price} + ', \'' + ${product.store} + '\')'">Add</button>
+                        <span class="product-name" th:text="${product.name}"></span>
+                        <span>₦<span
+                                th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 2, 'POINT')}"></span></span>
+                        <span th:class="${product.quantity > 0} ? 'stock-in' : 'stock-out'"
+                            th:text="${product.quantity > 0} ? 'In Stock (' + ${product.quantity} + ')' : 'Out of Stock'"></span>
+                        <input th:if="${product.quantity > 0}" type="number" th:id="'quantity-' + ${product.id}"
+                            class="quantity-input" value="1" min="1" th:max="${product.quantity}">
+                        <button
+                            th:attr="onclick='addToCart(' + ${product.id} + ', \'' + ${product.name} + '\', ' + ${product.price} + ')'"
+                            th:disabled="${product.quantity <= 0}">Add</button>
                     </div>
-                </div>                
-            </div>            
+                </div>
+            </div>
 
             <div class="cart">
                 <h2>Cart</h2>
-                
-                <!-- New Customer & Date Section -->
-                <div class="customer-details">
-                    <label for="customerSelect">Customer Name:</label>
-                    <select id="customerSelect">
-                        <option value="">-- Select Customer --</option>
-                        <option th:each="customer : ${customers}" 
-                                th:value="${customer.name}" 
-                                th:text="${customer.name}">
-                        </option>
-                    </select>
 
+                <div class="customer-type">
+                    <label>
+                        <input type="radio" name="customerType" value="existing" checked
+                            onclick="toggleCustomerFields()">
+                        Existing Customer
+                    </label>
+                    <label>
+                        <input type="radio" name="customerType" value="new" onclick="toggleCustomerFields()">
+                        New Customer
+                    </label>
+                </div>
+
+                <div id="existingCustomerFields" class="customer-details">
+                    <label for="customerPhone">Customer Phone Number:</label>
+                    <input type="text" id="customerPhone" placeholder="Enter customer phone number">
+                </div>
+
+                <div id="newCustomerFields" class="customer-details" style="display: none;">
+                    <label for="newCustomerName">Customer Name:</label>
+                    <input type="text" id="newCustomerName" placeholder="Enter customer name">
+                </div>
+
+                <div class="sale-date">
                     <label for="saleDate">Date:</label>
-                    <input type="date" id="saleDate">
+                    <input type="date" id="saleDate"
+                        th:value="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
                 </div>
 
                 <div class="cart-items" id="cartItems"></div>
@@ -162,4 +212,5 @@
         </div>
     </section>
 </body>
+
 </html>

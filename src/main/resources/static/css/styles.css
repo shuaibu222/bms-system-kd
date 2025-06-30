@@ -30,48 +30,70 @@
 /* Dark Theme (Darker Dark Blue + Purple) */
 [data-theme="dark"] {
     /* Backgrounds */
-    --color-background-primary: hsl(219, 58%, 5%); /* Very dark blue */
-    --color-background-secondary: hsl(220, 60%, 5%); /* Slightly lighter dark blue */
-    --color-background-highlight: hsl(270, 50%, 40%); /* Purple */
-    --color-background-hover: hsl(270, 50%, 35%); /* Darker purple for hover */
-    --color-background-active: hsl(270, 50%, 30%); /* Even darker purple for active states */
+    --color-background-primary: hsl(219, 58%, 5%);
+    /* Very dark blue */
+    --color-background-secondary: hsl(220, 60%, 5%);
+    /* Slightly lighter dark blue */
+    --color-background-highlight: hsl(270, 50%, 40%);
+    /* Purple */
+    --color-background-hover: hsl(270, 50%, 35%);
+    /* Darker purple for hover */
+    --color-background-active: hsl(270, 50%, 30%);
+    /* Even darker purple for active states */
 
     /* Text */
-    --color-text-primary: hsl(0, 0%, 95%); /* Light text for readability */
-    --color-text-secondary: hsl(0, 0%, 75%); /* Slightly muted text */
+    --color-text-primary: hsl(0, 0%, 95%);
+    /* Light text for readability */
+    --color-text-secondary: hsl(0, 0%, 75%);
+    /* Slightly muted text */
 
     /* Borders */
-    --color-border: hsl(220, 25%, 20%); /* Dark blue border */
+    --color-border: hsl(220, 25%, 20%);
+    /* Dark blue border */
 
     /* Links */
-    --color-link-hover: hsl(270, 50%, 50%); /* Bright purple for link hover */
+    --color-link-hover: hsl(270, 50%, 50%);
+    /* Bright purple for link hover */
 
     /* Cards */
-    --color-card-background: hsl(220, 25%, 12%); /* Dark blue */
-    --color-card-foreground: hsl(0, 0%, 95%); /* Light text */
+    --color-card-background: hsl(220, 25%, 12%);
+    /* Dark blue */
+    --color-card-foreground: hsl(0, 0%, 95%);
+    /* Light text */
 
     /* Popovers */
-    --color-popover-background: hsl(220, 25%, 12%); /* Dark blue */
-    --color-popover-foreground: hsl(0, 0%, 95%); /* Light text */
+    --color-popover-background: hsl(220, 25%, 12%);
+    /* Dark blue */
+    --color-popover-foreground: hsl(0, 0%, 95%);
+    /* Light text */
 
     /* Foregrounds */
-    --color-foreground-primary: hsl(0, 0%, 95%); /* Light text */
-    --color-foreground-secondary: hsl(0, 0%, 85%); /* Slightly muted light text */
+    --color-foreground-primary: hsl(0, 0%, 95%);
+    /* Light text */
+    --color-foreground-secondary: hsl(0, 0%, 85%);
+    /* Slightly muted light text */
 
     /* Muted Colors */
-    --color-muted: hsl(220, 25%, 15%); /* Dark blue muted */
-    --color-muted-foreground: hsl(0, 0%, 70%); /* Muted text */
+    --color-muted: hsl(220, 25%, 15%);
+    /* Dark blue muted */
+    --color-muted-foreground: hsl(0, 0%, 70%);
+    /* Muted text */
 
     /* Accents */
-    --color-accent: hsl(270, 50%, 40%); /* Purple accent */
-    --color-accent-foreground: hsl(0, 0%, 95%); /* Light text for accents */
+    --color-accent: hsl(270, 50%, 40%);
+    /* Purple accent */
+    --color-accent-foreground: hsl(0, 0%, 95%);
+    /* Light text for accents */
 
     /* Destructive */
-    --color-destructive: hsl(0, 62.8%, 50.6%); /* Red for destructive actions */
-    --color-destructive-foreground: hsl(0, 0%, 100%); /* White text for destructive actions */
+    --color-destructive: hsl(0, 62.8%, 50.6%);
+    /* Red for destructive actions */
+    --color-destructive-foreground: hsl(0, 0%, 100%);
+    /* White text for destructive actions */
 
     /* Inputs */
-    --color-input: hsl(220, 25%, 15%); /* Dark blue input background */
+    --color-input: hsl(220, 25%, 15%);
+    /* Dark blue input background */
 }
 
 /* ============== */
@@ -147,7 +169,7 @@ input {
     display: grid;
     grid-template-columns: 240px 1fr;
     grid-template-rows: 60px 1fr;
-    grid-template-areas: 
+    grid-template-areas:
         "sidebar navbar"
         "sidebar main";
     height: 100vh;
@@ -208,7 +230,8 @@ input {
     transition: background-color 0.1s ease-in-out;
 }
 
-.submenu a:hover, .dashboard:hover {
+.submenu a:hover,
+.dashboard:hover {
     background-color: var(--color-link-hover);
     color: white;
 }
@@ -292,6 +315,7 @@ input {
         transform: scale(1);
         opacity: 1;
     }
+
     100% {
         transform: scale(2);
         opacity: 0;
@@ -302,7 +326,7 @@ input {
     position: absolute;
     width: 12px;
     height: 12px;
-    background-color:  red;
+    background-color: red;
     border-radius: 50%;
     top: -13px;
     right: -3px;
@@ -321,14 +345,32 @@ input {
 }
 
 @keyframes spreadCheer {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.2); opacity: 0.9; }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 @keyframes confetti {
-    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(-20px) rotate(360deg); opacity: 0; }
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-20px) rotate(360deg);
+        opacity: 0;
+    }
 }
 
 /* Button Default */
@@ -370,8 +412,13 @@ input {
 
 /* Spinner Animation */
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .theme-toggle {
@@ -391,7 +438,7 @@ input {
 }
 
 /* Active state for nav items */
-.nav-main a.active{
+.nav-main a.active {
     background-color: hsl(270, 50%, 40%);
     color: white;
     border-color: hsl(270, 50%, 40%);
@@ -507,6 +554,7 @@ input {
         opacity: 0;
         transform: translate(-50%, -55%);
     }
+
     to {
         opacity: 1;
         transform: translate(-50%, -50%);
@@ -693,12 +741,12 @@ input {
 }
 
 .back-btn {
-    padding: 0.5rem 1.2rem; 
-    text-decoration: none; 
-    cursor: pointer; 
-    width: fit-content; 
-    background: var(--color-text-primary); 
-    color: var(--color-background-secondary); 
+    padding: 0.5rem 1.2rem;
+    text-decoration: none;
+    cursor: pointer;
+    width: fit-content;
+    background: var(--color-text-primary);
+    color: var(--color-background-secondary);
     border-radius: 0.5rem;
 }
 
@@ -746,7 +794,8 @@ input {
 button {
     font-family: 'Gotham', sans-serif;
     background: var(--color-text-primary);
-    color: var(--color-background-secondary); /* Light text */
+    color: var(--color-background-secondary);
+    /* Light text */
     padding: 0.6rem 3rem;
     border: none;
     border-radius: 0.5rem;
@@ -756,9 +805,12 @@ button {
 }
 
 button:hover {
-    background-color: var(--color-background-secondary); /* Darker blue */
-    color: var(--color-text-primary); /* Light text */
-    border-color: var(--color-text-primary); /* Light border */
+    background-color: var(--color-background-secondary);
+    /* Darker blue */
+    color: var(--color-text-primary);
+    /* Light text */
+    border-color: var(--color-text-primary);
+    /* Light border */
 }
 
 .error-message {
@@ -772,7 +824,8 @@ button:hover {
     width: 100%;
     background-color: var(--color-background-primary);
     border-radius: 0.5rem;
-    overflow-x: auto; /* Allows horizontal scrolling */
+    overflow-x: auto;
+    /* Allows horizontal scrolling */
     border: 2px solid var(--color-border);
 }
 
@@ -780,7 +833,8 @@ table {
     width: 100%;
     border-collapse: collapse;
     color: var(--color-text-primary);
-    table-layout: auto; /* Ensures columns expand based on content */
+    table-layout: auto;
+    /* Ensures columns expand based on content */
 }
 
 table th,
@@ -788,8 +842,10 @@ table td {
     padding: 0.5rem 1rem;
     text-align: left;
     border-bottom: 1px solid var(--color-border);
-    min-width: 100px; /* Prevents columns from collapsing */
-    white-space: nowrap; /* Prevents text wrapping */
+    min-width: 100px;
+    /* Prevents columns from collapsing */
+    white-space: nowrap;
+    /* Prevents text wrapping */
 }
 
 table th {
@@ -804,8 +860,10 @@ table tr:hover {
 
 table tbody td:last-child {
     display: flex;
-    gap: 0.5rem; /* Adds spacing between icons */
-    align-items: center; /* Vertically centers icons */
+    gap: 0.5rem;
+    /* Adds spacing between icons */
+    align-items: center;
+    /* Vertically centers icons */
 }
 
 .stock-in {
@@ -990,7 +1048,7 @@ table tbody td:last-child {
 @media (max-width: 768px) {
     .grid-wrapper {
         grid-template-columns: 1fr;
-        grid-template-areas: 
+        grid-template-areas:
             "navbar"
             "main";
     }
@@ -1000,12 +1058,14 @@ table tbody td:last-child {
         top: 0;
         left: -250px;
         width: 250px;
-        height: 100vh; /* Ensure the sidebar takes the full height of the viewport */
+        height: 100vh;
+        /* Ensure the sidebar takes the full height of the viewport */
         z-index: 1000;
         transition: transform 0.2s ease-in-out;
         margin: 0;
         border-radius: 0;
-        overflow-y: auto; /* Ensure the sidebar can scroll */
+        overflow-y: auto;
+        /* Ensure the sidebar can scroll */
     }
 
     .sidebar-header {
@@ -1031,7 +1091,7 @@ table tbody td:last-child {
         z-index: 999;
     }
 
-    .sidebar.open + .overlay {
+    .sidebar.open+.overlay {
         display: block;
     }
 
@@ -1064,6 +1124,7 @@ table tbody td:last-child {
 }
 
 @media (max-width: 480px) {
+
     .list-page,
     .edit-page {
         padding: 1rem;
@@ -1180,7 +1241,8 @@ table tbody td:last-child {
     color: var(--color-card-foreground);
 }
 
-.report-container th, .report-container td {
+.report-container th,
+.report-container td {
     border: 1px solid var(--color-border);
     padding: 12px;
 }
@@ -1279,12 +1341,14 @@ table tbody td:last-child {
 /* ==================== */
 
 @media print {
+
     /* Hide everything except the report */
     body * {
         visibility: hidden;
     }
-    
-    .report-container, .report-container * {
+
+    .report-container,
+    .report-container * {
         visibility: visible;
     }
 
@@ -1296,7 +1360,8 @@ table tbody td:last-child {
     }
 
     /* Hide interactive elements like buttons */
-    .email-input-group, .print-btn {
+    .email-input-group,
+    .print-btn {
         display: none;
     }
 }
@@ -1360,6 +1425,36 @@ table tbody td:last-child {
     font-size: 0.9rem;
 }
 
+.product-name {
+    flex: 1;
+}
+
+.quantity-input {
+    width: 70px;
+    padding: 4px;
+    margin: 0 8px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-input);
+    color: var(--color-text-primary);
+}
+
+.stock-in {
+    color: var(--color-success);
+    font-weight: 500;
+    margin: 0 8px;
+    min-width: 100px;
+    text-align: right;
+}
+
+.stock-out {
+    color: var(--color-destructive);
+    font-weight: 500;
+    margin: 0 8px;
+    min-width: 100px;
+    text-align: right;
+}
+
 /* Product Item Button */
 .product-item button {
     background: var(--color-background-highlight);
@@ -1373,7 +1468,12 @@ table tbody td:last-child {
     transition: background 0.2s, transform 0.1s;
 }
 
-.product-item button:active {
+.product-item button:disabled {
+    background: var(--color-muted);
+    cursor: not-allowed;
+}
+
+.product-item button:active:not(:disabled) {
     transform: scale(0.98);
 }
 
@@ -1413,8 +1513,8 @@ table tbody td:last-child {
     color: var(--color-text-primary);
 }
 
-/* Customer Dropdown & Date Input */
-.customer-details select,
+/* Customer Input & Date Input */
+.customer-details input[type="text"],
 .customer-details input[type="date"] {
     font-family: 'Gotham', sans-serif;
     width: 100%;
@@ -1427,11 +1527,51 @@ table tbody td:last-child {
 }
 
 /* On focus */
-.customer-details select:focus,
+.customer-details input[type="text"]:focus,
 .customer-details input[type="date"]:focus {
     outline: 2px solid var(--color-border-focus);
 }
 
+/* Customer Type Radio Buttons */
+.customer-type {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.customer-type label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+}
+
+/* Date Input Styling */
+.sale-date {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: var(--color-background-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+}
+
+.sale-date label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 8px;
+}
+
+.sale-date input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-input);
+    color: var(--color-text-primary);
+}
 
 .cart-items {
     flex: 1;
@@ -1536,6 +1676,7 @@ button {
 
 /* Mobile (max-width: 768px) */
 @media (max-width: 768px) {
+
     .product-item,
     .cart-item {
         flex-direction: column;
@@ -1674,12 +1815,14 @@ button {
     cursor: pointer;
 }
 
-.send-email-btn, .send-email {
+.send-email-btn,
+.send-email {
     background: var(--color-background-highlight);
     color: #fff;
 }
 
-.send-email-btn:hover, .send-email:hover {
+.send-email-btn:hover,
+.send-email:hover {
     background: var(--color-background-hover);
     color: #fff;
 }
@@ -1690,6 +1833,7 @@ button {
         width: 90%;
         padding: 16px;
     }
+
     .button-group {
         flex-direction: column;
         gap: 6px;
@@ -1701,7 +1845,8 @@ button {
 /* ==================== */
 
 .quotation-details {
-    font-family: 'Gotham', sans-serif;    font-size: 12px !important;
+    font-family: 'Gotham', sans-serif;
+    font-size: 12px !important;
     width: 150mm;
     margin: 0 auto;
     padding: 10px;
@@ -1730,6 +1875,7 @@ button {
     color: #333;
     text-align: center;
 }
+
 .store-address {
     font-size: 0.7rem;
     margin-bottom: 10px;
@@ -1751,18 +1897,21 @@ button {
     margin-bottom: 10px;
     text-align: left;
 }
+
 .quotation-title {
     font-size: 0.8rem;
     font-weight: bold;
     text-align: center;
     margin-bottom: 0.5rem;
 }
+
 .header-row {
     display: flex;
     justify-content: space-between;
     width: 100%;
     margin-bottom: 5px;
 }
+
 .header-row span {
     color: #555;
 }
@@ -1777,10 +1926,13 @@ button {
     background: #fff;
     border: 1px solid #ddd;
 }
-.receipt-container th, .receipt-container td {
+
+.receipt-container th,
+.receipt-container td {
     padding: 0.3rem;
     border: 1px solid #ddd;
 }
+
 .receipt-container th {
     font-weight: bold;
     text-transform: uppercase;
@@ -1788,10 +1940,13 @@ button {
     color: #333;
     background: #f9f9f9;
 }
+
 .receipt-container td {
     color: #555;
 }
-.price, .total {
+
+.price,
+.total {
     text-align: right;
 }
 

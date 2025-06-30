@@ -2,6 +2,7 @@ package com.shuaibu.service;
 
 import java.util.List;
 
+import com.shuaibu.dto.LowStockDto;
 import com.shuaibu.dto.ProductDto;
 
 public interface ProductService {
@@ -14,4 +15,6 @@ public interface ProductService {
     void deleteProduct(Long id);
 
     void saveAll(List<ProductDto> products);
+
+    void handlePurchaseAndUpdateProduct(Long id, LowStockDto dto);
 }

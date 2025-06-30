@@ -1,24 +1,14 @@
 package com.shuaibu.service.impl;
 
-import com.shuaibu.dto.InvoiceDto;
-import com.shuaibu.dto.SaleDto;
-import com.shuaibu.mapper.InvoiceMapper;
-import com.shuaibu.mapper.SaleMapper;
-import com.shuaibu.model.InvoiceModel;
-import com.shuaibu.model.ProductModel;
-import com.shuaibu.model.SaleItemModel;
-import com.shuaibu.model.SaleModel;
-import com.shuaibu.repository.InvoiceRepository;
-import com.shuaibu.repository.ProductRepository;
-import com.shuaibu.repository.SaleRepository;
+import com.shuaibu.dto.*;
+import com.shuaibu.mapper.*;
+import com.shuaibu.model.*;
+import com.shuaibu.repository.*;
 import com.shuaibu.service.InvoiceService;
-
-import jakarta.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,12 +17,14 @@ public class InvoiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final SaleRepository saleRepository;
     private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository;
 
     public InvoiceImpl(InvoiceRepository invoiceRepository, SaleRepository saleRepository,
-            ProductRepository productRepository) {
+            ProductRepository productRepository, CustomerRepository customerRepository) {
         this.productRepository = productRepository;
         this.invoiceRepository = invoiceRepository;
         this.saleRepository = saleRepository;
+        this.customerRepository = customerRepository;
     }
 
     @Override
@@ -51,43 +43,55 @@ public class InvoiceImpl implements InvoiceService {
     }
 
     @Override
-    @Transactional
     public InvoiceModel saveOrUpdateInvoice(InvoiceDto invoiceDto) {
+        // Validate input
+        if (invoiceDto == null) {
+            throw new IllegalArgumentException("Invoice DTO cannot be null");
+        }
+        if (invoiceDto.getQuotationId() == null) {
+            throw new IllegalArgumentException("Quotation ID must be provided");
+        }
+
         // Generate invoice number
         invoiceDto.setInvNum(generateInvoiceNumber());
 
-        double balanceDue = invoiceDto.getTotalAmount() - invoiceDto.getInvoiceValue();
+        // Fetch quotation
+        SaleModel quotation = saleRepository.findById(invoiceDto.getQuotationId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Quotation not found with ID: " + invoiceDto.getQuotationId()));
 
+        // Get customer from quotation
+        CustomerModel customer = customerRepository.findByPhone(quotation.getPhone())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Customer not found with phone: " + quotation.getPhone()));
+
+        // Set derived values
+        invoiceDto.setCustomerId(customer.getId());
+        invoiceDto.setTotalAmount(quotation.getTotalAmount());
+
+        // Calculate balance due
+        double balanceDue = quotation.getTotalAmount() - invoiceDto.getInvoiceValue();
         invoiceDto.setBalanceDue(balanceDue);
 
-        // Fetch the associated quotation (or sale) using quotationId
-        if (invoiceDto.getQuotationId() != null) {
-            SaleModel quotation = saleRepository.findById(invoiceDto.getQuotationId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Quotation not found with ID: " + invoiceDto.getQuotationId()));
-
-            // Deduct stock for each item in the quotation
-            for (SaleItemModel item : quotation.getItems()) {
-                ProductModel product = productRepository.findByName(item.getProductName());
-
-                if (product == null) {
-                    throw new IllegalArgumentException("Product not found in store: ");
-                }
-
-                // Check stock
-                if (product.getQuantity() < item.getQuantity()) {
-                    // throw new IllegalArgumentException("Insufficient stock for product: " +
-                    // product.getName());
-                    System.out.println("Insufficient stock for samsung!");
-                }
-
-                // Deduct stock
-                product.setQuantity(product.getQuantity() - item.getQuantity());
-                productRepository.save(product);
+        // Deduct stock for each item
+        for (SaleItemModel item : quotation.getItems()) {
+            ProductModel product = productRepository.findByName(item.getProductName());
+            if (product == null) {
+                throw new IllegalArgumentException("Product not found: " + item.getProductName());
             }
+            if (product.getQuantity() < item.getQuantity()) {
+                throw new IllegalStateException("Insufficient stock for product: " + item.getProductName());
+            }
+            product.setQuantity(product.getQuantity() - item.getQuantity());
+            productRepository.save(product);
         }
 
-        // Save the invoice
+        // Update customer balance
+        double currentBalance = customer.getBalance() != null ? customer.getBalance() : 0.0;
+        customer.setBalance(currentBalance - invoiceDto.getInvoiceValue());
+        customerRepository.save(customer);
+
+        // Save and return invoice
         return invoiceRepository.save(InvoiceMapper.mapToModel(invoiceDto));
     }
 
@@ -127,7 +131,6 @@ public class InvoiceImpl implements InvoiceService {
                 .id(latestInvoice.getId())
                 .invNum(latestInvoice.getInvNum())
                 .quotationId(latestInvoice.getQuotationId())
-                .totalAmount(latestInvoice.getTotalAmount())
                 .balanceDue(latestInvoice.getBalanceDue())
                 .paymentStatus(latestInvoice.getPaymentStatus())
                 .paymentMethod(latestInvoice.getPaymentMethod())

@@ -6,6 +6,12 @@ import com.shuaibu.repository.CustomerRepository;
 import com.shuaibu.service.CustomerService;
 import org.springframework.stereotype.Service;
 
+import com.shuaibu.dto.DepositDto;
+import com.shuaibu.mapper.DepositMapper;
+import com.shuaibu.model.CustomerModel;
+import com.shuaibu.model.DepositModel;
+import com.shuaibu.repository.DepositRepository;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,9 +19,11 @@ import java.util.stream.Collectors;
 public class CustomerImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final DepositRepository depositRepository;
 
-    public CustomerImpl(CustomerRepository customerRepository) {
+    public CustomerImpl(CustomerRepository customerRepository, DepositRepository depositRepository) {
         this.customerRepository = customerRepository;
+        this.depositRepository = depositRepository;
     }
 
     @Override
@@ -24,6 +32,23 @@ public class CustomerImpl implements CustomerService {
                 .stream()
                 .map(CustomerMapper::mapToDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void makeDeposit(DepositDto depositDto) {
+        // Save deposit
+        DepositModel deposit = DepositMapper.mapToModel(depositDto);
+        depositRepository.save(deposit);
+
+        // Update customer balance
+        CustomerModel customer = customerRepository.findById(depositDto.getCustomerId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Customer not found with ID: " + depositDto.getCustomerId()));
+
+        double currentBalance = customer.getBalance() != null ? customer.getBalance() : 0.0;
+        customer.setBalance(currentBalance + depositDto.getTotalAmount());
+
+        customerRepository.save(customer);
     }
 
     @Override

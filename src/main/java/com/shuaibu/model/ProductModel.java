@@ -2,6 +2,7 @@ package com.shuaibu.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,6 +36,9 @@ public class ProductModel {
     private String nafdac;
     private LocalDate lowStockDate;
 
+    @Transient
+    private String expiryWarning;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -47,4 +52,25 @@ public class ProductModel {
     public void preUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    @Transient
+    public String getExpiryWarning() {
+        if (expiryDate == null)
+            return null;
+
+        LocalDate today = LocalDate.now();
+        long daysToExpiry = ChronoUnit.DAYS.between(today, expiryDate);
+
+        if (daysToExpiry < 0) {
+            return "❌ Expired";
+        } else if (daysToExpiry <= 30) {
+            return "⚠️ Expiring Soon (30 days)";
+        } else if (daysToExpiry <= 90) {
+            return "🟠 Expires in 3 Months";
+        } else if (daysToExpiry <= 180) {
+            return "🔵 Expires in 6 Months";
+        }
+        return null; // Beyond 6 months, no warning
+    }
+
 }

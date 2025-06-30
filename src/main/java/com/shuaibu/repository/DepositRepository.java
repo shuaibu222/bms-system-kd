@@ -13,4 +13,7 @@ public interface DepositRepository extends JpaRepository<DepositModel, Long> {
 
     List<DepositModel> findByCustomerIdAndDepositDateBetween(Long id, LocalDate start, LocalDate end);
 
-    List<DepositModel> findByDepositDateBetween(LocalDate start, LocalDate end);}
+    List<DepositModel> findByDepositDateBetween(LocalDate start, LocalDate end);
+
+    List<DepositModel> findByCustomerId(Long customerId);
+}

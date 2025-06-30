@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.shuaibu.dto.SaleDto;
-import com.shuaibu.model.InvoiceModel;
 import com.shuaibu.model.SaleModel;
 
 public interface SaleService {

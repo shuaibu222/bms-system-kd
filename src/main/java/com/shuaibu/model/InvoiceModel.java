@@ -25,6 +25,7 @@ public class InvoiceModel {
     private Long id;
 
     private String invNum;
+    private Long customerId;
     private Long quotationId;
     private Double totalAmount;
     private Double invoiceValue;

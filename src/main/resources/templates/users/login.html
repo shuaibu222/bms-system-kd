@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
@@ -25,7 +26,8 @@
             height: 100%;
         }
 
-        .left-section, .right-section {
+        .left-section,
+        .right-section {
             flex: 1;
             display: flex;
             justify-content: center;
@@ -34,7 +36,8 @@
 
         .left-section {
             background-color: var(--color-background-highlight);
-            color: white; /* White text for the left section */
+            color: white;
+            /* White text for the left section */
             text-align: center;
         }
 
@@ -42,14 +45,16 @@
             font-size: 3rem;
             margin-bottom: 1rem;
             font-weight: bold;
-            color: white; /* Ensure text is white */
+            color: white;
+            /* Ensure text is white */
         }
 
         .left-section img {
             width: 200px;
             height: auto;
             margin-bottom: 1rem;
-            filter: brightness(0) invert(1); /* Make logo white */
+            filter: brightness(0) invert(1);
+            /* Make logo white */
         }
 
         .right-section {
@@ -90,7 +95,7 @@
 
         .input-group input {
             width: 100%;
-            padding: 0.75rem;
+            padding: 1rem;
             border: 1px solid var(--color-border);
             border-radius: 8px;
             background-color: var(--color-input);
@@ -102,12 +107,11 @@
 
         .input-group input:focus {
             border-color: var(--color-background-highlight);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
         }
 
         button {
-            width: 100%;
-            padding: 0.75rem;
+            width: 50%;
+            padding: 1.1rem;
             background-color: var(--color-background-highlight);
             color: white;
             border: none;
@@ -120,7 +124,7 @@
 
         button:hover {
             background-color: var(--color-background-hover);
-            transform: translateY(-2px);
+            /* transform: translateY(-2px); */
             color: white;
         }
 
@@ -166,7 +170,8 @@
                 flex-direction: column;
             }
 
-            .left-section, .right-section {
+            .left-section,
+            .right-section {
                 flex: none;
                 height: 50%;
             }
@@ -181,6 +186,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="split-container">
         <!-- Left Section: Company Name and Logo -->
@@ -232,4 +238,5 @@
         document.getElementById('year').textContent = new Date().getFullYear();
     </script>
 </body>
+
 </html>

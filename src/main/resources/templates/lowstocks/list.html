@@ -1,13 +1,10 @@
 <!DOCTYPE html>
-<html
-    xmlns:th="http://www.thymeleaf.org"
-    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{layout}"
-    lang="en">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}" lang="en">
+
 <head>
     <title>Low Stock Products</title>
     <script>
-        // Function to filter products by search query
         function searchProducts() {
             const input = document.getElementById('searchInput');
             const filter = input.value.toLowerCase();
@@ -15,27 +12,20 @@
             const rows = table.querySelectorAll('tr');
 
             rows.forEach((row, index) => {
-                if (index === 0) return;  // Skip the header row
+                if (index === 0) return;
                 const cells = row.querySelectorAll('td');
                 let found = false;
-
-                // Iterate over the cells of each row (Product ID, Name, Barcode, etc.)
                 cells.forEach(cell => {
                     if (cell.textContent.toLowerCase().includes(filter)) {
                         found = true;
                     }
                 });
-
-                // Toggle visibility of rows based on whether they match the filter
-                if (found) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                row.style.display = found ? '' : 'none';
             });
         }
     </script>
 </head>
+
 <body>
     <section layout:fragment="body">
         <article class="list-page">
@@ -43,7 +33,6 @@
                 <h1>📦 Low Stock Product List</h1>
             </div>
 
-            <!-- Search bar for filtering products -->
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="🔍 Search Products..." onkeyup="searchProducts()">
             </div>
@@ -53,20 +42,26 @@
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
-                        <th>Store</th>
                         <th>Quantity</th>
-                        <th>Low Stock Qty</th>
+                        <th>Low Stock Date</th>
+                        <th>Expiry Date</th>
+                        <th>NAFDAC</th>
+                        <th>Created At</th>
+                        <th>Updated At</th>
                         <th>Actions</th>
                     </tr>
                     <tr th:each="product : ${products}">
                         <td th:text="${product.id}"></td>
                         <td th:text="${product.name}"></td>
-                        <td th:text="${product.store}"></td>
                         <td th:text="${product.quantity}"></td>
-                        <td th:text="${product.lowQuantityAlert}"></td>
+                        <td th:text="${product.lowStockDate}"></td>
+                        <td th:text="${product.expiryDate}"></td>
+                        <td th:text="${product.nafdac}"></td>
+                        <td th:text="${#temporals.format(product.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                        <td th:text="${#temporals.format(product.updatedAt, 'yyyy-MM-dd HH:mm')}"></td>
                         <td>
                             <a class="dynamic-link" th:href="@{'/products/lowstocks/edit/' + ${product.id}}">
-                                Restock
+                                Purchase
                             </a>
                         </td>
                     </tr>
@@ -75,4 +70,5 @@
         </article>
     </section>
 </body>
+
 </html>

@@ -12,16 +12,12 @@ public class InvoiceDto {
 
     private Long id;
     private String invNum;
+    private Long customerId;
     private Long quotationId;
-
-    @NotNull(message = "* Total amount is required")
     private Double totalAmount;
-
     private Double invoiceValue;
     private Double balanceDue;
-
     private String paymentStatus;
-
     private String paymentMethod;
 
     @NotNull(message = "* Invoice date and time is required")

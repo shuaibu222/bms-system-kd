@@ -57,7 +57,7 @@
                         <ul class="submenu">
                             <li><a href="/loans">Staff Loan</a></li>
                             <li><a href="/customers/debtors">Debtors</a></li>
-                            <li><a href="/suspenses">Suspense Account</a></li>
+                            <li><a href="/suspenses">Suspenses</a></li>
                         </ul>
                     </li>
                     <li sec:authorize="hasRole('ADMIN')" class="nav-item">
@@ -157,6 +157,8 @@
             </main>
         </div>
     </div>
+    <script th:src="@{/js/sockjs.min.js}"></script>
+    <script th:src="@{/js/stomp.umd.min.js}"></script>
     <script th:src="@{/js/script.js}"></script>
 
     <script>
@@ -212,49 +214,52 @@
         });
 
         document.addEventListener("DOMContentLoaded", function () {
-            const lowStockList = document.getElementById("low-stock-list");
-            const spinnerDot = document.querySelector(".spinner-dot"); // Use the existing spinner-dot
-
-            function fetchLowStockProducts() {
-                fetch('/api/low-stock')
-                    .then(response => response.json())
-                    .then(data => {
-                        // ✅ Show or hide spinner-dot based on count
-                        if (data.count > 0) {
-                            spinnerDot.style.display = "inline-block"; // Show spinner-dot
-                        } else {
-                            spinnerDot.style.display = "none"; // Hide spinner-dot
-                        }
-
-                        // ✅ Update notification modal content
-                        lowStockList.innerHTML = ""; // Clear old list
-                        if (data.products.length > 0) {
-                            data.products.forEach(product => {
-                                const listItem = document.createElement("li");
-
-                                // ✅ Create a link for each low-stock product
-                                const productLink = document.createElement("a");
-                                productLink.href = `/products/lowstocks`;
-                                productLink.textContent = `⚠️ ${product} is low in stock!`;
-                                productLink.style.color = "white";
-                                productLink.className = "lowstock-link";
-                                productLink.style.textDecoration = "none"; // Optional: Remove underline
-
-                                listItem.appendChild(productLink);
-                                lowStockList.appendChild(listItem);
-                            });
-                        } else {
-                            lowStockList.innerHTML = "<li>No low-stock items.</li>";
-                        }
-                    })
-                    .catch(error => console.error("Error fetching low-stock data:", error));
+            if (
+                typeof SockJS === "undefined" ||
+                typeof StompJs === "undefined" ||
+                typeof StompJs.Stomp === "undefined"
+            ) {
+                console.error("SockJS or StompJs not loaded correctly.");
+                return;
             }
 
-            // ✅ Fetch low-stock products every 5 seconds
-            setInterval(fetchLowStockProducts, 5000);
+            const socket = new SockJS("/ws");
+            const stompClient = StompJs.Stomp.over(socket);
 
-            // ✅ Initial fetch
-            fetchLowStockProducts();
+            stompClient.connect({}, function (frame) {
+                console.log("✅ WebSocket connected:", frame);
+
+                stompClient.subscribe("/topic/low-stock", function (message) {
+                    const data = JSON.parse(message.body);
+                    const { count, products } = data;
+
+                    const bellDot = document.querySelector(".spinner-dot");
+                    const notificationList = document.getElementById("low-stock-list");
+
+                    if (bellDot) {
+                        bellDot.style.display = count > 0 ? "inline-block" : "none";
+                    }
+
+                    if (notificationList) {
+                        notificationList.innerHTML = "";
+
+                        products.forEach(product => {
+                            const li = document.createElement("li");
+                            const link = document.createElement("a");
+
+                            link.href = "/products/lowstocks"; // Could be dynamic later
+                            link.textContent = `⚠️ ${product} is low on stock`;
+                            link.style.textDecoration = "none";
+                            link.style.color = "inherit";
+
+                            li.appendChild(link);
+                            notificationList.appendChild(li);
+                        });
+                    }
+                });
+            }, function (error) {
+                console.error("🔴 STOMP connection error:", error);
+            });
         });
 
         document.addEventListener("DOMContentLoaded", function () {

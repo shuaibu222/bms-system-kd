@@ -11,7 +11,6 @@ import lombok.Data;
 public class LowStockDto {
     private Long id;
 
-    @NotEmpty(message = "* Product name is mandatory")
     private String name;
 
     @NotNull(message = "* Price is mandatory")

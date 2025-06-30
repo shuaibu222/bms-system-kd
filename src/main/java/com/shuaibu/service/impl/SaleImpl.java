@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 
 import com.shuaibu.dto.SaleDto;
 import com.shuaibu.dto.SaleItemDto;
-import com.shuaibu.model.ProductModel;
+import com.shuaibu.model.CustomerModel;
 import com.shuaibu.model.SaleItemModel;
 import com.shuaibu.model.SaleModel;
+import com.shuaibu.repository.CustomerRepository;
 import com.shuaibu.repository.InvoiceRepository;
-import com.shuaibu.repository.ProductRepository;
 import com.shuaibu.repository.SaleRepository;
 import com.shuaibu.service.SaleService;
 
@@ -18,6 +18,7 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -27,12 +28,12 @@ import static com.shuaibu.mapper.SaleMapper.*;
 public class SaleImpl implements SaleService {
 
     private final SaleRepository saleRepository;
-    private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository;
 
-    public SaleImpl(SaleRepository saleRepository, ProductRepository productRepository,
-            JavaMailSender javaMailSender, InvoiceRepository invoiceRepository) {
+    public SaleImpl(SaleRepository saleRepository, JavaMailSender javaMailSender,
+            InvoiceRepository invoiceRepository, CustomerRepository customerRepository) {
         this.saleRepository = saleRepository;
-        this.productRepository = productRepository;
+        this.customerRepository = customerRepository;
     }
 
     @Override
@@ -60,32 +61,33 @@ public class SaleImpl implements SaleService {
 
     @Transactional
     public void saveOrUpdateSale(SaleDto saleDto) {
+        String customerName = saleDto.getCustomerName();
+
+        // Customer lookup by phone fallback
+        if (customerName == null || customerName.trim().isEmpty()) {
+            if (saleDto.getPhone() != null && !saleDto.getPhone().trim().isEmpty()) {
+                Optional<CustomerModel> customerOpt = customerRepository.findByPhone(saleDto.getPhone());
+                if (customerOpt.isPresent()) {
+                    customerName = customerOpt.get().getName();
+                } else {
+                    throw new IllegalArgumentException("Customer not found for phone: " + saleDto.getPhone());
+                }
+            } else {
+                throw new IllegalArgumentException("Both customer name and phone number are missing.");
+            }
+        }
+
         SaleModel sale = SaleModel.builder()
                 .qtnNum(generateQuotationNumber())
-                .customerName(saleDto.getCustomerName())
-                .totalAmount(saleDto.getTotalAmount())
+                .customerName(customerName)
                 .phone(saleDto.getPhone())
+                .totalAmount(saleDto.getTotalAmount())
                 .saleDateTime(saleDto.getSaleDateTime())
                 .build();
 
         List<SaleItemModel> saleItems = new ArrayList<>();
 
         for (SaleItemDto item : saleDto.getItems()) {
-            // Get the product from the database
-            ProductModel product = productRepository.findByName(item.getProductName());
-
-            if (product == null) {
-                System.out.println("Product not found: " + item.getProductName());
-                continue; // Skip this item
-            }
-
-            // Check if stock is sufficient
-            if (product.getQuantity() < item.getQuantity()) {
-                System.out.println("Skipping item due to insufficient stock: " + item.getProductName());
-                continue; // Skip this item
-            }
-
-            // Create sale item entry
             SaleItemModel saleItem = SaleItemModel.builder()
                     .productName(item.getProductName())
                     .quantity(item.getQuantity())
@@ -97,7 +99,7 @@ public class SaleImpl implements SaleService {
         }
 
         if (saleItems.isEmpty()) {
-            throw new IllegalArgumentException("No items were added to the sale due to insufficient stock.");
+            throw new IllegalArgumentException("No items added to quotation.");
         }
 
         sale.setItems(saleItems);

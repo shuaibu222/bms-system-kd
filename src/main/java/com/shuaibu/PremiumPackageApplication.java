@@ -27,7 +27,7 @@ public class PremiumPackageApplication implements CommandLineRunner {
         userService.createAdminUserIfNotExists();
 
         // Open browser after application starts
-        String url = "http://localhost:8080"; // Change this to your desired URL
+        String url = "http://localhost:8080/dashboard"; // Change this to your desired URL
         openBrowser(url);
     }
 
