@@ -1300,6 +1300,7 @@ table tbody td:last-child {
     padding: 14px 22px;
     font-size: 1rem;
     font-weight: 600;
+    text-decoration: none;
     border: none;
     border-radius: 10px;
     cursor: pointer;
@@ -1352,7 +1353,13 @@ table tbody td:last-child {
         visibility: visible;
     }
 
-    .report-container {
+    .table-container,
+    .table-container * {
+        visibility: visible;
+    }
+
+    .report-container,
+    .table-container {
         position: absolute;
         top: 0;
         left: 0;
@@ -1361,7 +1368,8 @@ table tbody td:last-child {
 
     /* Hide interactive elements like buttons */
     .email-input-group,
-    .print-btn {
+    .print-btn,
+    .table-container:last-child {
         display: none;
     }
 }

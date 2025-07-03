@@ -86,7 +86,7 @@
                         </a>
                         <ul class="submenu">
                             <li><a href="/customers">Customers</a></li>
-                            <li><a href="/customers/ledger">Customer Ledger</a></li>
+                            <!-- <li><a href="/customers/ledger">Customer Ledger</a></li> -->
                         </ul>
                     </li>
                     <!-- Reports -->
@@ -95,10 +95,10 @@
                             <i class="fas fa-chart-bar"></i> Reports
                         </a>
                         <ul class="submenu">
-                            <li><a href="/sales/reports">Sales Report</a></li>
-                            <li><a href="/purchases/reports">Purchase Report</a></li>
-                            <li><a href="/purchases/reports">Payments Report</a></li>
-                            <li><a href="/ledgers/reports">Main Ledger</a></li>
+                            <li><a href="/invoices/sales-report">Sales Report</a></li>
+                            <li><a href="/products/purchases-report">Purchase Report</a></li>
+                            <li><a href="/customers/payments-report">Payments Report</a></li>
+                            <li><a href="/main-ledger">Main Ledger</a></li>
                         </ul>
                     </li>
                     <!-- Employees -->
@@ -227,7 +227,7 @@
             const stompClient = StompJs.Stomp.over(socket);
 
             stompClient.connect({}, function (frame) {
-                console.log("✅ WebSocket connected:", frame);
+                // console.log("✅ WebSocket connected:", frame);
 
                 stompClient.subscribe("/topic/low-stock", function (message) {
                     const data = JSON.parse(message.body);

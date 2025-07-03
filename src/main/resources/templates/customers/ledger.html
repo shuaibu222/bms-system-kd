@@ -10,16 +10,20 @@
     <section class="report-container" layout:fragment="body">
         <div class="report-header">
             <h1>Customer Ledger</h1>
-            <p>
+            <h3>
                 <strong>Account Name.:</strong>
                 <span id="accountName" th:text="${customer != null ? customer.name : 'Not provided'}"></span>
+            </h3>
+            <h3>
                 <strong>Account No.:</strong>
                 <span id="accountNumber" th:text="${accountNo != null ? accountNo : 'Not provided'}"></span>
+            </h3>
+            <h3>
                 <strong>From:</strong>
                 <span id="reportStartDate" th:text="${startDate}"></span>
                 <strong>To:</strong>
                 <span id="reportEndDate" th:text="${endDate}"></span>
-            </p>
+            </h3>
         </div>
 
         <!-- Date Range Filter -->

@@ -30,7 +30,7 @@ public class MainLedgerController {
             Model model) {
 
         if (start != null && end != null) {
-            // 🔁 Removed ledgerService.generateLedger(start, end);
+            ledgerService.generateLedger(start, end);
             List<MainLedgerModel> entries = ledgerRepo.findAllByDateBetweenOrderByDateAsc(start, end);
             model.addAttribute("entries", entries);
             model.addAttribute("startDate", start);

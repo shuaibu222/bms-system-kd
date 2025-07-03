@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.shuaibu.mapper.ProductMapper.*;
 
@@ -73,7 +74,15 @@ public class ProductImpl implements ProductService {
 
     @Override
     public void saveAll(List<ProductDto> products) {
-        // productRepository.saveAll(ProductMapper.mapToModel(products));
+        if (products == null || products.isEmpty()) {
+            throw new IllegalArgumentException("Customer list must not be null or empty");
+        }
+
+        List<ProductModel> productModels = products.stream()
+                .map(ProductMapper::mapToModel)
+                .collect(Collectors.toList());
+
+        productRepository.saveAll(productModels);
     }
 
     @Override

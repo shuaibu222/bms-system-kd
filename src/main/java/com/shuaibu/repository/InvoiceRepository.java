@@ -14,4 +14,7 @@ public interface InvoiceRepository extends JpaRepository<InvoiceModel, Long> {
 
     Optional<InvoiceModel> findTopByOrderByIdDesc();
 
-    List<InvoiceModel> findByInvoiceDateTimeBetween(LocalDate startDate, LocalDate endDate);}
+    List<InvoiceModel> findByInvoiceDateTimeBetween(LocalDate startDate, LocalDate endDate);
+
+    List<InvoiceModel> findByCustomerId(Long id);
+}

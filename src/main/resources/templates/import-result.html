@@ -1,8 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      lang="en"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
 
 <head>
     <meta charset="UTF-8">
@@ -10,55 +8,56 @@
 </head>
 
 <body layout:fragment="body">
-<h1>Import Result</h1>
-<p th:text="${message}"></p>
+    <h1>Import Result</h1>
+    <p th:text="${message}"></p>
 
-<!-- Products Table -->
-<div th:if="${products != null}">
-    <a href="/products">View Products</a>
-    <table border="1">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th>Low Quantity Alert</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="product : ${products}">
-            <td th:text="${product.name}"></td>
-            <td th:text="${product.price}"></td>
-            <td th:text="${product.quantity}"></td>
-            <td th:text="${product.lowQuantityAlert}"></td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+    <!-- Products Table -->
+    <div th:if="${products != null}">
+        <a href="/products">View Products</a>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Low Quantity Alert</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="product : ${products}">
+                    <td th:text="${product.name}"></td>
+                    <td th:text="${product.price}"></td>
+                    <td th:text="${product.quantity}"></td>
+                    <td th:text="${product.lowQuantityAlert}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-<!-- Customers Table -->
-<div th:if="${customers != null}">
-    <a href="/customers">View Customers</a>
-    <table border="1">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Address</th>
-            <th>Phone</th>
-            <th>Balance</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="customer : ${customers}">
-            <td th:text="${customer.name}"></td>
-            <td th:text="${customer.address}"></td>
-            <td th:text="${customer.phone}"></td>
-            <td th:text="${customer.balance}"></td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+    <!-- Customers Table -->
+    <div th:if="${customers != null}">
+        <a href="/customers">View Customers</a>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Phone</th>
+                    <th>Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="customer : ${customers}">
+                    <td th:text="${customer.name}"></td>
+                    <td th:text="${customer.address}"></td>
+                    <td th:text="${customer.phone}"></td>
+                    <td th:text="${customer.balance}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-<a href="/import">Import Another File</a>
+    <a href="/import">Import Another File</a>
 </body>
+
 </html>

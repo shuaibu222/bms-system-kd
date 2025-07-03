@@ -1,5 +1,6 @@
 package com.shuaibu.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -9,9 +10,11 @@ import org.springframework.web.bind.annotation.*;
 
 import com.shuaibu.dto.LowStockDto;
 import com.shuaibu.dto.ProductDto;
+import com.shuaibu.model.LowStockModel;
 import com.shuaibu.model.ProductModel;
 import com.shuaibu.repository.ExpenseRepository;
 import com.shuaibu.repository.InvoiceRepository;
+import com.shuaibu.repository.LowStockRepository;
 import com.shuaibu.repository.ProductRepository;
 import com.shuaibu.service.ProductService;
 
@@ -23,19 +26,32 @@ public class ProductController {
 
     private final ProductService productService;
     private final ProductRepository productRepository;
+    private final LowStockRepository lowStockRepository;
 
     public ProductController(ProductService productService,
             ProductRepository productRepository,
             ExpenseRepository expenseRepository,
-            InvoiceRepository invoiceRepository) {
+            InvoiceRepository invoiceRepository,
+            LowStockRepository lowStockRepository) {
         this.productService = productService;
         this.productRepository = productRepository;
+        this.lowStockRepository = lowStockRepository;
     }
 
     @GetMapping
     public String listProducts(Model model) {
+        List<ProductModel> products = productRepository.findAll();
+
+        // Calculate total inventory value
+        double totalProductValue = products.stream()
+                .mapToDouble(p -> (p.getQuantity() != null ? p.getQuantity() : 0) *
+                        (p.getPrice() != null ? p.getPrice() : 0.0))
+                .sum();
+
         model.addAttribute("product", new ProductModel());
-        model.addAttribute("products", productRepository.findAll());
+        model.addAttribute("products", products);
+        model.addAttribute("totalProductValue", totalProductValue); // Add total
+
         return "products/list";
     }
 
@@ -146,6 +162,37 @@ public class ProductController {
 
         productService.handlePurchaseAndUpdateProduct(id, dto); // ✅ combined logic
         return "redirect:/products/lowstocks?purchaseSuccess";
+    }
+
+    @GetMapping("/purchases-report")
+    public String getPurchaseReport(@RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            Model model) {
+
+        // Default to last 7 days if dates not specified
+        if (startDate == null || endDate == null) {
+            endDate = LocalDate.now();
+            startDate = endDate.minusDays(30);
+        }
+
+        // Fetch all purchases (low stock entries) in range
+        List<LowStockModel> purchases = lowStockRepository.findByLowStockDateBetween(startDate, endDate);
+
+        // Calculate total purchases (sum of price * quantity)
+        double totalPurchases = purchases.stream()
+                .mapToDouble(
+                        p -> (p.getPrice() != null && p.getQuantity() != null) ? p.getPrice() * p.getQuantity() : 0.0)
+                .sum();
+
+        int totalTransactions = purchases.size();
+
+        model.addAttribute("purchaseReports", purchases);
+        model.addAttribute("totalPurchases", totalPurchases);
+        model.addAttribute("totalTransactions", totalTransactions);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+
+        return "lowstocks/purchases-report";
     }
 
 }

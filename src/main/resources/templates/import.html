@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
 <head>
     <meta charset="UTF-8">
     <title>Import Products</title>
 </head>
+
 <body layout:fragment="body">
     <h1>Import Products from Excel</h1>
-    
+
     <form method="POST" action="/import" enctype="multipart/form-data">
         <div>
             <label for="file">Select Excel File:</label>
@@ -16,7 +19,8 @@
             <button type="submit">Import</button>
         </div>
     </form>
-    
+
     <p th:if="${message}" th:text="${message}"></p>
 </body>
+
 </html>

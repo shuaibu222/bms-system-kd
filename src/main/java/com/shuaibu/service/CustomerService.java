@@ -2,11 +2,14 @@ package com.shuaibu.service;
 
 import com.shuaibu.dto.CustomerDto;
 import com.shuaibu.dto.DepositDto;
+import com.shuaibu.dto.InvoiceDto;
 
 import java.util.List;
 
 public interface CustomerService {
     List<CustomerDto> getAllCustomers();
+
+    InvoiceDto getInvoiceWithItems(Long invoiceId);
 
     CustomerDto getCustomerById(Long id);
 

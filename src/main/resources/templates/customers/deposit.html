@@ -1,62 +1,65 @@
 <!DOCTYPE html>
-<html
-        xmlns:th="http://www.thymeleaf.org"
-        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-        layout:decorate="~{layout}"
-        lang="en">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}" lang="en">
+
 <head>
     <title>Deposit</title>
 </head>
-<body>
-<section layout:fragment="body">
-    <article class="edit-page">
-        <a href="/customers" class="back-btn">
-            <i class="fa fa-arrow-left"></i> Back
-        </a>
-        
-        <div class="list-header">
-            <h1>Make Deposit</h1>
-        </div>
 
-        <!-- Deposit Form -->
-        <form th:action="@{/customers/deposits/{id}(id=${deposit.customerId})}" th:object="${deposit}" class="list-form-layout" method="post">
-            <div class="list-form">
-                <input type="hidden" id="customerId" th:field="*{customerId}" />
-                <div class="form-group">
-                    <label for="totalAmount">Total Amount:</label>
-                    <input type="number" id="totalAmount" th:field="*{totalAmount}" step="0.01" />
-                    <p class="error-message" th:if="${#fields.hasErrors('totalAmount')}" th:errors="*{totalAmount}"></p>
-                </div>
-                
-                <div class="form-group">
-                    <label for="paymentMethod">Payment Method:</label>
-                    <select id="paymentMethod" th:field="*{paymentMethod}">
-                        <option value="">Select Payment Method</option>
-                        <option value="Cash">Cash</option>
-                        <option value="Card">Card</option>
-                        <option value="POS">POS</option>
-                        <option value="Bank Transfer">Bank Transfer</option>
-                    </select>
-                    <p class="error-message" th:if="${#fields.hasErrors('paymentMethod')}" th:errors="*{paymentMethod}"></p>
-                </div>
-                
-                <div class="form-group">
-                    <label for="purpose">Purpose:</label>
-                    <input type="text" id="purpose" th:field="*{purpose}" />
-                    <p class="error-message" th:if="${#fields.hasErrors('purpose')}" th:errors="*{purpose}"></p>
-                </div>
-                
-                <div class="form-group">
-                    <label for="depositDate">Deposit Date:</label>
-                    <input type="date" id="depositDate" th:field="*{depositDate}" />
-                    <p class="error-message" th:if="${#fields.hasErrors('depositDate')}" th:errors="*{depositDate}"></p>
-                </div>
+<body>
+    <section layout:fragment="body">
+        <article class="edit-page">
+            <a href="/customers" class="back-btn">
+                <i class="fa fa-arrow-left"></i> Back
+            </a>
+
+            <div class="list-header">
+                <h1>Make Deposit</h1>
             </div>
-            <div class="form-group-btn">
-                <button type="submit">Submit Deposit</button>
-            </div>
-        </form>
-    </article>
-</section>
+
+            <!-- Deposit Form -->
+            <form th:action="@{/customers/deposits/{id}(id=${deposit.customerId})}" th:object="${deposit}"
+                class="list-form-layout" method="post">
+                <div class="list-form">
+                    <input type="hidden" id="customerId" th:field="*{customerId}" />
+                    <div class="form-group">
+                        <label for="totalAmount">Total Amount:</label>
+                        <input type="number" id="totalAmount" th:field="*{totalAmount}" step="0.01" />
+                        <p class="error-message" th:if="${#fields.hasErrors('totalAmount')}" th:errors="*{totalAmount}">
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method:</label>
+                        <select id="paymentMethod" th:field="*{paymentMethod}">
+                            <option value="Cash">Cash</option>
+                            <option value="Card">Card</option>
+                            <option value="POS">POS</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                        </select>
+                        <p class="error-message" th:if="${#fields.hasErrors('paymentMethod')}"
+                            th:errors="*{paymentMethod}"></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="purpose">Purpose:</label>
+                        <input type="text" id="purpose" th:field="*{purpose}" />
+                        <p class="error-message" th:if="${#fields.hasErrors('purpose')}" th:errors="*{purpose}"></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="depositDate">Deposit Date:</label>
+                        <input type="date" id="depositDate" th:field="*{depositDate}" />
+                        <p class="error-message" th:if="${#fields.hasErrors('depositDate')}" th:errors="*{depositDate}">
+                        </p>
+                    </div>
+                </div>
+                <div class="form-group-btn">
+                    <button type="submit">Submit Deposit</button>
+                </div>
+            </form>
+        </article>
+    </section>
 </body>
+
 </html>

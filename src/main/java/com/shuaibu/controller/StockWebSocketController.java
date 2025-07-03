@@ -22,7 +22,7 @@ public class StockWebSocketController {
         this.messagingTemplate = messagingTemplate;
     }
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 10000)
     public void checkLowStock() {
         // System.out.println("Running low stock check...");
 

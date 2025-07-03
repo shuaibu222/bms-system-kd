@@ -16,7 +16,7 @@ public class LedgerScheduler {
         this.mainLedgerService = mainLedgerService;
     }
 
-    @Scheduled(cron = "0 14 20 23 6 ?")
+    @Scheduled(cron = "0 3 21 30 6 ?")
     // @Scheduled(cron = "0 0 1 L * ?") // Runs on the last day of every month at
     // 1:00 AM
     public void generateMonthlyLedgerSummary() {

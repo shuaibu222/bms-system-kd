@@ -1,150 +1,125 @@
 <!DOCTYPE html>
-<html
-  xmlns:th="http://www.thymeleaf.org"
-  lang="en"
-  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layout}"
->
-  <head>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
     <title>Main Ledger Report</title>
     <style>
-      .payment-method {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 10px;
-        padding: 5px;
-        /* background: #f5f5f5; */
-        border-radius: 4px;
-      }
-      .payment-method span {
-        font-weight: bold;
-      }
-      .text-success {
-        color: green;
-        font-weight: bold;
-      }
-      .text-danger {
-        color: red;
-        font-weight: bold;
-      }
+        .payment-method {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding: 5px;
+            /* background: #f5f5f5; */
+            border-radius: 4px;
+        }
+
+        .payment-method span {
+            font-weight: bold;
+        }
+
+        .text-success {
+            color: green;
+            font-weight: bold;
+        }
+
+        .text-danger {
+            color: red;
+            font-weight: bold;
+        }
     </style>
-  </head>
-  <body>
+</head>
+
+<body>
     <section class="report-container" layout:fragment="body">
-      <div class="report-header">
-        <h1>Main Ledger Report</h1>
-        <p>
-          <strong>From:</strong> <span th:text="${startDate}"></span>
-          <strong>To:</strong> <span th:text="${endDate}"></span>
-        </p>
-      </div>
+        <div class="report-header">
+            <h1>Main Ledger Report</h1>
+            <p>
+                <strong>From:</strong> <span th:text="${startDate}"></span>
+                <strong>To:</strong> <span th:text="${endDate}"></span>
+            </p>
+        </div>
 
-      <!-- Filter Form -->
-      <form class="filter-form" th:action="@{/main-ledger}" method="get">
-        <input
-          aria-label="start date"
-          type="date"
-          name="start"
-          th:value="${startDate}"
-          required
-        />
-        <input
-          aria-label="end date"
-          type="date"
-          name="end"
-          th:value="${endDate}"
-          required
-        />
-        <button type="submit" class="btn">Generate Report</button>
-      </form>
+        <!-- Filter Form -->
+        <form class="filter-form" th:action="@{/main-ledger}" method="get">
+            <input aria-label="start date" type="date" name="start" th:value="${startDate}" required />
+            <input aria-label="end date" type="date" name="end" th:value="${endDate}" required />
+            <button type="submit" class="btn">Generate Report</button>
+        </form>
 
-      <!-- Ledger Table -->
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>S/N</th>
-              <th>Date</th>
-              <!-- <th>Opening Balance (₦)</th> -->
-              <th>Particulars</th>
-              <th>Credit (Sales ₦)</th>
-              <th>Debit (Purchases ₦)</th>
-              <th>Closing Balance (₦)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr th:each="entry, iterStat : ${entries}">
-              <td th:text="${iterStat.count}"></td>
-              <td th:text="${entry.date}"></td>
-              <!-- <td
+        <!-- Ledger Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>S/N</th>
+                        <th>Date</th>
+                        <!-- <th>Opening Balance (₦)</th> -->
+                        <th>Particulars</th>
+                        <th>Debit (Purchases ₦)</th>
+                        <th>Credit (Sales ₦)</th>
+                        <th>Closing Balance (₦)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="entry, iterStat : ${entries}">
+                        <td th:text="${iterStat.count}"></td>
+                        <td th:text="${entry.date}"></td>
+                        <!-- <td
                 th:text="'₦' + ${#numbers.formatDecimal(entry.openingBalance, 0, 'COMMA', 2, 'POINT')}"
               ></td> -->
-              <td th:text="${entry.particulars}"></td>
-              <td
-                th:text="${entry.credit > 0} ? '₦' + ${#numbers.formatDecimal(entry.credit, 0, 'COMMA', 2, 'POINT')} : '-'"
-              ></td>
-              <td
-                th:text="${entry.debit > 0} ? '₦' + ${#numbers.formatDecimal(entry.debit, 0, 'COMMA', 2, 'POINT')} : '-'"
-              ></td>
-              <td
-                th:text="'₦' + ${#numbers.formatDecimal(entry.closingBalance, 0, 'COMMA', 2, 'POINT')}"
-              ></td>
-            </tr>
-          </tbody>
-        </table>
-        <!-- <hr style="margin-top: 30px" /> -->
-        <h3 style="padding: 1rem;">Monthly Summary (<span th:text="${endDate}"></span>)</h3>
-        <table>
-          <tr>
-            <th>Total Expenses:</th>
-            <td
-              th:text="'₦' + ${#numbers.formatDecimal(totalExpenses, 0, 'COMMA', 2, 'POINT')}"
-            ></td>
-          </tr>
-          <tr>
-            <th>Stock Value:</th>
-            <td
-              th:text="'₦' + ${#numbers.formatDecimal(stockValue, 0, 'COMMA', 2, 'POINT')}"
-            ></td>
-          </tr>
-          <tr>
-            <th>Customer Debt:</th>
-            <td
-              th:text="'₦' + ${#numbers.formatDecimal(customerDebt, 0, 'COMMA', 2, 'POINT')}"
-            ></td>
-          </tr>
-          <tr>
-            <th>Suspense Total:</th>
-            <td
-              th:text="'₦' + ${#numbers.formatDecimal(suspense, 0, 'COMMA', 2, 'POINT')}"
-            ></td>
-          </tr>
-          <tr>
-            <th>Staff Loans:</th>
-            <td
-              th:text="'₦' + ${#numbers.formatDecimal(staffLoans, 0, 'COMMA', 2, 'POINT')}"
-            ></td>
-          </tr>
-          <tr>
-            <th>Final Ledger Balance:</th>
-            <td
-              th:text="'₦' + ${#numbers.formatDecimal(finalLedgerBalance, 0, 'COMMA', 2, 'POINT')}"
-            ></td>
-          </tr>
-          <tr>
-            <th>Profit/Loss:</th>
-            <td
-              th:class="${profitLoss <= 0} ? 'text-success' : 'text-danger'"
-              th:text="'₦' + ${#numbers.formatDecimal(profitLoss, 0, 'COMMA', 2, 'POINT')}"
-            ></td>
-          </tr>
-        </table>
-      </div>
+                        <td th:text="${entry.particulars}"></td>
+                        <td
+                            th:text="${entry.debit > 0} ? '₦' + ${#numbers.formatDecimal(entry.debit, 0, 'COMMA', 2, 'POINT')} : '-'">
+                        </td>
+                        <td
+                            th:text="${entry.credit > 0} ? '₦' + ${#numbers.formatDecimal(entry.credit, 0, 'COMMA', 2, 'POINT')} : '-'">
+                        </td>
+                        <td th:text="'₦' + ${#numbers.formatDecimal(entry.closingBalance, 0, 'COMMA', 2, 'POINT')}">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- <hr style="margin-top: 30px" /> -->
+            <h3 style="padding: 1rem;">Monthly Summary (<span th:text="${endDate}"></span>)</h3>
+            <table>
+                <tr>
+                    <th>Total Expenses:</th>
+                    <td th:text="'₦' + ${#numbers.formatDecimal(totalExpenses, 0, 'COMMA', 2, 'POINT')}"></td>
+                </tr>
+                <tr>
+                    <th>Stock Value:</th>
+                    <td th:text="'₦' + ${#numbers.formatDecimal(stockValue, 0, 'COMMA', 2, 'POINT')}"></td>
+                </tr>
+                <tr>
+                    <th>Customer Debt:</th>
+                    <td th:text="'₦' + ${#numbers.formatDecimal(customerDebt, 0, 'COMMA', 2, 'POINT')}"></td>
+                </tr>
+                <tr>
+                    <th>Suspense Total:</th>
+                    <td th:text="'₦' + ${#numbers.formatDecimal(suspense, 0, 'COMMA', 2, 'POINT')}"></td>
+                </tr>
+                <tr>
+                    <th>Staff Loans:</th>
+                    <td th:text="'₦' + ${#numbers.formatDecimal(staffLoans, 0, 'COMMA', 2, 'POINT')}"></td>
+                </tr>
+                <tr>
+                    <th>Final Ledger Balance:</th>
+                    <td th:text="'₦' + ${#numbers.formatDecimal(finalLedgerBalance, 0, 'COMMA', 2, 'POINT')}"></td>
+                </tr>
+                <tr>
+                    <th>Profit/Loss:</th>
+                    <td th:class="${profitLoss <= 0} ? 'text-success' : 'text-danger'"
+                        th:text="'₦' + ${#numbers.formatDecimal(profitLoss, 0, 'COMMA', 2, 'POINT')}"></td>
+                </tr>
+            </table>
+        </div>
 
-      <!-- Print Button -->
-      <div class="report-actions">
-        <button class="btn" onclick="window.print()">Print Report</button>
-      </div>
+        <!-- Print Button -->
+        <div class="report-actions">
+            <button class="btn" onclick="window.print()">Print Report</button>
+        </div>
     </section>
-  </body>
+</body>
+
 </html>

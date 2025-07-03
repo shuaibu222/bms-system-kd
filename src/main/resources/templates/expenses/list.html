@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
 <head>
     <title>Expense Management</title>
     <script>
@@ -20,7 +22,7 @@
 
             // Set delete confirmation action
             const confirmBtn = document.getElementById('confirmDelete');
-            confirmBtn.onclick = function() {
+            confirmBtn.onclick = function () {
                 window.location.href = '/expenses/delete/' + expenseId;
             };
         }
@@ -47,6 +49,7 @@
         }
     </script>
 </head>
+
 <body>
     <section layout:fragment="body">
         <article class="list-page">
@@ -54,7 +57,7 @@
                 <h1>💰 Expense Management</h1>
                 <button class="open-modal-btn" onclick="openAddExpenseModal()">+ Add Expense</button>
             </div>
-            
+
             <!-- Search Bar -->
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="🔍 Search Expenses..." onkeyup="searchExpense()">
@@ -93,13 +96,24 @@
                                 <a class="dynamic-link" th:href="@{'/expenses/edit/' + ${expense.id}}">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a href="javascript:void(0);" class="dynamic-link" th:onclick="'openDeleteModal(' + ${expense.id} + ')'">
+                                <a href="javascript:void(0);" class="dynamic-link"
+                                    th:onclick="'openDeleteModal(' + ${expense.id} + ')'">
                                     <i class="fas fa-trash-alt"></i>
                                 </a>
                             </td>
                         </tr>
+                        <tr class="total-row">
+                            <td colspan="2" class="text-right"><strong>Total:</strong></td>
+                            <td th:text="'₦' + ${#numbers.formatDecimal(totalExpenses, 0, 'COMMA', 2, 'POINT')}"
+                                class="total-amount"></td>
+                            <!-- <td colspan="2"></td>  -->
+                        </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <div class="report-actions">
+                <button class="btn" onclick="window.print()">Print Report</button>
             </div>
         </article>
 
@@ -115,15 +129,18 @@
         </div>
 
         <!-- Modal for Adding an Expense -->
-        <div id="addExpenseModal" class="modal" th:style="${#fields.hasErrors('expense.*')} ? 'display:block;' : 'display:none;'">
+        <div id="addExpenseModal" class="modal"
+            th:style="${#fields.hasErrors('expense.*')} ? 'display:block;' : 'display:none;'">
             <div class="modal-content">
                 <h2>Add Expense</h2>
                 <form th:action="@{/expenses}" th:object="${expense}" method="post">
                     <div class="modal-form">
                         <div class="form-group">
                             <label for="description">Name of Expense:</label>
-                            <input type="text" id="description" placeholder="e.g. Office Supplies" th:field="*{description}" />
-                            <p class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p>
+                            <input type="text" id="description" placeholder="e.g. Office Supplies"
+                                th:field="*{description}" />
+                            <p class="error-message" th:if="${#fields.hasErrors('description')}"
+                                th:errors="*{description}"></p>
                         </div>
                         <div class="form-group">
                             <label for="amount">Amount:</label>
@@ -145,4 +162,5 @@
         </div>
     </section>
 </body>
+
 </html>

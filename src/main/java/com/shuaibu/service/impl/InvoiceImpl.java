@@ -44,7 +44,6 @@ public class InvoiceImpl implements InvoiceService {
 
     @Override
     public InvoiceModel saveOrUpdateInvoice(InvoiceDto invoiceDto) {
-        // Validate input
         if (invoiceDto == null) {
             throw new IllegalArgumentException("Invoice DTO cannot be null");
         }
@@ -60,20 +59,24 @@ public class InvoiceImpl implements InvoiceService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Quotation not found with ID: " + invoiceDto.getQuotationId()));
 
-        // Get customer from quotation
-        CustomerModel customer = customerRepository.findByPhone(quotation.getPhone())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Customer not found with phone: " + quotation.getPhone()));
+        // Optional: Fetch customer if phone exists
+        if (quotation.getPhone() != null && !quotation.getPhone().trim().isEmpty()) {
+            customerRepository.findByPhone(quotation.getPhone()).ifPresent(customer -> {
+                invoiceDto.setCustomerId(customer.getId());
 
-        // Set derived values
-        invoiceDto.setCustomerId(customer.getId());
+                // Update customer balance
+                double currentBalance = customer.getBalance() != null ? customer.getBalance() : 0.0;
+                customer.setBalance(currentBalance - invoiceDto.getInvoiceValue());
+                customerRepository.save(customer);
+            });
+        }
+
+        // Set total and balance due
         invoiceDto.setTotalAmount(quotation.getTotalAmount());
-
-        // Calculate balance due
         double balanceDue = quotation.getTotalAmount() - invoiceDto.getInvoiceValue();
         invoiceDto.setBalanceDue(balanceDue);
 
-        // Deduct stock for each item
+        // Deduct stock
         for (SaleItemModel item : quotation.getItems()) {
             ProductModel product = productRepository.findByName(item.getProductName());
             if (product == null) {
@@ -85,11 +88,6 @@ public class InvoiceImpl implements InvoiceService {
             product.setQuantity(product.getQuantity() - item.getQuantity());
             productRepository.save(product);
         }
-
-        // Update customer balance
-        double currentBalance = customer.getBalance() != null ? customer.getBalance() : 0.0;
-        customer.setBalance(currentBalance - invoiceDto.getInvoiceValue());
-        customerRepository.save(customer);
 
         // Save and return invoice
         return invoiceRepository.save(InvoiceMapper.mapToModel(invoiceDto));
@@ -132,10 +130,13 @@ public class InvoiceImpl implements InvoiceService {
                 .invNum(latestInvoice.getInvNum())
                 .quotationId(latestInvoice.getQuotationId())
                 .balanceDue(latestInvoice.getBalanceDue())
+                .totalAmount(latestInvoice.getTotalAmount())
+                .invoiceValue(latestInvoice.getInvoiceValue())
                 .paymentStatus(latestInvoice.getPaymentStatus())
                 .paymentMethod(latestInvoice.getPaymentMethod())
                 .invoiceDateTime(latestInvoice.getInvoiceDateTime())
                 .saleDto(saleDto)
                 .build();
     }
+
 }

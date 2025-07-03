@@ -1,6 +1,8 @@
 package com.shuaibu.controller;
 
+import java.time.LocalDate;
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +14,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.shuaibu.dto.InvoiceDto;
-import com.shuaibu.dto.SaleDto;
-import com.shuaibu.mapper.SaleMapper;
 import com.shuaibu.model.InvoiceModel;
 import com.shuaibu.model.SaleModel;
 import com.shuaibu.model.UserModel;
@@ -63,7 +63,7 @@ public class InvoiceController {
         if (quotation != null) {
             // Create invoice with default value
             InvoiceModel invoice = new InvoiceModel();
-            invoice.setInvoiceValue(quotation.getTotalAmount()); // THIS IS THE KEY LINE
+            invoice.setInvoiceValue(quotation.getTotalAmount());
 
             model.addAttribute("quotation", quotation);
             model.addAttribute("agent", userModel.getFullName());
@@ -139,6 +139,38 @@ public class InvoiceController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Collections.singletonMap("error", e.getMessage())); // Always return JSON
         }
+    }
+
+    @GetMapping("/sales-report")
+    public String salesReport(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            Model model) {
+
+        // If no date range is selected, default to the last 7 days
+        if (startDate == null || endDate == null) {
+            endDate = LocalDate.now();
+            startDate = endDate.minusDays(30);
+        }
+
+        // Fetch invoices between selected dates
+        List<InvoiceModel> invoices = invoiceRepository.findByInvoiceDateTimeBetween(startDate, endDate);
+
+        // Compute total sales and transaction count
+        double totalSales = invoices.stream()
+                .mapToDouble(inv -> inv.getTotalAmount() != null ? inv.getTotalAmount() : 0.0)
+                .sum();
+
+        int totalTransactions = invoices.size();
+
+        // Add to model
+        model.addAttribute("salesReports", invoices);
+        model.addAttribute("totalSales", totalSales);
+        model.addAttribute("totalTransactions", totalTransactions);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+
+        return "invoices/sales-report";
     }
 
 }

@@ -88,6 +88,16 @@
                 Customer deleted successfully.
             </div>
 
+            <form method="POST" action="/upload/customers" enctype="multipart/form-data">
+                <div>
+                    <label for="file">Select Excel File:</label>
+                    <input type="file" id="file" name="file" accept=".xlsx,.xls" required>
+                </div>
+                <div>
+                    <button type="submit">Import</button>
+                </div>
+            </form>
+
             <!-- Table Section -->
             <div class="table-container">
                 <table>
@@ -108,15 +118,24 @@
                             <td th:text="${customer.phone}"></td>
                             <td th:text="${customer.address}"></td>
                             <td>
-                                <span th:class="${customer.balance < 0} ? 'balance-creditor' : 'balance-debtor'"
-                                    th:text="'₦' + ${#numbers.formatDecimal(customer.balance, 1, 'COMMA', 2, 'POINT')}"></span>
-                                <span th:if="${customer.balance < 0}">(Creditor)</span>
-                                <span th:if="${customer.balance >= 0}">(Debtor)</span>
+                                <span th:class="${customer.balance > 0} ? 'balance-creditor' : 'balance-debtor'"
+                                    th:text="'₦' + ${#numbers.formatDecimal(
+                                    (customer.balance > 0 ? -customer.balance : -1 * customer.balance),
+                                    1, 'COMMA', 2, 'POINT')}">
+                                </span>
+                                <span th:if="${customer.balance > 0}">(Creditor)</span>
+                                <span th:if="${customer.balance < 0}">(Debtor)</span>
                             </td>
                             </td>
                             <td>
                                 <a class="dynamic-link" th:href="@{'/customers/deposits/' + ${customer.id}}">
                                     Deposit
+                                </a>
+                                <a class="dynamic-link" th:href="@{'/customers/deposits/history/' + ${customer.id}}">
+                                    Payments
+                                </a>
+                                <a class="dynamic-link" th:href="@{'/customers/invoices/history/' + ${customer.id}}">
+                                    Invoices
                                 </a>
                                 <a class="dynamic-link" th:href="@{'/customers/edit/' + ${customer.id}}">
                                     Edit
@@ -147,6 +166,10 @@
                     </tfoot>
 
                 </table>
+            </div>
+
+            <div class="report-actions">
+                <button class="btn" onclick="window.print()">Print Report</button>
             </div>
         </article>
 

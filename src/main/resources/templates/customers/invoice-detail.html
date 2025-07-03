@@ -1,12 +1,35 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
     layout:decorate="~{layout}">
 
 <head>
-    <title>Invoice Success</title>
+    <title th:text="'Invoice #' + ${invoice.invNum}">Invoice Detail</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+        .invoice-detail-page {
+            padding: 2rem;
+            font-family: system-ui, sans-serif;
+        }
+
+        .invoice-header__title {
+            font-size: clamp(1.5rem, 2.5vw, 2rem);
+            margin-bottom: 1.5rem;
+        }
+
+        .invoice-info p {
+            margin: 0.5rem 0;
+            font-size: 1rem;
+        }
+
+        .invoice-info strong {
+            color: #333;
+        }
+    </style>
     <script>
-        function printReceipt() {
-            fetch("/invoices/latest")
+        function printReceipt(invoiceId) {
+            fetch(`/customers/api/invoices/${invoiceId}`)
                 .then(response => response.json())
                 .then(data => {
                     console.log("Invoice details:", data);
@@ -146,11 +169,11 @@
                                 <div class="receipt-header">
                                     <div class="quotation-title">Invoice Receipt</div>
                                     <div class="header-row"><span>Invoice No.:</span> <span>${data.invNum}</span></div>
-                                    <div class="header-row"><span>Amount Paid:</span> <span>₦${data.invoiceValue.toLocaleString()}</span></div>
+                                    <div class="header-row"><span>Amount Paid:</span> <span>₦${data.totalAmount}</span></div>
                                     <div class="header-row">
                                         <span>Due Balance:</span>
                                         <span>
-                                            ${(data.balanceDue) < 0 ? '-' : ''}₦${Math.abs(data.balanceDue).toLocaleString()}
+                                            ${(data.balanceDue) < 0 ? '-' : ''}₦${Math.abs(data.balanceDue)}
                                         </span>
                                     </div>
                                     <div class="header-row"><span>Payment Status:</span> <span>${data.paymentStatus}</span></div>
@@ -174,8 +197,8 @@
                                             <tr>
                                                 <td>${item.productName}</td>
                                                 <td>${item.quantity}</td>
-                                                <td class="price">₦${item.price.toLocaleString()}</td>
-                                                <td class="total">₦${(item.quantity * item.price).toLocaleString()}</td>
+                                                <td class="price">₦${item.price}</td>
+                                                <td class="total">₦${(item.quantity * item.price)}</td>
                                             </tr>
                                         `).join("")}
                                     </tbody>
@@ -183,7 +206,7 @@
 
                                 <div class="divider"></div>
                                 <div class="total-container">
-                                    <span>Total:</span> <span>₦${data.invoiceValue.toLocaleString()}</span>
+                                    <span>Total:</span> <span>₦${data.totalAmount}</span>
                                 </div>
 
                                 <div class="divider"></div>
@@ -198,67 +221,56 @@
                 .catch(error => console.error("Error fetching invoice details:", error));
         }
 
-        function sendEmail() {
-            const email = document.getElementById("customerEmail").value;
-            const sendButton = document.querySelector(".send-email");
-
-            if (!email) {
-                alert("Enter customer email.");
-                return;
-            }
-
-            sendButton.classList.add("sending");
-            sendButton.innerHTML = "Sending...";
-
-            fetch(`/invoices/send-email?email=${encodeURIComponent(email)}`)
-                .then(response => {
-                    if (response.ok) {
-                        setTimeout(() => {
-                            sendButton.classList.remove("sending");
-                            sendButton.classList.add("success");
-                            sendButton.innerHTML = '<i class="fa-solid fa-check"></i> Email Sent!';
-                        }, 1500);
-                    } else {
-                        alert("Failed to send email.");
-                        sendButton.classList.remove("sending");
-                        sendButton.innerHTML = '<i class="fa-solid fa-envelope"></i> Send Email';
-                    }
-                })
-                .catch(() => {
-                    alert("Error sending email.");
-                    sendButton.classList.remove("sending");
-                    sendButton.innerHTML = '<i class="fa-solid fa-envelope"></i> Send Email';
-                });
-        }
     </script>
 </head>
 
 <body>
     <section layout:fragment="body">
-        <div class="success-container">
-            <i class="fa-regular fa-circle-check success-icon"></i>
-            <h1 class="success-message">Invoice Created Successfully!</h1>
-            <p class="success-subtext">You can print the receipt or send it via email.</p>
+        <header class="list-header">
+            <a class="btn" th:href="@{'/customers/invoices/history/' + ${invoice.customerId}}">← Back to Invoice
+                History</a>
+            <h1 th:text="'🧾 Invoice No - ' + ${invoice.invNum}">
+                Invoice Details
+            </h1>
+        </header>
 
-            <div class="button-group">
-                <button class="button send-email-btn" onclick="printReceipt()">
-                    <i class="fa-solid fa-print"></i> Print
-                </button>
-                <a class="button send-email-btn" href="/invoices" style="text-decoration: none; color: white;">
-                    <i class="fa-solid fa-arrow-left"></i> Back
-                </a>
-            </div>
+        <div class="invoice-info">
+            <p><strong>Customer Name:</strong> <span th:text="${invoice.saleDto.customerName}"></span></p>
+            <p><strong>Date:</strong> <span th:text="${invoice.invoiceDateTime}"></span></p>
+            <p><strong>Payment Method:</strong> <span th:text="${invoice.paymentMethod}"></span></p>
+            <p><strong>Status:</strong> <span th:text="${invoice.paymentStatus}"></span></p>
+            <p><strong>Total:</strong> ₦<span th:text="${invoice.totalAmount}"></span></p>
+            <p><strong>Balance Due:</strong> ₦<span th:text="${invoice.balanceDue}"></span></p>
+        </div>
 
-            <div class="email-section">
-                <label for="customerEmail">Customer Email:</label>
-                <input type="email" id="customerEmail" placeholder="Enter customer email">
-            </div>
+        <h2 style="margin: 2rem 0;">🛒 Items Purchased</h2>
 
-            <div class="button-group">
-                <button class="button send-email" onclick="sendEmail()">
-                    <i class="fa-solid fa-envelope"></i> Send Email
-                </button>
-            </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${invoice.saleDto.items}">
+                        <td th:text="${item.productName}"></td>
+                        <td th:text="${item.quantity}"></td>
+                        <td th:text="'₦' + ${item.price}"></td>
+                        <td th:text="'₦' + (${item.quantity} * ${item.price})"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(invoice.saleDto.items)}">
+                        <td colspan="4">No items found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="report-actions">
+            <button class="btn" th:onclick="'printReceipt(' + ${invoice.id} + ')'">Print Report</button>
         </div>
     </section>
 </body>
