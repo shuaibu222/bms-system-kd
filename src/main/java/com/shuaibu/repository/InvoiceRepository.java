@@ -17,4 +17,10 @@ public interface InvoiceRepository extends JpaRepository<InvoiceModel, Long> {
     List<InvoiceModel> findByInvoiceDateTimeBetween(LocalDate startDate, LocalDate endDate);
 
     List<InvoiceModel> findByCustomerId(Long id);
+
+    List<InvoiceModel> findByInvoiceDateTime(LocalDate date);
+
+    InvoiceModel findFirstByCustomerIdAndInvoiceDateTime(Long id, LocalDate date);
+
+    InvoiceModel findByInvNum(String invNum);
 }

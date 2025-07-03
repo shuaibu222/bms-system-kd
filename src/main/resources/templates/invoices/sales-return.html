@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}" lang="en">
+
+<head>
+    <title>Sales Return</title>
+    <meta charset="UTF-8" />
+</head>
+
+<body>
+    <section class="sales-return" layout:fragment="body">
+        <h1>Sales Return</h1>
+
+        <form th:action="@{/invoices/sales-return/search}" method="get" class="form">
+            <div class="form-group">
+                <label for="date">Invoice Date</label>
+                <input type="date" id="date" name="date" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="invNum">Invoice Number</label>
+                <input type="text" id="invNum" name="invNum" class="form-control" placeholder="e.g. INV-1234" />
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Customer Phone</label>
+                <input type="text" id="phone" name="phone" class="form-control" placeholder="e.g. 08012345678" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Search</button>
+
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        </form>
+    </section>
+</body>
+
+</html>

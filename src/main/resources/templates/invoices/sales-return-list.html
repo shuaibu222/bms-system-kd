@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}" lang="en">
+
+<head>
+    <title>Sales Return List</title>
+    <meta charset="UTF-8" />
+</head>
+
+<body>
+    <section class="sales-return-list" layout:fragment="body">
+        <h1>Invoices Found</h1>
+
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Invoice Number</th>
+                    <th>Customer</th>
+                    <th>Total Amount</th>
+                    <th>Payment Method</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="invoice : ${invoices}">
+                    <td th:text="${invoice.invNum}"></td>
+                    <td th:text="${invoice.customerId}"></td>
+                    <td th:text="${'₦' + #numbers.formatDecimal(invoice.totalAmount, 1, 2)}"></td>
+                    <td th:text="${invoice.paymentMethod}"></td>
+                    <td th:text="${#temporals.format(invoice.invoiceDateTime, 'yyyy-MM-dd')}"></td>
+                    <td>
+                        <a th:href="@{'/invoices/sales-return/process/' + ${invoice.id}}"
+                            class="btn btn-sm btn-primary">Process Return</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <a href="/invoices/sales-return" class="btn btn-secondary mt-3">Back to Search</a>
+    </section>
+</body>
+
+</html>

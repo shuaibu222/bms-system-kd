@@ -42,14 +42,14 @@
                             <li sec:authorize="hasRole('ADMIN')"><a href="/invoices/list">Invoices List</a></li> -->
                         </ul>
                     </li>
-                    <!-- <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
                         <a class="nav-head">
-                            <i class="fas fa-shopping-cart"></i> Purchase
+                            <i class="fas fa-shopping-cart"></i> Returns
                         </a>
                         <ul class="submenu">
-                            <li><a href="/purchase-returns">Purchase Return</a></li>
+                            <li><a href="/invoices/sales-return/search">Sales Return</a></li>
                         </ul>
-                    </li> -->
+                    </li>
                     <li sec:authorize="hasRole('ADMIN')" class="nav-item">
                         <a class="nav-head">
                             <i class="fas fa-money-bill-wave"></i> Assets

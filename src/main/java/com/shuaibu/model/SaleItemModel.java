@@ -21,6 +21,9 @@ public class SaleItemModel {
     private Integer quantity;
     private Double price;
 
+    private Integer returnedQuantity; // Track how many items were returned
+    private String returnReason; // Optional: reason for return
+
     @ManyToOne
     @JoinColumn(name = "sale_id")
     private SaleModel sale;

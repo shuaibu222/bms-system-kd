@@ -15,4 +15,6 @@ public interface InvoiceService {
     void deleteInvoice(Long id);
 
     InvoiceDto getLatestInvoice();
+
+    InvoiceDto getInvoiceWithItems(Long invoiceId);
 }

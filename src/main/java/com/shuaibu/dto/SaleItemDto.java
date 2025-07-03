@@ -3,9 +3,11 @@ package com.shuaibu.dto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Builder
 public class SaleItemDto {
     private Long id;
@@ -18,4 +20,7 @@ public class SaleItemDto {
 
     @NotNull(message = "* Price is mandatory")
     private Double price;
+
+    private Integer returnedQuantity; // Track how many items were returned
+    private String returnReason; // Optional: reason for return
 }

@@ -139,4 +139,51 @@ public class InvoiceImpl implements InvoiceService {
                 .build();
     }
 
+    @Override
+    public InvoiceDto getInvoiceWithItems(Long invoiceId) {
+        InvoiceModel inv = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new IllegalArgumentException("Invoice not found"));
+
+        SaleDto saleDto = null;
+        if (inv.getQuotationId() != null) {
+            SaleModel sale = saleRepository.findById(inv.getQuotationId())
+                    .orElse(null);
+
+            if (sale != null) {
+                saleDto = SaleDto.builder()
+                        .id(sale.getId())
+                        .qtnNum(sale.getQtnNum())
+                        .customerName(sale.getCustomerName())
+                        .phone(sale.getPhone())
+                        .totalAmount(sale.getTotalAmount())
+                        .saleDateTime(sale.getSaleDateTime())
+                        .items(sale.getItems().stream()
+                                .map(item -> {
+                                    SaleItemDto dto = SaleMapper.mapItemToDto(item);
+                                    // Initialize returned quantity if null
+                                    if (dto.getReturnedQuantity() == null) {
+                                        dto.setReturnedQuantity(0);
+                                    }
+                                    return dto;
+                                })
+                                .collect(Collectors.toList()))
+                        .build();
+            }
+        }
+
+        return InvoiceDto.builder()
+                .id(inv.getId())
+                .invNum(inv.getInvNum())
+                .quotationId(inv.getQuotationId())
+                .customerId(inv.getCustomerId())
+                .balanceDue(inv.getBalanceDue())
+                .totalAmount(inv.getTotalAmount())
+                .invoiceValue(inv.getInvoiceValue())
+                .paymentStatus(inv.getPaymentStatus())
+                .paymentMethod(inv.getPaymentMethod())
+                .invoiceDateTime(inv.getInvoiceDateTime())
+                .saleDto(saleDto)
+                .build();
+    }
+
 }

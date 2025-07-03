@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -12,34 +13,33 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.shuaibu.dto.InvoiceDto;
+import com.shuaibu.dto.SaleItemDto;
+import com.shuaibu.model.CustomerModel;
 import com.shuaibu.model.InvoiceModel;
 import com.shuaibu.model.SaleModel;
 import com.shuaibu.model.UserModel;
+import com.shuaibu.repository.CustomerRepository;
 import com.shuaibu.repository.InvoiceRepository;
 import com.shuaibu.repository.SaleRepository;
 import com.shuaibu.repository.UserRepository;
 import com.shuaibu.service.InvoiceService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequestMapping("/invoices")
+@RequiredArgsConstructor
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
     private final InvoiceRepository invoiceRepository;
     private final SaleRepository saleRepository;
     private final UserRepository userRepository;
-
-    public InvoiceController(InvoiceService invoiceService, InvoiceRepository invoiceRepository,
-            SaleRepository saleRepository, UserRepository userRepository) {
-        this.invoiceService = invoiceService;
-        this.invoiceRepository = invoiceRepository;
-        this.saleRepository = saleRepository;
-        this.userRepository = userRepository;
-    }
+    private final CustomerRepository customerRepository;
 
     @GetMapping
     public String listInvoiceForm(Model model) {
@@ -138,6 +138,89 @@ public class InvoiceController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Collections.singletonMap("error", e.getMessage())); // Always return JSON
+        }
+    }
+
+    @GetMapping("/sales-return/search")
+    public String searchForSalesReturn(
+            @RequestParam(required = false) String invNum,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            Model model) {
+
+        InvoiceModel invoice = null;
+
+        // Case 1: Invoice number provided (highest priority)
+        if (invNum != null && !invNum.isBlank()) {
+            invoice = invoiceRepository.findByInvNum(invNum);
+        }
+        // Case 2: Date + Phone (customer account-based)
+        else if (date != null && phone != null && !phone.isBlank()) {
+            CustomerModel customer = customerRepository.findByPhone(phone).orElse(null);
+            if (customer != null) {
+                invoice = invoiceRepository.findFirstByCustomerIdAndInvoiceDateTime(customer.getId(), date);
+            }
+        }
+        // Case 3: Only Date (walk-in customer)
+        else if (date != null) {
+            List<InvoiceModel> invoices = invoiceRepository.findByInvoiceDateTime(date);
+            model.addAttribute("invoices", invoices);
+            return "invoices/sales-return-list";
+        }
+
+        if (invoice != null) {
+            InvoiceDto invoiceDto = invoiceService.getInvoiceWithItems(invoice.getId());
+            model.addAttribute("invoice", invoiceDto);
+            return "invoices/sales-return-process"; // Show the new return processing form
+        } else {
+            model.addAttribute("error", "No matching invoice found.");
+            return "invoices/sales-return";
+        }
+    }
+
+    @PostMapping("/invoices/process-return/{id}")
+    public String processReturn(
+            @PathVariable Long id,
+            @ModelAttribute("invoice") InvoiceDto invoiceDto,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            // Calculate total refund amount
+            double totalRefund = invoiceDto.getSaleDto().getItems().stream()
+                    .mapToDouble(
+                            item -> (item.getReturnedQuantity() != null ? item.getReturnedQuantity() : 0)
+                                    * item.getPrice())
+                    .sum();
+
+            // Update invoice and items
+            InvoiceModel invoice = invoiceRepository.findById(id).orElseThrow();
+
+            // Update invoice values
+            invoice.setTotalAmount(invoice.getTotalAmount() - totalRefund);
+            invoice.setBalanceDue(invoice.getBalanceDue() - totalRefund);
+
+            // Update sale items with returned quantities
+            SaleModel sale = saleRepository.findById(invoice.getQuotationId()).orElseThrow();
+            for (SaleItemDto dtoItem : invoiceDto.getSaleDto().getItems()) {
+                sale.getItems().stream()
+                        .filter(modelItem -> modelItem.getId().equals(dtoItem.getId()))
+                        .findFirst()
+                        .ifPresent(modelItem -> {
+                            modelItem.setReturnedQuantity(dtoItem.getReturnedQuantity());
+                            modelItem.setReturnReason(dtoItem.getReturnReason());
+                        });
+            }
+
+            // Save changes
+            saleRepository.save(sale);
+            invoiceRepository.save(invoice);
+
+            redirectAttributes.addFlashAttribute("success",
+                    "Return processed successfully. Refund amount: " + totalRefund);
+            return "redirect:/invoices/" + id;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error processing return: " + e.getMessage());
+            return "redirect:/invoices/return/" + id;
         }
     }
 

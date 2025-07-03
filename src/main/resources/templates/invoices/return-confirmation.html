@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}" lang="en">
+
+<head>
+    <title>Return Processed</title>
+    <meta charset="UTF-8" />
+</head>
+
+<body>
+    <section class="return-confirmation" layout:fragment="body">
+        <div class="alert alert-success">
+            <h2>Return Processed Successfully</h2>
+        </div>
+
+        <div class="confirmation-details">
+            <h3>Return Details</h3>
+            <p><strong>Invoice Number:</strong> <span th:text="${invoice.invNum}"></span></p>
+            <p><strong>Customer:</strong> <span th:text="${invoice.saleDto.customerName}"></span></p>
+            <p><strong>Total Refund Amount:</strong> <span
+                    th:text="${'₦' + #numbers.formatDecimal(refundAmount, 1, 2)}"></span></p>
+            <p><strong>New Invoice Balance:</strong> <span
+                    th:text="${'₦' + #numbers.formatDecimal(invoice.balanceDue, 1, 2)}"></span></p>
+
+            <h4>Returned Items</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity Returned</th>
+                        <th>Reason</th>
+                        <th>Amount Refunded</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${returnedItems}" th:if="${item.returnedQuantity > 0}">
+                        <td th:text="${item.productName}"></td>
+                        <td th:text="${item.returnedQuantity}"></td>
+                        <td th:text="${item.returnReason}"></td>
+                        <td th:text="${'₦' + #numbers.formatDecimal(item.returnedQuantity * item.price, 1, 2)}"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div th:if="${returnNotes}" class="notes">
+                <h4>Notes</h4>
+                <p th:text="${returnNotes}"></p>
+            </div>
+        </div>
+
+        <div class="actions">
+            <a th:href="@{'/invoices/' + ${invoice.id}}" class="btn btn-primary">View Invoice</a>
+            <a th:href="@{/invoices/sales-return}" class="btn btn-secondary">Process Another Return</a>
+            <a th:href="@{'/invoices/print-return/' + ${returnId}}" class="btn btn-info" target="_blank">Print Return
+                Receipt</a>
+        </div>
+    </section>
+</body>
+
+</html>

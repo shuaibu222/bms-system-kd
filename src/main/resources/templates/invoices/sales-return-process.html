@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}" lang="en">
+
+<head>
+    <title>Process Sales Return</title>
+    <meta charset="UTF-8" />
+    <style>
+        .return-qty {
+            width: 60px;
+        }
+
+        .refund-amount {
+            display: inline-block;
+            min-width: 80px;
+        }
+
+        .summary {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="sales-return-process" layout:fragment="body">
+        <h1>Process Sales Return</h1>
+
+        <div th:if="${invoice}" class="invoice-info">
+            <h3>Invoice: <span th:text="${invoice.invNum}"></span></h3>
+            <p>Customer: <span th:text="${invoice.saleDto.customerName}"></span></p>
+            <p>Date: <span th:text="${#temporals.format(invoice.invoiceDateTime, 'yyyy-MM-dd')}"></span></p>
+            <p>Original Total: <span th:text="${'₦' + #numbers.formatDecimal(invoice.totalAmount, 1, 2)}"></span></p>
+        </div>
+
+        <form th:action="@{/invoices/process-return/{id}(id=${invoice.id})}" method="post" class="form">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Original Qty</th>
+                        <th>Price</th>
+                        <th>Return Qty</th>
+                        <th>Reason</th>
+                        <th>Refund Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item, iterStat : ${invoice.saleDto.items}">
+                        <td th:text="${item.productName}"></td>
+                        <td th:text="${item.quantity}"></td>
+                        <td th:text="${'₦' + #numbers.formatDecimal(item.price, 1, 2)}"></td>
+                        <td>
+                            <input type="number" th:name="|items[${iterStat.index}].returnedQuantity|"
+                                th:value="${item.returnedQuantity != null ? item.returnedQuantity : 0}" min="0"
+                                th:max="${item.quantity}" class="form-control return-qty"
+                                onchange="calculateRefund(this)" />
+                        </td>
+                        <td>
+                            <select th:name="|items[${iterStat.index}].returnReason|" class="form-control">
+                                <option value="">Select reason</option>
+                                <option value="DEFECTIVE">Defective</option>
+                                <option value="WRONG_ITEM">Wrong Item</option>
+                                <option value="CHANGE_OF_MIND">Change of Mind</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </td>
+                        <td>
+                            <span class="refund-amount" th:data-price="${item.price}" th:text="'₦0.00'"></span>
+                        </td>
+                        <input type="hidden" th:name="|items[${iterStat.index}].id|" th:value="${item.id}" />
+                        <input type="hidden" th:name="|items[${iterStat.index}].productName|"
+                            th:value="${item.productName}" />
+                        <input type="hidden" th:name="|items[${iterStat.index}].quantity|"
+                            th:value="${item.quantity}" />
+                        <input type="hidden" th:name="|items[${iterStat.index}].price|" th:value="${item.price}" />
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="summary">
+                <h4>Return Summary</h4>
+                <p>Total Items to Return: <span id="total-return-qty">0</span></p>
+                <p>Total Refund Amount: <span id="total-refund-amount">₦0.00</span></p>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Return Notes</label>
+                <textarea id="notes" name="returnNotes" class="form-control" rows="3"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Process Return</button>
+            <a th:href="@{/invoices/sales-return}" class="btn btn-secondary">Cancel</a>
+        </form>
+
+        <script>
+            function calculateRefund(input) {
+                const row = input.closest('tr');
+                const price = parseFloat(row.querySelector('.refund-amount').dataset.price);
+                const qty = parseInt(input.value) || 0;
+                const refundAmount = price * qty;
+
+                row.querySelector('.refund-amount').textContent = '₦' + refundAmount.toFixed(2);
+
+                // Update totals
+                updateTotals();
+            }
+
+            function updateTotals() {
+                let totalQty = 0;
+                let totalAmount = 0;
+
+                document.querySelectorAll('.return-qty').forEach(input => {
+                    const qty = parseInt(input.value) || 0;
+                    totalQty += qty;
+
+                    const row = input.closest('tr');
+                    const price = parseFloat(row.querySelector('.refund-amount').dataset.price);
+                    totalAmount += price * qty;
+                });
+
+                document.getElementById('total-return-qty').textContent = totalQty;
+                document.getElementById('total-refund-amount').textContent = '₦' + totalAmount.toFixed(2);
+            }
+
+            // Initialize calculations on page load
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.return-qty').forEach(input => {
+                    calculateRefund(input);
+                });
+            });
+        </script>
+    </section>
+</body>
+
+</html>
