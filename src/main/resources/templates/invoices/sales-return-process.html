@@ -35,7 +35,8 @@
             <p>Original Total: <span th:text="${'₦' + #numbers.formatDecimal(invoice.totalAmount, 1, 2)}"></span></p>
         </div>
 
-        <form th:action="@{/invoices/process-return/{id}(id=${invoice.id})}" method="post" class="form">
+        <form th:action="@{/invoices/process-return/{id}(id=${invoice.id})}" th:object="${invoice}" method="post"
+            class="form">
             <table class="table">
                 <thead>
                     <tr>
@@ -48,18 +49,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="item, iterStat : ${invoice.saleDto.items}">
-                        <td th:text="${item.productName}"></td>
-                        <td th:text="${item.quantity}"></td>
+                    <tr th:each="item, iterStat : *{saleDto.items}">
+                        <td th:text="*{saleDto.items[__${iterStat.index}__].productName}"></td>
+                        <td th:text="*{saleDto.items[__${iterStat.index}__].quantity}"></td>
                         <td th:text="${'₦' + #numbers.formatDecimal(item.price, 1, 2)}"></td>
                         <td>
-                            <input type="number" th:name="|items[${iterStat.index}].returnedQuantity|"
-                                th:value="${item.returnedQuantity != null ? item.returnedQuantity : 0}" min="0"
-                                th:max="${item.quantity}" class="form-control return-qty"
-                                onchange="calculateRefund(this)" />
+                            <input type="number" th:field="*{saleDto.items[__${iterStat.index}__].returnedQuantity}"
+                                min="0" th:max="*{saleDto.items[__${iterStat.index}__].quantity}"
+                                class="form-control return-qty" onchange="calculateRefund(this)" />
                         </td>
                         <td>
-                            <select th:name="|items[${iterStat.index}].returnReason|" class="form-control">
+                            <select th:field="*{saleDto.items[__${iterStat.index}__].returnReason}"
+                                class="form-control">
                                 <option value="">Select reason</option>
                                 <option value="DEFECTIVE">Defective</option>
                                 <option value="WRONG_ITEM">Wrong Item</option>
@@ -68,15 +69,17 @@
                             </select>
                         </td>
                         <td>
-                            <span class="refund-amount" th:data-price="${item.price}" th:text="'₦0.00'"></span>
+                            <span class="refund-amount" th:data-price="*{saleDto.items[__${iterStat.index}__].price}"
+                                th:text="'₦0.00'"></span>
                         </td>
-                        <input type="hidden" th:name="|items[${iterStat.index}].id|" th:value="${item.id}" />
-                        <input type="hidden" th:name="|items[${iterStat.index}].productName|"
-                            th:value="${item.productName}" />
-                        <input type="hidden" th:name="|items[${iterStat.index}].quantity|"
-                            th:value="${item.quantity}" />
-                        <input type="hidden" th:name="|items[${iterStat.index}].price|" th:value="${item.price}" />
+
+                        <!-- Hidden fields -->
+                        <input type="hidden" th:field="*{saleDto.items[__${iterStat.index}__].id}" />
+                        <input type="hidden" th:field="*{saleDto.items[__${iterStat.index}__].productName}" />
+                        <input type="hidden" th:field="*{saleDto.items[__${iterStat.index}__].quantity}" />
+                        <input type="hidden" th:field="*{saleDto.items[__${iterStat.index}__].price}" />
                     </tr>
+
                 </tbody>
             </table>
 
@@ -91,8 +94,8 @@
                 <textarea id="notes" name="returnNotes" class="form-control" rows="3"></textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary">Process Return</button>
-            <a th:href="@{/invoices/sales-return}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn">Process Return</button>
+            <a th:href="@{/invoices/sales-return/search}" class="btn">Cancel</a>
         </form>
 
         <script>

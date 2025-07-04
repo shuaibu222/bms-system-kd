@@ -32,7 +32,7 @@
                         <th>Amount Refunded</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody th:if="${returnedItems != null}">
                     <tr th:each="item : ${returnedItems}" th:if="${item.returnedQuantity > 0}">
                         <td th:text="${item.productName}"></td>
                         <td th:text="${item.returnedQuantity}"></td>
@@ -41,7 +41,6 @@
                     </tr>
                 </tbody>
             </table>
-
             <div th:if="${returnNotes}" class="notes">
                 <h4>Notes</h4>
                 <p th:text="${returnNotes}"></p>

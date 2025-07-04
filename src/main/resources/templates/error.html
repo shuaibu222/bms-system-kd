@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}" lang="en">
+
+<head>
+    <title>Error</title>
+</head>
+
+<body>
+    <section layout:fragment="body">
+        <article style="margin-top: 2rem">
+            <div style="font-size: 10rem; color: #ff253a; text-align: center"><i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div
+                style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1rem;">
+                <h1 style="text-align: center; font-size: 2rem;">Error</h1>
+                <p style="text-align: center; font-size: 1.2rem;" th:text="${message}"></p>
+                <a th:href="${previousPage}"
+                    style="padding: 0.8rem 1.5rem; align-self: center; margin-top: 1.5rem; text-decoration: none; cursor: pointer; width: fit-content; text-align: center; background: black; color: white; border-radius: 0.5rem">
+                    <i class="fa fa-arrow-left" style="font-size: 1rem; margin-right: 0.2rem"></i> Back to Previous Page
+                </a>
+            </div>
+        </article>
+    </section>
+</body>
+
+</html>
