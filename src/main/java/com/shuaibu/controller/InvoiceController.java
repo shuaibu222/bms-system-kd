@@ -14,7 +14,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.shuaibu.dto.InvoiceDto;
 import com.shuaibu.dto.SaleItemDto;
@@ -31,6 +30,7 @@ import com.shuaibu.repository.SaleRepository;
 import com.shuaibu.repository.UserRepository;
 import com.shuaibu.service.InvoiceService;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -175,6 +175,15 @@ public class InvoiceController {
 
         if (invoice != null) {
             InvoiceDto invoiceDto = invoiceService.getInvoiceWithItems(invoice.getId());
+
+            // 🧹 Reset return values so the form starts clean
+            if (invoiceDto.getSaleDto() != null && invoiceDto.getSaleDto().getItems() != null) {
+                invoiceDto.getSaleDto().getItems().forEach(item -> {
+                    item.setReturnedQuantity(null);
+                    item.setReturnReason(null);
+                });
+            }
+
             model.addAttribute("invoice", invoiceDto);
             return "invoices/sales-return-process"; // Show the new return processing form
         } else {
@@ -186,6 +195,15 @@ public class InvoiceController {
     @GetMapping("/sales-return/process/{id}")
     public String showSalesReturnForm(@PathVariable Long id, Model model) {
         InvoiceDto invoiceDto = invoiceService.getInvoiceWithItems(id);
+
+        // 🧹 Reset return values so the form starts clean
+        if (invoiceDto.getSaleDto() != null && invoiceDto.getSaleDto().getItems() != null) {
+            invoiceDto.getSaleDto().getItems().forEach(item -> {
+                item.setReturnedQuantity(null);
+                item.setReturnReason(null);
+            });
+        }
+
         model.addAttribute("invoice", invoiceDto);
         return "invoices/sales-return-process"; // This view contains the return form
     }
@@ -194,7 +212,7 @@ public class InvoiceController {
     public String processReturn(
             @PathVariable Long id,
             @ModelAttribute("invoice") InvoiceDto invoiceDto,
-            RedirectAttributes redirectAttributes) {
+            HttpSession session) {
 
         try {
             double totalRefund = invoiceDto.getSaleDto().getItems().stream()
@@ -204,7 +222,6 @@ public class InvoiceController {
 
             InvoiceModel invoice = invoiceRepository.findById(id).orElseThrow();
             invoice.setTotalAmount(invoice.getTotalAmount() - totalRefund);
-            invoice.setBalanceDue(invoice.getBalanceDue() - totalRefund);
 
             SaleModel sale = saleRepository.findById(invoice.getQuotationId()).orElseThrow();
 
@@ -225,7 +242,6 @@ public class InvoiceController {
                                     int remainingQty = soldQty - returnedQty;
                                     modelItem.setQuantity(remainingQty);
 
-                                    // Mark for removal if all items are returned
                                     if (remainingQty <= 0) {
                                         itemsToRemove.add(modelItem);
                                     }
@@ -241,30 +257,33 @@ public class InvoiceController {
                         });
             }
 
-            // Remove fully returned items
             sale.getItems().removeAll(itemsToRemove);
-
             sale.setTotalAmount(sale.getTotalAmount() - totalRefund);
             saleRepository.save(sale);
             invoiceRepository.save(invoice);
 
-            // Add necessary data as flash attributes
-            redirectAttributes.addFlashAttribute("invoice", invoiceDto);
-            redirectAttributes.addFlashAttribute("refundAmount", totalRefund);
-            redirectAttributes.addFlashAttribute("returnedItems", invoiceDto.getSaleDto().getItems());
-            redirectAttributes.addFlashAttribute("returnId", id);
-            redirectAttributes.addFlashAttribute("returnNotes", invoiceDto.getReturnNotes()); // if present
+            return "redirect:/invoices/return/success?id=" + id + "&refundAmount=" + totalRefund;
 
-            return "redirect:/invoices/return/success?refundAmount=" + totalRefund;
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error processing return: " + e.getMessage());
+            session.setAttribute("error", "Error processing return: " + e.getMessage());
             return "redirect:/invoices/return/" + id;
         }
     }
 
     @GetMapping("/return/success")
-    public String invoiceReturnSuccessPage(@RequestParam Double refundAmount, Model model) {
+    public String invoiceReturnSuccessPage(
+            @RequestParam Long id,
+            @RequestParam Double refundAmount,
+            Model model) {
+
+        InvoiceDto invoiceDto = invoiceService.getInvoiceWithItems(id);
+
+        model.addAttribute("invoice", invoiceDto);
         model.addAttribute("refundAmount", refundAmount);
+        model.addAttribute("returnedItems", invoiceDto.getSaleDto().getItems());
+        model.addAttribute("returnId", id);
+        model.addAttribute("returnNotes", invoiceDto.getReturnNotes()); // Optional if saved
+
         return "invoices/return-confirmation";
     }
 

@@ -35,6 +35,8 @@ public class SaleMapper {
                 .productName(saleItemModel.getProductName())
                 .quantity(saleItemModel.getQuantity())
                 .price(saleItemModel.getPrice())
+                .returnReason(saleItemModel.getReturnReason())
+                .returnedQuantity(saleItemModel.getReturnedQuantity())
                 .build();
     }
 }

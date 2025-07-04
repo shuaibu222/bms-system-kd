@@ -20,7 +20,7 @@
             <p><strong>Total Refund Amount:</strong> <span
                     th:text="${'₦' + #numbers.formatDecimal(refundAmount, 1, 2)}"></span></p>
             <p><strong>New Invoice Balance:</strong> <span
-                    th:text="${'₦' + #numbers.formatDecimal(invoice.balanceDue, 1, 2)}"></span></p>
+                    th:text="${'₦' + #numbers.formatDecimal(invoice.totalAmount, 1, 2)}"></span></p>
 
             <h4>Returned Items</h4>
             <table class="table">

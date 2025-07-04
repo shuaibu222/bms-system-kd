@@ -158,14 +158,7 @@ public class InvoiceImpl implements InvoiceService {
                         .totalAmount(sale.getTotalAmount())
                         .saleDateTime(sale.getSaleDateTime())
                         .items(sale.getItems().stream()
-                                .map(item -> {
-                                    SaleItemDto dto = SaleMapper.mapItemToDto(item);
-                                    // Initialize returned quantity if null
-                                    if (dto.getReturnedQuantity() == null) {
-                                        dto.setReturnedQuantity(0);
-                                    }
-                                    return dto;
-                                })
+                                .map(SaleMapper::mapItemToDto) // 🔁 Don't overwrite returnedQuantity
                                 .collect(Collectors.toList()))
                         .build();
             }
