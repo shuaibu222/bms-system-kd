@@ -5,23 +5,6 @@
 <head>
     <title>Process Sales Return</title>
     <meta charset="UTF-8" />
-    <style>
-        .return-qty {
-            width: 60px;
-        }
-
-        .refund-amount {
-            display: inline-block;
-            min-width: 80px;
-        }
-
-        .summary {
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-        }
-    </style>
 </head>
 
 <body>
@@ -55,7 +38,7 @@
                         <td th:text="${'₦' + #numbers.formatDecimal(item.price, 1, 2)}"></td>
                         <td>
                             <input type="number" th:field="*{saleDto.items[__${iterStat.index}__].returnedQuantity}"
-                                min="0" th:max="*{saleDto.items[__${iterStat.index}__].quantity}"
+                                min="0" th:max="*{saleDto.items[__${iterStat.index}__].quantity}" required
                                 class="form-control return-qty" onchange="calculateRefund(this)" />
                         </td>
                         <td>
@@ -101,13 +84,20 @@
         <script>
             function calculateRefund(input) {
                 const row = input.closest('tr');
+                const qtyInput = input;
                 const price = parseFloat(row.querySelector('.refund-amount').dataset.price);
-                const qty = parseInt(input.value) || 0;
-                const refundAmount = price * qty;
+                const maxQty = parseInt(qtyInput.getAttribute('max')) || 0;
+                let qty = parseInt(qtyInput.value) || 0;
 
+                if (qty > maxQty) {
+                    alert(`You cannot return more than ${maxQty} items.`);
+                    qty = maxQty;
+                    qtyInput.value = maxQty;
+                }
+
+                const refundAmount = price * qty;
                 row.querySelector('.refund-amount').textContent = '₦' + refundAmount.toFixed(2);
 
-                // Update totals
                 updateTotals();
             }
 

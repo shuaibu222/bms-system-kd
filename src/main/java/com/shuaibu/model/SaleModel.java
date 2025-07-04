@@ -27,7 +27,7 @@ public class SaleModel {
     private Double totalAmount;
     private LocalDate saleDateTime;
 
-    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<SaleItemModel> items;
 
     private LocalDateTime createdAt;

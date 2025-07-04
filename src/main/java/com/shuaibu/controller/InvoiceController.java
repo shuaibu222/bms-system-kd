@@ -1,6 +1,7 @@
 package com.shuaibu.controller;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,6 +21,7 @@ import com.shuaibu.dto.SaleItemDto;
 import com.shuaibu.model.CustomerModel;
 import com.shuaibu.model.InvoiceModel;
 import com.shuaibu.model.ProductModel;
+import com.shuaibu.model.SaleItemModel;
 import com.shuaibu.model.SaleModel;
 import com.shuaibu.model.UserModel;
 import com.shuaibu.repository.CustomerRepository;
@@ -206,6 +208,8 @@ public class InvoiceController {
 
             SaleModel sale = saleRepository.findById(invoice.getQuotationId()).orElseThrow();
 
+            List<SaleItemModel> itemsToRemove = new ArrayList<>();
+
             for (SaleItemDto dtoItem : invoiceDto.getSaleDto().getItems()) {
                 sale.getItems().stream()
                         .filter(modelItem -> modelItem.getId().equals(dtoItem.getId()))
@@ -216,6 +220,17 @@ public class InvoiceController {
                                 modelItem.setReturnedQuantity(returnedQty);
                                 modelItem.setReturnReason(dtoItem.getReturnReason());
 
+                                Integer soldQty = modelItem.getQuantity();
+                                if (soldQty != null) {
+                                    int remainingQty = soldQty - returnedQty;
+                                    modelItem.setQuantity(remainingQty);
+
+                                    // Mark for removal if all items are returned
+                                    if (remainingQty <= 0) {
+                                        itemsToRemove.add(modelItem);
+                                    }
+                                }
+
                                 ProductModel product = productRepository.findByName(modelItem.getProductName());
                                 if (product != null) {
                                     int currentStock = product.getQuantity() != null ? product.getQuantity() : 0;
@@ -225,6 +240,9 @@ public class InvoiceController {
                             }
                         });
             }
+
+            // Remove fully returned items
+            sale.getItems().removeAll(itemsToRemove);
 
             sale.setTotalAmount(sale.getTotalAmount() - totalRefund);
             saleRepository.save(sale);
