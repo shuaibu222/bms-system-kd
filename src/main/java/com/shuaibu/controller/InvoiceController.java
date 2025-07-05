@@ -179,7 +179,7 @@ public class InvoiceController {
             // 🧹 Reset return values so the form starts clean
             if (invoiceDto.getSaleDto() != null && invoiceDto.getSaleDto().getItems() != null) {
                 invoiceDto.getSaleDto().getItems().forEach(item -> {
-                    item.setReturnedQuantity(null);
+                    item.setReturnedQuantity(0);
                     item.setReturnReason(null);
                 });
             }
@@ -199,7 +199,7 @@ public class InvoiceController {
         // 🧹 Reset return values so the form starts clean
         if (invoiceDto.getSaleDto() != null && invoiceDto.getSaleDto().getItems() != null) {
             invoiceDto.getSaleDto().getItems().forEach(item -> {
-                item.setReturnedQuantity(null);
+                item.setReturnedQuantity(0);
                 item.setReturnReason(null);
             });
         }
@@ -222,6 +222,7 @@ public class InvoiceController {
 
             InvoiceModel invoice = invoiceRepository.findById(id).orElseThrow();
             invoice.setTotalAmount(invoice.getTotalAmount() - totalRefund);
+            invoice.setInvoiceValue(invoice.getInvoiceValue() - totalRefund);
 
             SaleModel sale = saleRepository.findById(invoice.getQuotationId()).orElseThrow();
 

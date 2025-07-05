@@ -8,7 +8,15 @@ import java.util.Optional;
 
 public interface MainLedgerRepository extends JpaRepository<MainLedgerModel, Long> {
     List<MainLedgerModel> findAllByDate(LocalDate date);
-    // List<MainLedgerModel> findAllByDateBetween(LocalDate startDate, LocalDate endDate);
+
+    // List<MainLedgerModel> findAllByDateBetween(LocalDate startDate, LocalDate
+    // endDate);
     List<MainLedgerModel> findAllByDateBetweenOrderByDateAsc(LocalDate start, LocalDate end);
+
     Optional<MainLedgerModel> findTopByOrderByDateDescIdDesc(); // To get last closing balance
+
+    boolean existsByDateAndParticulars(LocalDate date, String particulars);
+
+    Optional<MainLedgerModel> findByDateAndParticulars(LocalDate date, String particulars);
+
 }

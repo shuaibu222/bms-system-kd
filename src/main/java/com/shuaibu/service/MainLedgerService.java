@@ -56,7 +56,7 @@ public class MainLedgerService {
                     1).getClosingBalance();
         } else {
             // If nothing exists before, calculate initial balance as:
-            // stock value + customer receivables + staff loans + suspense
+            // stock value + positive customer receivables + staff loans + suspense
             double stockValue = calculateStockValueBefore(startDate);
             double outstandingValues = calculateOutstandingValuesBefore(startDate);
             rollingBalance = stockValue + outstandingValues;
@@ -107,7 +107,8 @@ public class MainLedgerService {
         // Customer with positive accounts (receivables)
         double customerReceivables = customerRepo.findAll().stream()
                 .filter(c -> c.getBalance() != null && c.getBalance() > 0)
-                .mapToDouble(c -> c.getBalance())
+                .mapToDouble(c -> Math.abs(c
+                        .getBalance()))
                 .sum();
 
         // Staff loans total
@@ -193,9 +194,10 @@ public class MainLedgerService {
                 .mapToDouble(c -> c.getBalance() != null && c.getBalance() < 0 ? c.getBalance() : 0)
                 .sum();
 
-        double customerReceivables = customerRepo.findAll().stream()
-                .mapToDouble(c -> c.getBalance() != null && c.getBalance() > 0 ? c.getBalance() : 0)
-                .sum();
+        // double customerReceivables = customerRepo.findAll().stream()
+        // .mapToDouble(c -> c.getBalance() != null && c.getBalance() > 0 ?
+        // c.getBalance() : 0)
+        // .sum();
 
         double stockValue = productRepo.findAll().stream()
                 .mapToDouble(p -> p.getPrice() * p.getQuantity())
@@ -210,8 +212,8 @@ public class MainLedgerService {
 
         double liabilities = stockValue + Math.abs(customerDebt) + suspense +
                 staffLoans;
-        double assets = customerReceivables; // add other assets if needed
-        double profitOrLoss = finalLedgerBalance - (liabilities + assets);
+        // double assets = customerReceivables; // add other assets if needed
+        double profitOrLoss = finalLedgerBalance - liabilities;
 
         Map<String, Double> summary = new HashMap<>();
         summary.put("totalExpenses", totalExpenses);
@@ -220,7 +222,7 @@ public class MainLedgerService {
         summary.put("finalLedgerBalance", finalLedgerBalance);
         summary.put("stockValue", stockValue);
         summary.put("customerDebt", Math.abs(customerDebt));
-        summary.put("customerReceivables", customerReceivables);
+        // summary.put("customerReceivables", customerReceivables);
         summary.put("suspense", suspense);
         summary.put("staffLoans", staffLoans);
         return summary;
@@ -247,4 +249,5 @@ public class MainLedgerService {
 
         ledgerRepo.save(summaryEntry);
     }
+
 }
