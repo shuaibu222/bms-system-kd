@@ -4,10 +4,10 @@ import com.shuaibu.dto.LoanDto;
 import com.shuaibu.model.LoanModel;
 import com.shuaibu.repository.LoanRepository;
 import com.shuaibu.repository.StaffRepository;
-import com.shuaibu.repository.UserRepository;
 import com.shuaibu.service.LoanService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
@@ -18,57 +18,28 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/loans")
+@RequiredArgsConstructor
 public class LoanController {
 
     private final LoanService loanService;
     private final LoanRepository loanRepository;
     private final StaffRepository staffRepository;
 
-    public LoanController(LoanService loanService,
-                            LoanRepository loanRepository,
-                            StaffRepository staffRepository,
-                            UserRepository userRepository) {
-        this.loanService = loanService;
-        this.loanRepository = loanRepository;
-        this.staffRepository = staffRepository;
-    }
-
     @GetMapping
     public String listLoans(Model model) {
-        List<LoanModel> loans = loanRepository.findAll();
-        
-        // Calculate totals
-        double totalLoans = loans.stream().mapToDouble(LoanModel::getAmount).sum();
-        double totalRepaid = loans.stream().mapToDouble(LoanModel::getAmountRepaid).sum();
-        double totalOutstanding = totalLoans - totalRepaid;
-        
-        model.addAttribute("loan", new LoanModel());
-        model.addAttribute("loans", loans);
-        model.addAttribute("totalLoans", totalLoans);
-        model.addAttribute("totalRepaid", totalRepaid);
-        model.addAttribute("totalOutstanding", totalOutstanding);
-        model.addAttribute("staffList", staffRepository.findAll());
+        populateLoanPageData(model, new LoanModel());
         return "staff-loans/list";
     }
 
     @PostMapping
-    public String saveLoan(@Valid @ModelAttribute("Loan") LoanDto Loan,
-                                BindingResult result, Model model) {
+    public String saveLoan(@Valid @ModelAttribute("loan") LoanDto loan,
+            BindingResult result, Model model) {
         if (result.hasErrors()) {
-            List<LoanModel> loans = loanRepository.findAll();
-            // Calculate totals
-            double totalLoans = loans.stream().mapToDouble(LoanModel::getAmount).sum();
-            double totalRepaid = loans.stream().mapToDouble(LoanModel::getAmountRepaid).sum();
-            double totalOutstanding = totalLoans - totalRepaid;
-            
-            model.addAttribute("loans", loanRepository.findAll());
-            model.addAttribute("staffList", staffRepository.findAll());
-            model.addAttribute("totalLoans", totalLoans);
-            model.addAttribute("totalRepaid", totalRepaid);
-            model.addAttribute("totalOutstanding", totalOutstanding);
+            populateLoanPageData(model, loan);
             return "staff-loans/list";
         }
-        loanService.saveOrUpdateLoan(Loan);
+
+        loanService.saveOrUpdateLoan(loan);
         return "redirect:/loans?success";
     }
 
@@ -82,13 +53,14 @@ public class LoanController {
 
     @PostMapping("/update/{id}")
     public String updateLoan(@PathVariable Long id,
-                                @Valid @ModelAttribute("Loan") LoanDto loan,
-                                BindingResult result, Model model) {
+            @Valid @ModelAttribute("loan") LoanDto loan,
+            BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("loan", loan);
             model.addAttribute("staffList", staffRepository.findAll());
             return "staff-loans/edit";
         }
+
         loan.setId(id);
         loanService.saveOrUpdateLoan(loan);
         return "redirect:/loans?updateSuccess";
@@ -98,5 +70,27 @@ public class LoanController {
     public String deleteLoan(@PathVariable Long id) {
         loanService.deleteLoan(id);
         return "redirect:/loans?deleted";
+    }
+
+    // Helper to reduce repetition
+    private void populateLoanPageData(Model model, Object loanObject) {
+        List<LoanModel> loans = loanRepository.findAll();
+
+        double totalLoans = loans.stream()
+                .mapToDouble(l -> l.getAmount() != null ? l.getAmount() : 0.0)
+                .sum();
+
+        double totalRepaid = loans.stream()
+                .mapToDouble(l -> l.getAmountRepaid() != null ? l.getAmountRepaid() : 0.0)
+                .sum();
+
+        double totalOutstanding = totalLoans - totalRepaid;
+
+        model.addAttribute("loan", loanObject);
+        model.addAttribute("loans", loans);
+        model.addAttribute("totalLoans", totalLoans);
+        model.addAttribute("totalRepaid", totalRepaid);
+        model.addAttribute("totalOutstanding", totalOutstanding);
+        model.addAttribute("staffList", staffRepository.findAll());
     }
 }

@@ -12,22 +12,16 @@ import com.shuaibu.repository.PurchaseReturnRepository;
 import com.shuaibu.service.PurchaseReturnService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequestMapping("/purchase-returns")
+@RequiredArgsConstructor
 public class PurchaseReturnController {
 
     private final PurchaseReturnService purchaseReturnService;
     private final PurchaseReturnRepository purchaseReturnRepository;
     private final ProductRepository productRepository;
-
-    public PurchaseReturnController(PurchaseReturnService purchaseReturnService,
-            PurchaseReturnRepository purchaseReturnRepository,
-            ProductRepository productRepository) {
-        this.purchaseReturnService = purchaseReturnService;
-        this.purchaseReturnRepository = purchaseReturnRepository;
-        this.productRepository = productRepository;
-    }
 
     @GetMapping
     public String listPurchaseReturns(Model model) {
@@ -38,15 +32,16 @@ public class PurchaseReturnController {
     }
 
     @PostMapping
-    public String savePurchaseReturn(@Valid @ModelAttribute("purchaseReturn") PurchaseReturnDto purchaseReturn,
+    public String savePurchaseReturn(
+            @Valid @ModelAttribute("purchaseReturn") PurchaseReturnDto purchaseReturn,
             BindingResult result, Model model) {
+
         if (result.hasErrors()) {
             model.addAttribute("purchaseReturns", purchaseReturnRepository.findAll());
-
             model.addAttribute("products", productRepository.findAll());
-
             return "purchase-returns/list";
         }
+
         purchaseReturnService.saveOrUpdatePurchaseReturn(purchaseReturn);
         return "redirect:/purchase-returns?success";
     }
@@ -60,16 +55,18 @@ public class PurchaseReturnController {
     }
 
     @PostMapping("/update/{id}")
-    public String updatePurchaseReturn(@PathVariable Long id,
+    public String updatePurchaseReturn(
+            @PathVariable Long id,
             @Valid @ModelAttribute("purchaseReturn") PurchaseReturnDto purchaseReturn,
-            BindingResult result, Model model) {
+            BindingResult result,
+            Model model) {
+
         if (result.hasErrors()) {
             model.addAttribute("purchaseReturn", purchaseReturn);
-
             model.addAttribute("products", productRepository.findAll());
-
             return "purchase-returns/edit";
         }
+
         purchaseReturn.setId(id);
         purchaseReturnService.saveOrUpdatePurchaseReturn(purchaseReturn);
         return "redirect:/purchase-returns?updateSuccess";
@@ -78,6 +75,6 @@ public class PurchaseReturnController {
     @GetMapping("/delete/{id}")
     public String deletePurchaseReturn(@PathVariable Long id) {
         purchaseReturnService.deletePurchaseReturn(id);
-        return "redirect:/purchase-returns?error";
+        return "redirect:/purchase-returns?deleted";
     }
 }

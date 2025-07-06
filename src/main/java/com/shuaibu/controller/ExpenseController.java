@@ -8,37 +8,29 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.shuaibu.dto.ExpenseDto;
-import com.shuaibu.model.ExpenseModel;
-import com.shuaibu.repository.ExpenseRepository;
 import com.shuaibu.service.ExpenseService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequestMapping("/expenses")
+@RequiredArgsConstructor
 public class ExpenseController {
 
     private final ExpenseService expenseService;
-    private final ExpenseRepository expenseRepository;
-
-    public ExpenseController(ExpenseService expenseService, ExpenseRepository expenseRepository) {
-        this.expenseService = expenseService;
-        this.expenseRepository = expenseRepository;
-    }
 
     @GetMapping
     public String listExpenses(Model model) {
-        List<ExpenseModel> expenses = expenseRepository.findAll();
+        List<ExpenseDto> expenses = expenseService.getAllExpenses();
 
-        // Calculate total
         double totalExpenses = expenses.stream()
-                .map(ExpenseModel::getAmount)
-                .mapToDouble(amount -> amount != null ? amount.doubleValue() : 0.0)
+                .mapToDouble(e -> e.getAmount() != null ? e.getAmount() : 0.0)
                 .sum();
 
         model.addAttribute("expenses", expenses);
-        model.addAttribute("expense", new ExpenseModel());
-        model.addAttribute("totalExpenses", totalExpenses); // Add total to model
+        model.addAttribute("expense", new ExpenseDto()); // form binding
+        model.addAttribute("totalExpenses", totalExpenses);
 
         return "expenses/list";
     }
@@ -50,6 +42,7 @@ public class ExpenseController {
             model.addAttribute("expenses", expenseService.getAllExpenses());
             return "expenses/list";
         }
+
         expenseService.saveOrUpdateExpense(expense);
         return "redirect:/expenses?success";
     }
@@ -64,10 +57,11 @@ public class ExpenseController {
     @PostMapping("/update/{id}")
     public String updateExpense(@PathVariable Long id,
             @Valid @ModelAttribute("expense") ExpenseDto expense,
-            BindingResult result, Model model) {
+            BindingResult result) {
         if (result.hasErrors()) {
             return "expenses/edit";
         }
+
         expense.setId(id);
         expenseService.saveOrUpdateExpense(expense);
         return "redirect:/expenses?updateSuccess";
@@ -76,6 +70,6 @@ public class ExpenseController {
     @GetMapping("/delete/{id}")
     public String deleteExpense(@PathVariable Long id) {
         expenseService.deleteExpense(id);
-        return "redirect:/expenses?error";
+        return "redirect:/expenses?deleted";
     }
 }

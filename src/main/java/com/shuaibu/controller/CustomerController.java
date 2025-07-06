@@ -11,20 +11,17 @@ import com.shuaibu.repository.DepositRepository;
 import com.shuaibu.repository.InvoiceRepository;
 import com.shuaibu.service.CustomerService;
 
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/customers")
@@ -36,56 +33,40 @@ public class CustomerController {
     private final DepositRepository depositRepository;
     private final InvoiceRepository invoiceRepository;
 
+    // ----------------- LIST CUSTOMERS ------------------
     @GetMapping
     public String showCustomerList(Model model) {
         List<CustomerDto> customers = customerService.getAllCustomers();
 
-        // Total balance: all balances treated as positive for display
-        double totalBalance = customers.stream()
-                .mapToDouble(c -> Math.abs(c.getBalance()))
-                .sum();
-
-        // Debtors: customers the business owes (balance < 0), show as positive
-        double totalDebtors = customers.stream()
-                .filter(c -> c.getBalance() < 0)
-                .mapToDouble(c -> Math.abs(c.getBalance()))
-                .sum();
-
-        // Creditors: customers who owe the business (balance > 0), show as positive
-        double totalCreditors = customers.stream()
-                .filter(c -> c.getBalance() > 0)
-                .mapToDouble(CustomerDto::getBalance)
+        double totalBalance = customers.stream().mapToDouble(c -> Math.abs(c.getBalance())).sum();
+        double totalDebtors = customers.stream().filter(c -> c.getBalance() < 0)
+                .mapToDouble(c -> Math.abs(c.getBalance())).sum();
+        double totalCreditors = customers.stream().filter(c -> c.getBalance() > 0).mapToDouble(CustomerDto::getBalance)
                 .sum();
 
         model.addAttribute("customers", customers);
-        model.addAttribute("customer", new CustomerModel());
-
-        model.addAttribute("totalBalance", totalBalance); // Always positive
-        model.addAttribute("totalDebtors", totalDebtors); // Positive
-        model.addAttribute("totalCreditors", totalCreditors); // Positive
-
+        model.addAttribute("customer", new CustomerDto());
+        model.addAttribute("totalBalance", totalBalance);
+        model.addAttribute("totalDebtors", totalDebtors);
+        model.addAttribute("totalCreditors", totalCreditors);
         return "customers/list";
     }
 
+    // ----------------- LIST DEBTORS ------------------
     @GetMapping("/debtors")
     public String showDebtorsList(Model model) {
-        List<CustomerDto> allCustomers = customerService.getAllCustomers();
-
-        // Filter debtors (customers with negative balances)
-        List<CustomerDto> debtors = allCustomers.stream()
-                .filter(cst -> cst.getBalance() < 0)
+        List<CustomerDto> debtors = customerService.getAllCustomers().stream()
+                .filter(c -> c.getBalance() < 0)
                 .collect(Collectors.toList());
 
-        // Calculate total debt (sum of negative balances)
-        double totalDebt = debtors.stream()
-                .mapToDouble(CustomerDto::getBalance)
-                .sum();
+        double totalDebt = debtors.stream().mapToDouble(CustomerDto::getBalance).sum();
 
         model.addAttribute("customers", debtors);
         model.addAttribute("totalDebt", Math.abs(totalDebt));
         return "customers/debtors";
     }
 
+    // ----------------- CREATE CUSTOMER ------------------
     @PostMapping
     public String saveCustomer(@Valid @ModelAttribute("customer") CustomerDto customerDto, BindingResult result,
             Model model) {
@@ -97,6 +78,7 @@ public class CustomerController {
         return "redirect:/customers?success";
     }
 
+    // ----------------- EDIT CUSTOMER ------------------
     @GetMapping("/edit/{id}")
     public String editCustomerForm(@PathVariable Long id, Model model) {
         model.addAttribute("customer", customerService.getCustomerById(id));
@@ -104,7 +86,8 @@ public class CustomerController {
     }
 
     @PostMapping("/update/{id}")
-    public String updateCustomer(@PathVariable Long id, @Valid @ModelAttribute("customer") CustomerDto customerDto,
+    public String updateCustomer(@PathVariable Long id,
+            @Valid @ModelAttribute("customer") CustomerDto customerDto,
             BindingResult result) {
         if (result.hasErrors()) {
             return "customers/edit";
@@ -114,16 +97,17 @@ public class CustomerController {
         return "redirect:/customers?updateSuccess";
     }
 
+    // ----------------- DELETE CUSTOMER ------------------
     @GetMapping("/delete/{id}")
     public String deleteCustomer(@PathVariable Long id) {
         customerService.deleteCustomer(id);
         return "redirect:/customers?error";
     }
 
+    // ----------------- DEPOSIT FOR CUSTOMER ------------------
     @GetMapping("/deposits/{id}")
     public String showDepositForm(@PathVariable Long id, Model model) {
         DepositModel deposit = new DepositModel();
-        deposit.setId(null);
         deposit.setCustomerId(id);
         model.addAttribute("deposit", deposit);
         return "customers/deposit";
@@ -131,71 +115,64 @@ public class CustomerController {
 
     @PostMapping("/deposits/{id}")
     public String makeDeposit(@PathVariable Long id,
-            @ModelAttribute("deposit") @Valid DepositDto depositDto,
-            BindingResult result,
-            Model model) {
+            @Valid @ModelAttribute("deposit") DepositDto depositDto,
+            BindingResult result) {
         if (result.hasErrors()) {
             return "customers/deposit";
         }
-
         depositDto.setCustomerId(id);
         customerService.makeDeposit(depositDto);
         return "redirect:/customers?success";
     }
 
+    // ----------------- DEPOSIT HISTORY ------------------
     @GetMapping("/deposits/history/{id}")
     public String showCustomerDeposits(@PathVariable Long id, Model model) {
         CustomerModel customer = customerRepository.findById(id).orElse(null);
-        if (customer == null) {
+        if (customer == null)
             return "redirect:/customers?error=notfound";
-        }
 
         List<DepositModel> deposits = depositRepository.findByCustomerId(id);
-
         model.addAttribute("customer", customer);
         model.addAttribute("deposits", deposits);
         return "customers/deposits-history";
     }
 
+    // ----------------- INVOICE HISTORY ------------------
     @GetMapping("/invoices/history/{id}")
     public String showCustomerInvoices(@PathVariable Long id, Model model) {
         CustomerModel customer = customerRepository.findById(id).orElse(null);
-        if (customer == null) {
+        if (customer == null)
             return "redirect:/customers?error=notfound";
-        }
 
         List<InvoiceModel> invoices = invoiceRepository.findByCustomerId(id);
-
         model.addAttribute("customer", customer);
         model.addAttribute("invoices", invoices);
         return "customers/invoices-history";
     }
 
+    // ----------------- INVOICE DETAIL ------------------
     @GetMapping("/invoice/{invoiceId}")
     public String viewInvoiceDetail(@PathVariable Long invoiceId, Model model) {
-        InvoiceDto invoice = customerService.getInvoiceWithItems(invoiceId); // Service method below
-
-        if (invoice == null) {
+        InvoiceDto invoice = customerService.getInvoiceWithItems(invoiceId);
+        if (invoice == null)
             return "redirect:/customers/history/invoices?error=notfound";
-        }
 
         model.addAttribute("invoice", invoice);
         return "customers/invoice-detail";
     }
 
+    // ----------------- INVOICE API ------------------
     @GetMapping("/api/invoices/{id}")
     @ResponseBody
     public ResponseEntity<InvoiceDto> getInvoiceApi(@PathVariable Long id) {
         InvoiceDto invoice = customerService.getInvoiceWithItems(id);
-        if (invoice == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(invoice);
+        return invoice == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(invoice);
     }
 
+    // ----------------- CUSTOMER LEDGER ------------------
     @GetMapping("/ledger")
-    public String showCustomerLedger(
-            @RequestParam(required = false) String accountNo,
+    public String showCustomerLedger(@RequestParam(required = false) String accountNo,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
             Model model) {
@@ -210,27 +187,19 @@ public class CustomerController {
         model.addAttribute("endDate", endDate);
 
         if (accountNo != null && !accountNo.isBlank()) {
-            try {
-                customer = customerRepository.findByPhone(accountNo).get();
-                if (customer != null) {
-                    Long customerId = customer.getId();
+            customer = customerRepository.findByPhone(accountNo).orElse(null);
+            if (customer != null) {
+                Long customerId = customer.getId();
+                LocalDate start = parseDate(startDate);
+                LocalDate end = parseDate(endDate);
 
-                    LocalDate start = (startDate != null && !startDate.isBlank()) ? LocalDate.parse(startDate) : null;
-                    LocalDate end = (endDate != null && !endDate.isBlank()) ? LocalDate.parse(endDate) : null;
+                depositReports = (start != null && end != null)
+                        ? depositRepository.findByCustomerIdAndDepositDateBetween(customerId, start, end)
+                        : depositRepository.findByCustomerId(customerId);
 
-                    if (start != null && end != null) {
-                        depositReports = depositRepository.findByCustomerIdAndDepositDateBetween(customerId, start,
-                                end);
-                    } else {
-                        depositReports = depositRepository.findByCustomerId(customerId);
-                    }
-
-                    totalDeposits = depositReports.stream().mapToDouble(DepositModel::getTotalAmount).sum();
-                    totalTransactions = depositReports.size();
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
+                totalDeposits = depositReports.stream()
+                        .mapToDouble(d -> d.getTotalAmount() != null ? d.getTotalAmount() : 0.0).sum();
+                totalTransactions = depositReports.size();
             }
         }
 
@@ -242,6 +211,7 @@ public class CustomerController {
         return "customers/ledger";
     }
 
+    // ----------------- PAYMENTS REPORT ------------------
     @GetMapping("/payments-report")
     public String getPaymentsReport(@RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
@@ -258,26 +228,28 @@ public class CustomerController {
                 .mapToDouble(dep -> dep.getTotalAmount() != null ? dep.getTotalAmount() : 0.0)
                 .sum();
 
-        int totalTransactions = deposits.size();
-
-        // Enrich each deposit with customer name
-        List<Map<String, Object>> enrichedReports = deposits.stream().map(deposit -> {
+        List<Map<String, Object>> enrichedReports = deposits.stream().map(dep -> {
             Map<String, Object> map = new HashMap<>();
-            map.put("deposit", deposit);
-
-            CustomerModel customer = customerRepository.findById(deposit.getCustomerId()).orElse(null);
+            map.put("deposit", dep);
+            CustomerModel customer = customerRepository.findById(dep.getCustomerId()).orElse(null);
             map.put("customerName", customer != null ? customer.getName() : "Unknown");
-
             return map;
         }).collect(Collectors.toList());
 
         model.addAttribute("salesReports", enrichedReports);
         model.addAttribute("totalSales", totalSales);
-        model.addAttribute("totalTransactions", totalTransactions);
+        model.addAttribute("totalTransactions", deposits.size());
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
 
         return "customers/payments-report";
     }
 
+    private LocalDate parseDate(String raw) {
+        try {
+            return (raw != null && !raw.isBlank()) ? LocalDate.parse(raw) : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

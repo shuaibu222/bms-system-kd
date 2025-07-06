@@ -15,12 +15,23 @@
 
         <div class="confirmation-details">
             <h3>Return Details</h3>
-            <p><strong>Invoice Number:</strong> <span th:text="${invoice.invNum}"></span></p>
-            <p><strong>Customer:</strong> <span th:text="${invoice.saleDto.customerName}"></span></p>
-            <p><strong>Total Refund Amount:</strong> <span
-                    th:text="${'₦' + #numbers.formatDecimal(refundAmount, 1, 2)}"></span></p>
-            <p><strong>New Invoice Balance:</strong> <span
-                    th:text="${'₦' + #numbers.formatDecimal(invoice.totalAmount, 1, 2)}"></span></p>
+            <p>
+                <strong>Invoice Number:</strong>
+                <span th:text="${invoice?.invNum ?: 'N/A'}">N/A</span>
+            </p>
+            <p>
+                <strong>Customer:</strong>
+                <span th:text="${invoice?.saleDto?.customerName ?: 'N/A'}">N/A</span>
+            </p>
+            <p>
+                <strong>Total Refund Amount:</strong>
+                <span th:text="'₦' + ${#numbers.formatDecimal(refundAmount ?: 0, 0, 'COMMA', 2, 'POINT')}">₦0.00</span>
+            </p>
+            <p>
+                <strong>New Invoice Balance:</strong>
+                <span
+                    th:text="'₦' + ${#numbers.formatDecimal(invoice?.totalAmount ?: 0, 0, 'COMMA', 2, 'POINT')}">₦0.00</span>
+            </p>
 
             <h4>Returned Items</h4>
             <table class="table">
@@ -32,26 +43,35 @@
                         <th>Amount Refunded</th>
                     </tr>
                 </thead>
-                <tbody th:if="${returnedItems != null}">
+                <tbody>
+                    <!-- Show message if returnedItems is null or empty -->
+                    <tr th:if="${#lists.isEmpty(returnedItems)}">
+                        <td colspan="4" class="text-center">No returned items.</td>
+                    </tr>
+
+                    <!-- Show items if present and quantity returned > 0 -->
                     <tr th:each="item : ${returnedItems}" th:if="${item.returnedQuantity > 0}">
-                        <td th:text="${item.productName}"></td>
-                        <td th:text="${item.returnedQuantity}"></td>
-                        <td th:text="${item.returnReason}"></td>
-                        <td th:text="${'₦' + #numbers.formatDecimal(item.returnedQuantity * item.price, 1, 2)}"></td>
+                        <td th:text="${item.productName ?: 'N/A'}">N/A</td>
+                        <td th:text="${item.returnedQuantity ?: 0}">0</td>
+                        <td th:text="${item.returnReason ?: 'N/A'}">N/A</td>
+                        <td
+                            th:text="'₦' + ${#numbers.formatDecimal((item.returnedQuantity ?: 0) * (item.price ?: 0), 0, 'COMMA', 2, 'POINT')}">
+                            ₦0.00</td>
                     </tr>
                 </tbody>
             </table>
+
             <div th:if="${returnNotes}" class="notes">
                 <h4>Notes</h4>
-                <p th:text="${returnNotes}"></p>
+                <p th:text="${returnNotes}">N/A</p>
             </div>
         </div>
 
         <div class="actions">
-            <a th:href="@{'/invoices/' + ${invoice.id}}" class="btn btn-primary">View Invoice</a>
+            <a th:href="@{'/invoices/' + ${invoice?.id}}" class="btn btn-primary">View Invoice</a>
             <a th:href="@{/invoices/sales-return}" class="btn btn-secondary">Process Another Return</a>
-            <a th:href="@{'/invoices/print-return/' + ${returnId}}" class="btn btn-info" target="_blank">Print Return
-                Receipt</a>
+            <a th:href="@{'/invoices/print-return/' + ${returnId ?: 0}}" class="btn btn-info" target="_blank">Print
+                Return Receipt</a>
         </div>
     </section>
 </body>

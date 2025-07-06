@@ -3,7 +3,8 @@ package com.shuaibu.controller;
 import com.shuaibu.model.MainLedgerModel;
 import com.shuaibu.repository.MainLedgerRepository;
 import com.shuaibu.service.MainLedgerService;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,13 +16,11 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/main-ledger")
+@RequiredArgsConstructor
 public class MainLedgerController {
 
-    @Autowired
-    private MainLedgerService ledgerService;
-
-    @Autowired
-    private MainLedgerRepository ledgerRepo; // <-- Injecting repo directly
+    private final MainLedgerService ledgerService;
+    private final MainLedgerRepository ledgerRepo;
 
     @GetMapping
     public String showLedgerPage(
@@ -29,11 +28,12 @@ public class MainLedgerController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             Model model) {
 
+        model.addAttribute("startDate", start);
+        model.addAttribute("endDate", end);
+
         if (start != null && end != null) {
             List<MainLedgerModel> entries = ledgerRepo.findAllByDateBetweenOrderByDateAsc(start, end);
             model.addAttribute("entries", entries);
-            model.addAttribute("startDate", start);
-            model.addAttribute("endDate", end);
 
             Map<String, Double> summary = ledgerService.calculateLedgerSummary(end);
             model.addAllAttributes(summary);

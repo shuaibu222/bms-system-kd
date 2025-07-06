@@ -1,10 +1,12 @@
 package com.shuaibu.dto;
 
 import java.time.LocalDate;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class MainLedgerDto {
     private Long id;

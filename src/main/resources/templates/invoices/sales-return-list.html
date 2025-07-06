@@ -15,9 +15,6 @@
                 <h1>Invoices Found</h1>
             </div>
 
-            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-
             <table class="table-container">
                 <thead>
                     <tr>
@@ -30,19 +27,30 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="invoice : ${invoices}">
-                        <td th:text="${invoice.invNum}"></td>
-                        <td th:text="${invoice.customerId}"></td>
-                        <td th:text="${'₦' + #numbers.formatDecimal(invoice.totalAmount, 1, 2)}"></td>
-                        <td th:text="${invoice.paymentMethod}"></td>
-                        <td th:text="${#temporals.format(invoice.invoiceDateTime, 'yyyy-MM-dd')}"></td>
+                    <!-- Show if invoices list is empty -->
+                    <tr th:if="${#lists.isEmpty(invoices)}">
+                        <td colspan="6" class="text-center">No invoices found.</td>
+                    </tr>
+
+                    <!-- Show invoices if list is not empty -->
+                    <tr th:each="invoice : ${invoices}" th:if="${not #lists.isEmpty(invoices)}">
+                        <td th:text="${invoice.invNum ?: 'N/A'}">N/A</td>
+                        <td th:text="${invoice.customerId ?: 'N/A'}">N/A</td>
+                        <td th:text="'₦' + ${#numbers.formatDecimal(invoice.totalAmount ?: 0, 0, 'COMMA', 2, 'POINT')}">
+                            ₦0.00</td>
+                        <td th:text="${invoice.paymentMethod ?: 'N/A'}">N/A</td>
+                        <td
+                            th:text="${invoice.invoiceDateTime != null ? #temporals.format(invoice.invoiceDateTime, 'yyyy-MM-dd') : 'N/A'}">
+                            N/A</td>
                         <td>
-                            <a th:href="@{'/invoices/sales-return/process/' + ${invoice.id}}" class="btn">Process
-                                Return</a>
+                            <a th:href="@{'/invoices/sales-return/process/' + ${invoice.id}}" class="btn">
+                                Process Return
+                            </a>
                         </td>
                     </tr>
                 </tbody>
             </table>
+
         </article>
     </section>
 </body>

@@ -5,16 +5,13 @@ import com.shuaibu.dto.ProductDto;
 import com.shuaibu.mapper.ProductMapper;
 import com.shuaibu.model.LowStockModel;
 import com.shuaibu.model.ProductModel;
-import com.shuaibu.repository.ExpenseRepository;
-import com.shuaibu.repository.InvoiceRepository;
-import com.shuaibu.repository.LowStockRepository;
-import com.shuaibu.repository.ProductRepository;
-import com.shuaibu.repository.SaleRepository;
-import com.shuaibu.service.ProductService;
+import com.shuaibu.repository.*;
 
+import com.shuaibu.service.ProductService;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,28 +36,38 @@ public class ProductImpl implements ProductService {
 
     @Override
     public List<ProductDto> getAllProducts() {
-        return productRepository.findAll().stream().map(ProductMapper::mapToDto).toList();
+        return productRepository.findAll()
+                .stream()
+                .map(ProductMapper::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public ProductDto getProductById(Long id) {
         return mapToDto(productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Product not found!")));
+                .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + id)));
     }
 
     @Override
     public void saveOrUpdateProduct(ProductDto productDto) {
+        if (productDto == null) {
+            throw new IllegalArgumentException("Product data cannot be null");
+        }
+
         boolean isNew = (productDto.getId() == null);
 
         if (isNew) {
             ProductModel existingProduct = productRepository.findByName(productDto.getName());
             if (existingProduct != null) {
-                throw new IllegalArgumentException("Product with this barcode already exists");
+                throw new IllegalArgumentException("Product with this name/barcode already exists");
             }
+
+            productDto.setQuantity(0);
+            productDto.setPrice(0.0);
         } else {
             boolean isDuplicate = productRepository.existsByNameAndIdNot(productDto.getName(), productDto.getId());
             if (isDuplicate) {
-                throw new IllegalArgumentException("Duplicate product found with the same barcode");
+                throw new IllegalArgumentException("Another product exists with the same name/barcode");
             }
         }
 
@@ -69,13 +76,16 @@ public class ProductImpl implements ProductService {
 
     @Override
     public void deleteProduct(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new IllegalArgumentException("Product not found with ID: " + id);
+        }
         productRepository.deleteById(id);
     }
 
     @Override
     public void saveAll(List<ProductDto> products) {
         if (products == null || products.isEmpty()) {
-            throw new IllegalArgumentException("Customer list must not be null or empty");
+            throw new IllegalArgumentException("Product list must not be null or empty");
         }
 
         List<ProductModel> productModels = products.stream()
@@ -87,26 +97,27 @@ public class ProductImpl implements ProductService {
 
     @Override
     public void handlePurchaseAndUpdateProduct(Long id, LowStockDto dto) {
-        // ✅ Fetch product from DB
-        ProductModel product = productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        if (dto == null) {
+            throw new IllegalArgumentException("LowStock data cannot be null");
+        }
 
-        // ✅ Create LowStock entry from dto
+        ProductModel product = productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + id));
+
         LowStockModel lowStock = LowStockModel.builder()
-                .id(null)
                 .name(dto.getName())
                 .price(dto.getPrice())
                 .quantity(dto.getQuantity())
                 .expiryDate(dto.getExpiryDate())
-                .lowStockDate(dto.getLowStockDate())
+                .lowStockDate(dto.getLowStockDate() != null ? dto.getLowStockDate() : LocalDate.now())
                 .nafdac(dto.getNafdac())
-                .createdAt(LocalDateTime.now()) // 🔥 manually set
+                .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
         lowStockRepository.save(lowStock);
 
-        // ✅ Update product with latest data
+        // Update product with new stock
         product.setPrice(dto.getPrice());
         product.setQuantity(dto.getQuantity());
         product.setExpiryDate(dto.getExpiryDate());
@@ -115,5 +126,4 @@ public class ProductImpl implements ProductService {
 
         productRepository.save(product);
     }
-
 }

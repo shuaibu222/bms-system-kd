@@ -26,9 +26,12 @@ public class SaleController {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
-    public SaleController(SaleService saleService, SaleRepository saleRepository,
-            CustomerRepository customerRepository, ProductRepository productRepository,
-            InvoiceRepository invoiceRepository, UserRepository userRepository) {
+    public SaleController(SaleService saleService,
+            SaleRepository saleRepository,
+            CustomerRepository customerRepository,
+            ProductRepository productRepository,
+            InvoiceRepository invoiceRepository, // can be removed if unused
+            UserRepository userRepository) {
         this.saleService = saleService;
         this.saleRepository = saleRepository;
         this.customerRepository = customerRepository;
@@ -50,7 +53,6 @@ public class SaleController {
         return "sales/list-sales";
     }
 
-    // Checkout code
     @PostMapping("/checkout")
     public String checkout(@RequestBody SaleDto saleDto) {
         saleService.saveOrUpdateSale(saleDto);
@@ -69,7 +71,7 @@ public class SaleController {
         UserModel userModel = userRepository.findByUsername(authentication.getName());
 
         SaleDto latestSale = saleService.getLatestSale();
-        latestSale.setSalesAgent(userModel.getFullName()); // Assuming fullName exists
+        latestSale.setSalesAgent(userModel.getFullName());
 
         return latestSale;
     }

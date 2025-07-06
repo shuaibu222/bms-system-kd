@@ -2,13 +2,14 @@ package com.shuaibu.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class ExpenseDto {
 
@@ -18,7 +19,7 @@ public class ExpenseDto {
     private String description;
 
     @NotNull(message = "* Amount is required")
-    private BigDecimal amount;
+    private Double amount;
 
     private LocalDate date;
 }

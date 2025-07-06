@@ -20,18 +20,16 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public List<ExpenseDto> getAllExpenses() {
-        return expenseRepository.findAll()
-                .stream()
+        return expenseRepository.findAll().stream()
                 .map(ExpenseMapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public ExpenseDto getExpenseById(Long id) {
-        return ExpenseMapper.mapToDto(
-                expenseRepository.findById(id)
-                        .orElseThrow(() -> new IllegalArgumentException("Expense not found!"))
-        );
+        return expenseRepository.findById(id)
+                .map(ExpenseMapper::mapToDto)
+                .orElseThrow(() -> new IllegalArgumentException("Expense not found!"));
     }
 
     @Override

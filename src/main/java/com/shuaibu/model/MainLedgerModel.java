@@ -10,7 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

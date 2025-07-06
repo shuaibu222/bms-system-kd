@@ -74,31 +74,32 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="suspense : ${suspenses}">
-                            <td th:text="${suspense.id}"></td>
-                            <td th:text="${suspense.referenceId}"></td>
-                            <td th:text="'₦' + ${#numbers.formatDecimal(suspense.amount, 0, 'COMMA', 2, 'POINT')}">₦0.00
-                            </td>
-                            <td th:text="${suspense.reason}"></td>
-                            <td th:text="${suspense.transactionDate}"></td>
+                        <tr th:if="${#lists.isEmpty(suspenses)}">
+                            <td colspan="6" class="text-center">No transactions found.</td>
+                        </tr>
+                        <tr th:each="suspense, iterStat : ${suspenses}" th:if="${not #lists.isEmpty(suspenses)}">
+                            <td th:text="${iterStat.index + 1}">1</td>
+                            <td th:text="${suspense.referenceId ?: 'N/A'}">N/A</td>
+                            <td th:text="'₦' + ${#numbers.formatDecimal(suspense.amount ?: 0, 0, 'COMMA', 2, 'POINT')}">
+                                ₦0.00</td>
+                            <td th:text="${suspense.reason ?: 'No reason'}">No reason</td>
+                            <td th:text="${suspense.transactionDate ?: 'N/A'}">N/A</td>
                             <td>
-                                <a class="dynamic-link" th:href="@{'/suspenses/edit/' + ${suspense.id}}">
-                                    Edit
-                                </a>
+                                <a class="dynamic-link" th:href="@{'/suspenses/edit/' + ${suspense.id}}">Edit</a>
                                 <a href="javascript:void(0);" class="dynamic-link"
-                                    th:onclick="'openDeleteModal(' + ${suspense.id} + ')'">
-                                    Delete
-                                </a>
+                                    th:onclick="'openDeleteModal(' + ${suspense.id} + ')'">Delete</a>
                             </td>
                         </tr>
-                        <tr class="total-row">
+                        <tr class="total-row" th:if="${not #lists.isEmpty(suspenses)}">
                             <td colspan="2" class="text-right"><strong>Total:</strong></td>
-                            <td th:text="'₦' + ${#numbers.formatDecimal(totalSuspenses, 0, 'COMMA', 2, 'POINT')}"
-                                class="total-amount"></td>
+                            <td th:text="'₦' + ${#numbers.formatDecimal(totalSuspenses ?: 0, 0, 'COMMA', 2, 'POINT')}"
+                                class="total-amount">₦0.00</td>
+                            <td colspan="3"></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+
 
             <div class="report-actions">
                 <button class="btn" onclick="window.print()">Print Report</button>

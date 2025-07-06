@@ -62,58 +62,67 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="entry, iterStat : ${entries}">
-                        <td th:text="${iterStat.count}"></td>
-                        <td th:text="${entry.date}"></td>
-                        <!-- <td
-                th:text="'₦' + ${#numbers.formatDecimal(entry.openingBalance, 0, 'COMMA', 2, 'POINT')}"
-              ></td> -->
-                        <td th:text="${entry.particulars}"></td>
+                    <!-- Show message if entries list is empty -->
+                    <tr th:if="${#lists.isEmpty(entries)}">
+                        <td colspan="6" class="text-center">No ledger entries found.</td>
+                    </tr>
+
+                    <!-- Show entries if list is not empty -->
+                    <tr th:each="entry, iterStat : ${entries}" th:if="${not #lists.isEmpty(entries)}">
+                        <td th:text="${iterStat.count}">1</td>
+                        <td th:text="${entry.date ?: 'N/A'}">N/A</td>
+                        <!-- <td th:text="'₦' + ${#numbers.formatDecimal(entry.openingBalance ?: 0, 0, 'COMMA', 2, 'POINT')}">₦0.00</td> -->
+                        <td th:text="${entry.particulars ?: 'N/A'}">N/A</td>
+
                         <td
-                            th:text="${entry.debit > 0} ? '₦' + ${#numbers.formatDecimal(entry.debit, 0, 'COMMA', 2, 'POINT')} : '-'">
-                        </td>
+                            th:text="${(entry.debit ?: 0) > 0} ? '₦' + ${#numbers.formatDecimal(entry.debit, 0, 'COMMA', 2, 'POINT')} : '-'">
+                            ₦0.00</td>
                         <td
-                            th:text="${entry.credit > 0} ? '₦' + ${#numbers.formatDecimal(entry.credit, 0, 'COMMA', 2, 'POINT')} : '-'">
-                        </td>
-                        <td th:text="'₦' + ${#numbers.formatDecimal(entry.closingBalance, 0, 'COMMA', 2, 'POINT')}">
+                            th:text="${(entry.credit ?: 0) > 0} ? '₦' + ${#numbers.formatDecimal(entry.credit, 0, 'COMMA', 2, 'POINT')} : '-'">
+                            ₦0.00</td>
+                        <td
+                            th:text="'₦' + ${#numbers.formatDecimal(entry.closingBalance ?: 0, 0, 'COMMA', 2, 'POINT')}">
+                            ₦0.00
                         </td>
                     </tr>
                 </tbody>
             </table>
-            <!-- <hr style="margin-top: 30px" /> -->
-            <h3 style="padding: 1rem;">Monthly Summary (<span th:text="${endDate}"></span>)</h3>
+
+            <h3 style="padding: 1rem;">Monthly Summary (<span th:text="${endDate ?: 'N/A'}">N/A</span>)</h3>
             <table>
                 <tr>
                     <th>Total Expenses:</th>
-                    <td th:text="'₦' + ${#numbers.formatDecimal(totalExpenses, 0, 'COMMA', 2, 'POINT')}"></td>
+                    <td th:text="'₦' + ${#numbers.formatDecimal(totalExpenses ?: 0, 0, 'COMMA', 2, 'POINT')}">₦0.00</td>
                 </tr>
                 <tr>
                     <th>Stock Value:</th>
-                    <td th:text="'₦' + ${#numbers.formatDecimal(stockValue, 0, 'COMMA', 2, 'POINT')}"></td>
+                    <td th:text="'₦' + ${#numbers.formatDecimal(stockValue ?: 0, 0, 'COMMA', 2, 'POINT')}">₦0.00</td>
                 </tr>
                 <tr>
                     <th>Customer Debt:</th>
-                    <td th:text="'₦' + ${#numbers.formatDecimal(customerDebt, 0, 'COMMA', 2, 'POINT')}"></td>
+                    <td th:text="'₦' + ${#numbers.formatDecimal(customerDebt ?: 0, 0, 'COMMA', 2, 'POINT')}">₦0.00</td>
                 </tr>
                 <tr>
                     <th>Suspense Total:</th>
-                    <td th:text="'₦' + ${#numbers.formatDecimal(suspense, 0, 'COMMA', 2, 'POINT')}"></td>
+                    <td th:text="'₦' + ${#numbers.formatDecimal(suspense ?: 0, 0, 'COMMA', 2, 'POINT')}">₦0.00</td>
                 </tr>
                 <tr>
                     <th>Staff Loans:</th>
-                    <td th:text="'₦' + ${#numbers.formatDecimal(staffLoans, 0, 'COMMA', 2, 'POINT')}"></td>
+                    <td th:text="'₦' + ${#numbers.formatDecimal(staffLoans ?: 0, 0, 'COMMA', 2, 'POINT')}">₦0.00</td>
                 </tr>
                 <tr>
                     <th>Final Ledger Balance:</th>
-                    <td th:text="'₦' + ${#numbers.formatDecimal(finalLedgerBalance, 0, 'COMMA', 2, 'POINT')}"></td>
+                    <td th:text="'₦' + ${#numbers.formatDecimal(finalLedgerBalance ?: 0, 0, 'COMMA', 2, 'POINT')}">₦0.00
+                    </td>
                 </tr>
                 <tr>
                     <th>Profit/Loss:</th>
-                    <td th:class="${profitLoss <= 0} ? 'text-success' : 'text-danger'"
-                        th:text="'₦' + ${#numbers.formatDecimal(profitLoss, 0, 'COMMA', 2, 'POINT')}"></td>
+                    <td th:classappend="${profitLoss ?: 0} <= 0 ? 'text-success' : 'text-danger'"
+                        th:text="'₦' + ${#numbers.formatDecimal(profitLoss ?: 0, 0, 'COMMA', 2, 'POINT')}">₦0.00</td>
                 </tr>
             </table>
         </div>
+
 
         <!-- Print Button -->
         <div class="report-actions">

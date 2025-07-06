@@ -60,7 +60,8 @@
 
             <!-- Search Bar -->
             <div class="search-container">
-                <input type="text" id="searchInput" placeholder="🔍 Search Expenses..." onkeyup="searchExpense()">
+                <input type="text" aria-label="search" id="searchInput" placeholder="🔍 Search Expenses..."
+                    onkeyup="searchExpense()">
             </div>
 
             <!-- Success/Error Messages -->
@@ -87,11 +88,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="expense : ${expenses}">
-                            <td th:text="${expense.id}"></td>
-                            <td th:text="${expense.description}"></td>
-                            <td th:text="'₦' + ${#numbers.formatDecimal(expense.amount, 0, 'COMMA', 2, 'POINT')}"></td>
-                            <td th:text="${expense.date}"></td>
+                        <!-- If list is empty -->
+                        <tr th:if="${#lists.isEmpty(expenses)}">
+                            <td colspan="5" class="text-center">No expenses recorded.</td>
+                        </tr>
+
+                        <!-- Display expenses if list is not empty -->
+                        <tr th:each="expense, iter : ${expenses}" th:if="${not #lists.isEmpty(expenses)}">
+                            <td th:text="${iter.index + 1}">1</td>
+                            <td th:text="${expense.description ?: 'N/A'}">N/A</td>
+                            <td th:text="'₦' + ${#numbers.formatDecimal(expense.amount ?: 0, 0, 'COMMA', 2, 'POINT')}">
+                                ₦0.00</td>
+                            <td th:text="${expense.date ?: 'N/A'}">N/A</td>
                             <td>
                                 <a class="dynamic-link" th:href="@{'/expenses/edit/' + ${expense.id}}">
                                     <i class="fas fa-edit"></i>
@@ -102,15 +110,18 @@
                                 </a>
                             </td>
                         </tr>
-                        <tr class="total-row">
+
+                        <!-- Total row (only if there are expenses) -->
+                        <tr class="total-row" th:if="${not #lists.isEmpty(expenses)}">
                             <td colspan="2" class="text-right"><strong>Total:</strong></td>
-                            <td th:text="'₦' + ${#numbers.formatDecimal(totalExpenses, 0, 'COMMA', 2, 'POINT')}"
-                                class="total-amount"></td>
-                            <!-- <td colspan="2"></td>  -->
+                            <td th:text="'₦' + ${#numbers.formatDecimal(totalExpenses ?: 0, 0, 'COMMA', 2, 'POINT')}"
+                                class="total-amount">₦0.00</td>
+                            <td colspan="2"></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+
 
             <div class="report-actions">
                 <button class="btn" onclick="window.print()">Print Report</button>

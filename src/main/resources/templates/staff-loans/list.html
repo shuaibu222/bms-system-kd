@@ -76,42 +76,48 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="loan : ${loans}">
-                            <td th:text="${loan.id}"></td>
-                            <td th:text="${loan.staffName}"></td>
-                            <td th:text="'₦' + ${#numbers.formatDecimal(loan.amount, 0, 'COMMA', 2, 'POINT')}">₦0.00
-                            </td>
-                            <td th:text="${loan.purpose}"></td>
-                            <td th:text="'₦' + ${#numbers.formatDecimal(loan.amountRepaid, 0, 'COMMA', 2, 'POINT')}">
+                        <!-- Show if loan list is empty -->
+                        <tr th:if="${#lists.isEmpty(loans)}">
+                            <td colspan="8" class="text-center">No loan records available.</td>
+                        </tr>
+
+                        <!-- Show loans if list is not empty -->
+                        <tr th:each="loan, iter : ${loans}" th:if="${not #lists.isEmpty(loans)}">
+                            <td th:text="${iter.index + 1}">1</td>
+                            <td th:text="${loan.staffName ?: 'N/A'}">N/A</td>
+                            <td th:text="'₦' + ${#numbers.formatDecimal(loan.amount ?: 0, 0, 'COMMA', 2, 'POINT')}">
+                                ₦0.00</td>
+                            <td th:text="${loan.purpose ?: 'N/A'}">N/A</td>
+                            <td
+                                th:text="'₦' + ${#numbers.formatDecimal(loan.amountRepaid ?: 0, 0, 'COMMA', 2, 'POINT')}">
                                 ₦0.00</td>
                             <td
-                                th:text="'₦' + ${#numbers.formatDecimal(loan.amount - loan.amountRepaid, 0, 'COMMA', 2, 'POINT')}">
+                                th:text="'₦' + ${#numbers.formatDecimal((loan.amount ?: 0) - (loan.amountRepaid ?: 0), 0, 'COMMA', 2, 'POINT')}">
                                 ₦0.00</td>
-                            <td th:text="${loan.date}"></td>
+                            <td th:text="${loan.date ?: 'N/A'}">N/A</td>
                             <td>
-                                <a class="dynamic-link" th:href="@{'/loans/edit/' + ${loan.id}}">
-                                    Edit
-                                </a>
+                                <a class="dynamic-link" th:href="@{'/loans/edit/' + ${loan.id}}">Edit</a>
                                 <a href="javascript:void(0);" class="dynamic-link"
-                                    th:onclick="'openDeleteModal(' + ${loan.id} + ')'">
-                                    Delete
-                                </a>
+                                    th:onclick="'openDeleteModal(' + ${loan.id} + ')'">Delete</a>
                             </td>
                         </tr>
-                        <tr class="total-row">
+
+                        <!-- Total Row if loans exist -->
+                        <tr class="total-row" th:if="${not #lists.isEmpty(loans)}">
                             <td colspan="2" class="text-right"><strong>Total:</strong></td>
-                            <td th:text="'₦' + ${#numbers.formatDecimal(totalLoans, 0, 'COMMA', 2, 'POINT')}"
-                                class="total-amount"></td>
-                            <td></td> <!-- Empty cell for Purpose column -->
-                            <td th:text="'₦' + ${#numbers.formatDecimal(totalRepaid, 0, 'COMMA', 2, 'POINT')}"
-                                class="total-amount"></td>
-                            <td th:text="'₦' + ${#numbers.formatDecimal(totalOutstanding, 0, 'COMMA', 2, 'POINT')}"
-                                class="total-amount"></td>
-                            <!-- <td colspan="2"></td>  -->
+                            <td th:text="'₦' + ${#numbers.formatDecimal(totalLoans ?: 0, 0, 'COMMA', 2, 'POINT')}"
+                                class="total-amount">₦0.00</td>
+                            <td></td>
+                            <td th:text="'₦' + ${#numbers.formatDecimal(totalRepaid ?: 0, 0, 'COMMA', 2, 'POINT')}"
+                                class="total-amount">₦0.00</td>
+                            <td th:text="'₦' + ${#numbers.formatDecimal(totalOutstanding ?: 0, 0, 'COMMA', 2, 'POINT')}"
+                                class="total-amount">₦0.00</td>
+                            <td colspan="2"></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+
 
             <div class="report-actions">
                 <button class="btn" onclick="window.print()">Print Report</button>

@@ -19,11 +19,13 @@ public class InvoiceImpl implements InvoiceService {
     private final ProductRepository productRepository;
     private final CustomerRepository customerRepository;
 
-    public InvoiceImpl(InvoiceRepository invoiceRepository, SaleRepository saleRepository,
-            ProductRepository productRepository, CustomerRepository customerRepository) {
-        this.productRepository = productRepository;
+    public InvoiceImpl(InvoiceRepository invoiceRepository,
+            SaleRepository saleRepository,
+            ProductRepository productRepository,
+            CustomerRepository customerRepository) {
         this.invoiceRepository = invoiceRepository;
         this.saleRepository = saleRepository;
+        this.productRepository = productRepository;
         this.customerRepository = customerRepository;
     }
 
@@ -51,27 +53,30 @@ public class InvoiceImpl implements InvoiceService {
             throw new IllegalArgumentException("Quotation ID must be provided");
         }
 
-        // Generate invoice number
-        invoiceDto.setInvNum(generateInvoiceNumber());
+        // Generate invoice number if it's a new invoice
+        if (invoiceDto.getId() == null) {
+            invoiceDto.setInvNum(generateInvoiceNumber());
+        }
 
         // Fetch quotation
         SaleModel quotation = saleRepository.findById(invoiceDto.getQuotationId())
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Quotation not found with ID: " + invoiceDto.getQuotationId()));
 
-        // Optional: Fetch customer if phone exists
+        // Optional: Fetch customer by phone number
         if (quotation.getPhone() != null && !quotation.getPhone().trim().isEmpty()) {
-            customerRepository.findByPhone(quotation.getPhone()).ifPresent(customer -> {
+            customerRepository.findByPhone(quotation.getPhone()).ifPresentOrElse(customer -> {
                 invoiceDto.setCustomerId(customer.getId());
 
-                // Update customer balance
-                double currentBalance = customer.getBalance() != null ? customer.getBalance() : 0.0;
+                double currentBalance = Optional.ofNullable(customer.getBalance()).orElse(0.0);
                 customer.setBalance(currentBalance - invoiceDto.getInvoiceValue());
                 customerRepository.save(customer);
+            }, () -> {
+                throw new IllegalArgumentException("Customer with phone " + quotation.getPhone() + " not found");
             });
         }
 
-        // Set total and balance due
+        // Set totals
         invoiceDto.setTotalAmount(quotation.getTotalAmount());
         double balanceDue = quotation.getTotalAmount() - invoiceDto.getInvoiceValue();
         invoiceDto.setBalanceDue(balanceDue);
@@ -82,14 +87,13 @@ public class InvoiceImpl implements InvoiceService {
             if (product == null) {
                 throw new IllegalArgumentException("Product not found: " + item.getProductName());
             }
-            if (product.getQuantity() < item.getQuantity()) {
+            if (product.getQuantity() == null || product.getQuantity() < item.getQuantity()) {
                 throw new IllegalStateException("Insufficient stock for product: " + item.getProductName());
             }
             product.setQuantity(product.getQuantity() - item.getQuantity());
             productRepository.save(product);
         }
 
-        // Save and return invoice
         return invoiceRepository.save(InvoiceMapper.mapToModel(invoiceDto));
     }
 
@@ -102,6 +106,7 @@ public class InvoiceImpl implements InvoiceService {
         invoiceRepository.deleteById(id);
     }
 
+    @Override
     public InvoiceDto getLatestInvoice() {
         InvoiceModel latestInvoice = invoiceRepository.findTopByOrderByIdDesc()
                 .orElseThrow(() -> new IllegalArgumentException("No invoices found"));
@@ -118,6 +123,7 @@ public class InvoiceImpl implements InvoiceService {
                 .id(sale.getId())
                 .qtnNum(sale.getQtnNum())
                 .customerName(sale.getCustomerName())
+                .phone(sale.getPhone())
                 .totalAmount(sale.getTotalAmount())
                 .saleDateTime(sale.getSaleDateTime())
                 .items(sale.getItems().stream()
@@ -129,6 +135,7 @@ public class InvoiceImpl implements InvoiceService {
                 .id(latestInvoice.getId())
                 .invNum(latestInvoice.getInvNum())
                 .quotationId(latestInvoice.getQuotationId())
+                .customerId(latestInvoice.getCustomerId())
                 .balanceDue(latestInvoice.getBalanceDue())
                 .totalAmount(latestInvoice.getTotalAmount())
                 .invoiceValue(latestInvoice.getInvoiceValue())
@@ -146,8 +153,7 @@ public class InvoiceImpl implements InvoiceService {
 
         SaleDto saleDto = null;
         if (inv.getQuotationId() != null) {
-            SaleModel sale = saleRepository.findById(inv.getQuotationId())
-                    .orElse(null);
+            SaleModel sale = saleRepository.findById(inv.getQuotationId()).orElse(null);
 
             if (sale != null) {
                 saleDto = SaleDto.builder()
@@ -158,7 +164,7 @@ public class InvoiceImpl implements InvoiceService {
                         .totalAmount(sale.getTotalAmount())
                         .saleDateTime(sale.getSaleDateTime())
                         .items(sale.getItems().stream()
-                                .map(SaleMapper::mapItemToDto) // 🔁 Don't overwrite returnedQuantity
+                                .map(SaleMapper::mapItemToDto)
                                 .collect(Collectors.toList()))
                         .build();
             }
@@ -178,5 +184,4 @@ public class InvoiceImpl implements InvoiceService {
                 .saleDto(saleDto)
                 .build();
     }
-
 }

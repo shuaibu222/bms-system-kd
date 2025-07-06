@@ -1,8 +1,5 @@
 package com.shuaibu.service.impl;
 
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
-
 import com.shuaibu.dto.SaleDto;
 import com.shuaibu.dto.SaleItemDto;
 import com.shuaibu.model.CustomerModel;
@@ -15,11 +12,11 @@ import com.shuaibu.service.SaleService;
 
 import jakarta.transaction.Transactional;
 
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.shuaibu.mapper.SaleMapper.*;
@@ -30,8 +27,10 @@ public class SaleImpl implements SaleService {
     private final SaleRepository saleRepository;
     private final CustomerRepository customerRepository;
 
-    public SaleImpl(SaleRepository saleRepository, JavaMailSender javaMailSender,
-            InvoiceRepository invoiceRepository, CustomerRepository customerRepository) {
+    public SaleImpl(SaleRepository saleRepository,
+            JavaMailSender javaMailSender,
+            InvoiceRepository invoiceRepository,
+            CustomerRepository customerRepository) {
         this.saleRepository = saleRepository;
         this.customerRepository = customerRepository;
     }
@@ -43,8 +42,8 @@ public class SaleImpl implements SaleService {
 
     @Override
     public List<SaleDto> getAllSales() {
-        List<SaleModel> sales = saleRepository.findAll();
-        return sales.stream()
+        return saleRepository.findAll()
+                .stream()
                 .map(sale -> SaleDto.builder()
                         .id(sale.getId())
                         .customerName(sale.getCustomerName())
@@ -56,27 +55,38 @@ public class SaleImpl implements SaleService {
 
     @Override
     public SaleDto getSaleById(Long id) {
-        return mapToDto(saleRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Sale not found!")));
+        return mapToDto(saleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Sale not found with ID: " + id)));
     }
 
+    @Override
     @Transactional
     public void saveOrUpdateSale(SaleDto saleDto) {
+        if (saleDto == null) {
+            throw new IllegalArgumentException("Sale data cannot be null");
+        }
+
         String customerName = saleDto.getCustomerName();
 
-        // Customer lookup by phone fallback
+        // 📞 Fallback: use phone number to find customer if name is empty
         if (customerName == null || customerName.trim().isEmpty()) {
             if (saleDto.getPhone() != null && !saleDto.getPhone().trim().isEmpty()) {
                 Optional<CustomerModel> customerOpt = customerRepository.findByPhone(saleDto.getPhone());
                 if (customerOpt.isPresent()) {
                     customerName = customerOpt.get().getName();
                 } else {
-                    throw new IllegalArgumentException("Customer not found for phone: " + saleDto.getPhone());
+                    throw new IllegalArgumentException("No customer found with phone: " + saleDto.getPhone());
                 }
             } else {
-                throw new IllegalArgumentException("Both customer name and phone number are missing.");
+                throw new IllegalArgumentException("Customer name or phone must be provided");
             }
         }
 
+        if (saleDto.getItems() == null || saleDto.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Quotation must contain at least one item");
+        }
+
+        // 🧾 Create the SaleModel
         SaleModel sale = SaleModel.builder()
                 .qtnNum(generateQuotationNumber())
                 .customerName(customerName)
@@ -85,33 +95,25 @@ public class SaleImpl implements SaleService {
                 .saleDateTime(saleDto.getSaleDateTime())
                 .build();
 
-        List<SaleItemModel> saleItems = new ArrayList<>();
-
-        for (SaleItemDto item : saleDto.getItems()) {
-            SaleItemModel saleItem = SaleItemModel.builder()
-                    .productName(item.getProductName())
-                    .quantity(item.getQuantity())
-                    .price(item.getPrice())
-                    .sale(sale)
-                    .build();
-
-            saleItems.add(saleItem);
-        }
-
-        if (saleItems.isEmpty()) {
-            throw new IllegalArgumentException("No items added to quotation.");
-        }
+        // 🧾 Convert each SaleItemDto into SaleItemModel
+        List<SaleItemModel> saleItems = saleDto.getItems().stream()
+                .map(item -> SaleItemModel.builder()
+                        .productName(item.getProductName())
+                        .quantity(item.getQuantity())
+                        .price(item.getPrice())
+                        .sale(sale) // Link item to parent sale
+                        .build())
+                .collect(Collectors.toList());
 
         sale.setItems(saleItems);
         saleRepository.save(sale);
     }
 
-    public String generateQuotationNumber() {
-        return "QTN-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-    }
-
     @Override
     public void deleteSale(Long id) {
+        if (!saleRepository.existsById(id)) {
+            throw new IllegalArgumentException("Sale not found with ID: " + id);
+        }
         saleRepository.deleteById(id);
     }
 
@@ -124,8 +126,8 @@ public class SaleImpl implements SaleService {
                 .id(latestSale.getId())
                 .qtnNum(latestSale.getQtnNum())
                 .customerName(latestSale.getCustomerName())
-                .totalAmount(latestSale.getTotalAmount())
                 .phone(latestSale.getPhone())
+                .totalAmount(latestSale.getTotalAmount())
                 .saleDateTime(latestSale.getSaleDateTime())
                 .items(latestSale.getItems().stream().map(item -> SaleItemDto.builder()
                         .id(item.getId())
@@ -134,5 +136,9 @@ public class SaleImpl implements SaleService {
                         .price(item.getPrice())
                         .build()).toList())
                 .build();
+    }
+
+    private String generateQuotationNumber() {
+        return "QTN-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
     }
 }

@@ -3,14 +3,15 @@ package com.shuaibu.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,7 +24,7 @@ public class ExpenseModel {
 
     private String description;
 
-    private BigDecimal amount;
+    private Double amount;
 
     private LocalDate date;
 

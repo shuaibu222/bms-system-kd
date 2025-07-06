@@ -1,14 +1,11 @@
 package com.shuaibu.service.impl;
 
 import com.shuaibu.dto.StaffDto;
-import com.shuaibu.dto.DepositDto;
 import com.shuaibu.mapper.StaffMapper;
-import com.shuaibu.mapper.DepositMapper;
 import com.shuaibu.model.StaffModel;
-import com.shuaibu.model.DepositModel;
 import com.shuaibu.repository.StaffRepository;
-import com.shuaibu.repository.DepositRepository;
 import com.shuaibu.service.StaffService;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,19 +30,26 @@ public class StaffImpl implements StaffService {
 
     @Override
     public StaffDto getStaffById(Long id) {
-        return StaffMapper.mapToDto(
-                staffRepository.findById(id)
-                        .orElseThrow(() -> new IllegalArgumentException("Staff not found!"))
-        );
+        StaffModel staff = staffRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Staff not found with ID: " + id));
+        return StaffMapper.mapToDto(staff);
     }
 
     @Override
     public void saveOrUpdateStaff(StaffDto staffDto) {
+        if (staffDto == null) {
+            throw new IllegalArgumentException("Staff data must not be null");
+        }
+
+        // Optional: Add logic to prevent duplicate usernames or emails
         staffRepository.save(StaffMapper.mapToModel(staffDto));
     }
 
     @Override
     public void deleteStaff(Long id) {
+        if (!staffRepository.existsById(id)) {
+            throw new IllegalArgumentException("Cannot delete. Staff not found with ID: " + id);
+        }
         staffRepository.deleteById(id);
     }
 }

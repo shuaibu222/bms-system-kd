@@ -18,19 +18,19 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/suspenses")
 public class SuspenseController {
 
-    private final SuspenseService SuspenseService;
+    private final SuspenseService suspenseService;
     private final SuspenseRepository suspenseRepository;
 
-    public SuspenseController(SuspenseService SuspenseService,
-                            SuspenseRepository suspenseRepository) {
-        this.SuspenseService = SuspenseService;
+    public SuspenseController(SuspenseService suspenseService,
+            SuspenseRepository suspenseRepository) {
+        this.suspenseService = suspenseService;
         this.suspenseRepository = suspenseRepository;
     }
 
     @GetMapping
     public String listSuspenses(Model model) {
         List<SuspenseModel> suspenses = suspenseRepository.findAll();
-        Double totalSuspense = suspenses.stream().mapToDouble(SuspenseModel::getAmount).sum();
+        double totalSuspense = suspenses.stream().mapToDouble(SuspenseModel::getAmount).sum();
 
         model.addAttribute("suspense", new SuspenseModel());
         model.addAttribute("suspenses", suspenses);
@@ -39,43 +39,43 @@ public class SuspenseController {
     }
 
     @PostMapping
-    public String saveSuspense(@Valid @ModelAttribute("Suspense") SuspenseDto Suspense,
-                                BindingResult result, Model model) {
+    public String saveSuspense(@Valid @ModelAttribute("suspense") SuspenseDto suspenseDto,
+            BindingResult result, Model model) {
         if (result.hasErrors()) {
             List<SuspenseModel> suspenses = suspenseRepository.findAll();
-            Double totalSuspense = suspenses.stream().mapToDouble(SuspenseModel::getAmount).sum();
-            
+            double totalSuspense = suspenses.stream().mapToDouble(SuspenseModel::getAmount).sum();
+
             model.addAttribute("suspenses", suspenses);
             model.addAttribute("totalSuspenses", totalSuspense);
             return "suspenses/list";
         }
-        SuspenseService.saveOrUpdateSuspense(Suspense);
+        suspenseService.saveOrUpdateSuspense(suspenseDto);
         return "redirect:/suspenses?success";
     }
 
     @GetMapping("/edit/{id}")
     public String editSuspenseForm(@PathVariable Long id, Model model) {
-        SuspenseDto Suspense = SuspenseService.getSuspenseById(id);
-        model.addAttribute("suspense", Suspense);
+        SuspenseDto suspenseDto = suspenseService.getSuspenseById(id);
+        model.addAttribute("suspense", suspenseDto);
         return "suspenses/edit";
     }
 
     @PostMapping("/update/{id}")
     public String updateSuspense(@PathVariable Long id,
-                                @Valid @ModelAttribute("Suspense") SuspenseDto Suspense,
-                                BindingResult result, Model model) {
+            @Valid @ModelAttribute("suspense") SuspenseDto suspenseDto,
+            BindingResult result, Model model) {
         if (result.hasErrors()) {
-            model.addAttribute("suspense", Suspense);
+            model.addAttribute("suspense", suspenseDto);
             return "suspenses/edit";
         }
-        Suspense.setId(id);
-        SuspenseService.saveOrUpdateSuspense(Suspense);
+        suspenseDto.setId(id);
+        suspenseService.saveOrUpdateSuspense(suspenseDto);
         return "redirect:/suspenses?updateSuccess";
     }
 
     @GetMapping("/delete/{id}")
     public String deleteSuspense(@PathVariable Long id) {
-        SuspenseService.deleteSuspense(id);
+        suspenseService.deleteSuspense(id);
         return "redirect:/suspenses?deleted";
     }
 }

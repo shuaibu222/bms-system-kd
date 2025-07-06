@@ -2,7 +2,6 @@ package com.shuaibu.controller;
 
 import com.shuaibu.dto.StaffDto;
 import com.shuaibu.model.StaffModel;
-import com.shuaibu.repository.StaffRepository;
 import com.shuaibu.service.StaffService;
 
 import org.springframework.stereotype.Controller;
@@ -18,7 +17,7 @@ public class StaffController {
 
     private final StaffService staffService;
 
-    public StaffController(StaffService staffService, StaffRepository staffRepository) {
+    public StaffController(StaffService staffService) {
         this.staffService = staffService;
     }
 
@@ -30,7 +29,9 @@ public class StaffController {
     }
 
     @PostMapping
-    public String saveStaff(@Valid @ModelAttribute("staff") StaffDto staffDto, BindingResult result, Model model) {
+    public String saveStaff(@Valid @ModelAttribute("staff") StaffDto staffDto,
+            BindingResult result,
+            Model model) {
         if (result.hasErrors()) {
             model.addAttribute("staffs", staffService.getAllStaffs());
             return "staffs/list";
@@ -46,7 +47,9 @@ public class StaffController {
     }
 
     @PostMapping("/update/{id}")
-    public String updateStaff(@PathVariable Long id, @Valid @ModelAttribute("staff") StaffDto staffDto, BindingResult result) {
+    public String updateStaff(@PathVariable Long id,
+            @Valid @ModelAttribute("staff") StaffDto staffDto,
+            BindingResult result) {
         if (result.hasErrors()) {
             return "staffs/edit";
         }

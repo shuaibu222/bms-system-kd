@@ -1,15 +1,15 @@
 package com.shuaibu.controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-
 import com.shuaibu.dto.UserDto;
 import com.shuaibu.model.UserModel;
 import com.shuaibu.service.UserService;
 
 import jakarta.validation.Valid;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @Controller
@@ -35,37 +35,39 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public String saveUser(@Valid @ModelAttribute("user") UserDto user,
-            BindingResult result, Model model) {
+    public String saveUser(@Valid @ModelAttribute("user") UserDto userDto,
+            BindingResult result,
+            Model model) {
         if (result.hasErrors()) {
             model.addAttribute("users", userService.getAllUsers());
             return "users/list";
         }
-        userService.saveOrUpdateUser(user);
+        userService.saveOrUpdateUser(userDto);
         return "redirect:/users?success";
     }
 
-    @GetMapping("users/edit/{id}")
+    @GetMapping("/users/edit/{id}")
     public String updateUserForm(@PathVariable Long id, Model model) {
-        UserDto user = userService.getUserById(id);
-        model.addAttribute("user", user);
+        UserDto userDto = userService.getUserById(id);
+        model.addAttribute("user", userDto);
         return "users/edit";
     }
 
-    @PostMapping("users/update/{id}")
+    @PostMapping("/users/update/{id}")
     public String updateUser(@PathVariable Long id,
-            @Valid @ModelAttribute("user") UserDto user,
-            BindingResult result, Model model) {
+            @Valid @ModelAttribute("user") UserDto userDto,
+            BindingResult result,
+            Model model) {
         if (result.hasErrors()) {
-            model.addAttribute("user", user);
+            model.addAttribute("user", userDto);
             return "users/edit";
         }
-        user.setId(id);
-        userService.saveOrUpdateUser(user);
+        userDto.setId(id);
+        userService.saveOrUpdateUser(userDto);
         return "redirect:/users?updateSuccess";
     }
 
-    @GetMapping("users/delete/{id}")
+    @GetMapping("/users/delete/{id}")
     public String deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return "redirect:/users?error";

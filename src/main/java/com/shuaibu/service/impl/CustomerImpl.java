@@ -1,26 +1,15 @@
 package com.shuaibu.service.impl;
 
-import com.shuaibu.dto.CustomerDto;
+import com.shuaibu.dto.*;
 import com.shuaibu.mapper.CustomerMapper;
-import com.shuaibu.repository.CustomerRepository;
+import com.shuaibu.mapper.DepositMapper;
+import com.shuaibu.mapper.SaleMapper;
+import com.shuaibu.model.*;
+import com.shuaibu.repository.*;
 import com.shuaibu.service.CustomerService;
 
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Service;
-
-import com.shuaibu.dto.DepositDto;
-import com.shuaibu.dto.InvoiceDto;
-import com.shuaibu.dto.SaleDto;
-import com.shuaibu.mapper.DepositMapper;
-import com.shuaibu.mapper.SaleMapper;
-import com.shuaibu.model.CustomerModel;
-import com.shuaibu.model.DepositModel;
-import com.shuaibu.model.InvoiceModel;
-import com.shuaibu.model.SaleModel;
-import com.shuaibu.repository.DepositRepository;
-import com.shuaibu.repository.InvoiceRepository;
-import com.shuaibu.repository.SaleRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,22 +25,50 @@ public class CustomerImpl implements CustomerService {
 
     @Override
     public List<CustomerDto> getAllCustomers() {
-        return customerRepository.findAll()
-                .stream()
+        return customerRepository.findAll().stream()
                 .map(CustomerMapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
+    public CustomerDto getCustomerById(Long id) {
+        CustomerModel customer = customerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found!"));
+        return CustomerMapper.mapToDto(customer);
+    }
+
+    @Override
+    public void saveOrUpdateCustomer(CustomerDto customerDto) {
+        CustomerModel model = CustomerMapper.mapToModel(customerDto);
+        customerRepository.save(model);
+    }
+
+    @Override
+    public void deleteCustomer(Long id) {
+        customerRepository.deleteById(id);
+    }
+
+    @Override
+    public void saveAll(List<CustomerDto> customers) {
+        if (customers == null || customers.isEmpty()) {
+            throw new IllegalArgumentException("Customer list must not be null or empty");
+        }
+
+        List<CustomerModel> models = customers.stream()
+                .map(CustomerMapper::mapToModel)
+                .collect(Collectors.toList());
+
+        customerRepository.saveAll(models);
+    }
+
+    @Override
     public InvoiceDto getInvoiceWithItems(Long invoiceId) {
-        InvoiceModel inv = invoiceRepository.findById(invoiceId)
+        InvoiceModel invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invoice not found"));
 
         SaleDto saleDto = null;
-        if (inv.getQuotationId() != null) {
-            SaleModel sale = saleRepository.findById(inv.getQuotationId())
-                    .orElse(null);
-
+        if (invoice.getQuotationId() != null) {
+            SaleModel sale = saleRepository.findById(invoice.getQuotationId()).orElse(null);
             if (sale != null) {
                 saleDto = SaleDto.builder()
                         .id(sale.getId())
@@ -68,25 +85,25 @@ public class CustomerImpl implements CustomerService {
         }
 
         return InvoiceDto.builder()
-                .id(inv.getId())
-                .invNum(inv.getInvNum())
-                .quotationId(inv.getQuotationId())
-                .customerId(inv.getCustomerId())
-                .balanceDue(inv.getBalanceDue())
-                .totalAmount(inv.getTotalAmount())
-                .invoiceValue(inv.getInvoiceValue())
-                .paymentStatus(inv.getPaymentStatus())
-                .paymentMethod(inv.getPaymentMethod())
-                .invoiceDateTime(inv.getInvoiceDateTime())
+                .id(invoice.getId())
+                .invNum(invoice.getInvNum())
+                .quotationId(invoice.getQuotationId())
+                .customerId(invoice.getCustomerId())
+                .balanceDue(invoice.getBalanceDue())
+                .totalAmount(invoice.getTotalAmount())
+                .invoiceValue(invoice.getInvoiceValue())
+                .paymentStatus(invoice.getPaymentStatus())
+                .paymentMethod(invoice.getPaymentMethod())
+                .invoiceDateTime(invoice.getInvoiceDateTime())
                 .saleDto(saleDto)
                 .build();
     }
 
     @Override
     public void makeDeposit(DepositDto depositDto) {
-        // Save deposit
         DepositModel deposit = DepositMapper.mapToModel(depositDto);
-        deposit.setId(null);
+        deposit.setId(null); // Ensure it's saved as new
+
         depositRepository.save(deposit);
 
         // Update customer balance
@@ -99,35 +116,4 @@ public class CustomerImpl implements CustomerService {
 
         customerRepository.save(customer);
     }
-
-    @Override
-    public CustomerDto getCustomerById(Long id) {
-        return CustomerMapper.mapToDto(
-                customerRepository.findById(id)
-                        .orElseThrow(() -> new IllegalArgumentException("Customer not found!")));
-    }
-
-    @Override
-    public void saveOrUpdateCustomer(CustomerDto customerDto) {
-        customerRepository.save(CustomerMapper.mapToModel(customerDto));
-    }
-
-    @Override
-    public void deleteCustomer(Long id) {
-        customerRepository.deleteById(id);
-    }
-
-    @Override
-    public void saveAll(List<CustomerDto> customers) {
-        if (customers == null || customers.isEmpty()) {
-            throw new IllegalArgumentException("Customer list must not be null or empty");
-        }
-
-        List<CustomerModel> customerModels = customers.stream()
-                .map(CustomerMapper::mapToModel)
-                .collect(Collectors.toList());
-
-        customerRepository.saveAll(customerModels);
-    }
-
 }

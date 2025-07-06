@@ -2,11 +2,12 @@ package com.shuaibu.service.impl;
 
 import com.shuaibu.dto.LoanDto;
 import com.shuaibu.mapper.LoanMapper;
-import com.shuaibu.repository.LoanRepository;
-import com.shuaibu.repository.StaffRepository;
 import com.shuaibu.model.LoanModel;
 import com.shuaibu.model.StaffModel;
+import com.shuaibu.repository.LoanRepository;
+import com.shuaibu.repository.StaffRepository;
 import com.shuaibu.service.LoanService;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,15 +26,20 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     public void saveOrUpdateLoan(LoanDto loanDto) {
+        if (loanDto == null) {
+            throw new IllegalArgumentException("Loan data must not be null");
+        }
+
+        // Default amountRepaid to 0 if null
         if (loanDto.getAmountRepaid() == null) {
             loanDto.setAmountRepaid(0.0);
         }
 
-        StaffModel staff = staffRepository.findById(loanDto.getStaffId()).get();
-        if (staff == null) {
-            throw new IllegalArgumentException("Staff not found!");
-        }
+        // Ensure staff exists
+        StaffModel staff = staffRepository.findById(loanDto.getStaffId())
+                .orElseThrow(() -> new IllegalArgumentException("Staff not found with ID: " + loanDto.getStaffId()));
 
+        // Map and save loan
         LoanModel loanModel = LoanMapper.mapToModel(loanDto);
         loanModel.setStaffName(staff.getName());
 
@@ -42,21 +48,33 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     public void deleteLoan(Long id) {
+        if (!loanRepository.existsById(id)) {
+            throw new IllegalArgumentException("Loan not found with ID: " + id);
+        }
         loanRepository.deleteById(id);
     }
 
     @Override
     public LoanDto getLoanById(Long id) {
-        return LoanMapper.mapToDto(loanRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Loan not found")));
+        LoanModel loan = loanRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Loan not found with ID: " + id));
+
+        return LoanMapper.mapToDto(loan);
     }
 
     @Override
     public List<LoanDto> getAllLoans() {
-        return loanRepository.findAll().stream().map(LoanMapper::mapToDto).collect(Collectors.toList());
+        return loanRepository.findAll()
+                .stream()
+                .map(LoanMapper::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<LoanDto> getLoansByStaffId(Long staffId) {
-        return loanRepository.findByStaffId(staffId).stream().map(LoanMapper::mapToDto).collect(Collectors.toList());
+        return loanRepository.findByStaffId(staffId)
+                .stream()
+                .map(LoanMapper::mapToDto)
+                .collect(Collectors.toList());
     }
 }

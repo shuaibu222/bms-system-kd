@@ -27,7 +27,9 @@ public class StockWebSocketController {
         // System.out.println("Running low stock check...");
 
         List<ProductModel> lowStockProducts = productRepository.findAll().stream()
-                .filter(p -> p.getQuantity() <= p.getLowQuantityAlert())
+                .filter(p -> p.getQuantity() != null &&
+                        p.getLowQuantityAlert() != null &&
+                        p.getQuantity() <= p.getLowQuantityAlert())
                 .collect(Collectors.toList());
 
         // System.out.println("Found " + lowStockProducts.size() + " low stock

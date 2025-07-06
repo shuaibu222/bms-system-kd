@@ -1,38 +1,23 @@
 package com.shuaibu.controller;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import com.shuaibu.dto.InvoiceDto;
+import com.shuaibu.dto.SaleItemDto;
+import com.shuaibu.model.*;
+import com.shuaibu.repository.*;
+import com.shuaibu.service.InvoiceService;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.shuaibu.dto.InvoiceDto;
-import com.shuaibu.dto.SaleItemDto;
-import com.shuaibu.model.CustomerModel;
-import com.shuaibu.model.InvoiceModel;
-import com.shuaibu.model.ProductModel;
-import com.shuaibu.model.SaleItemModel;
-import com.shuaibu.model.SaleModel;
-import com.shuaibu.model.UserModel;
-import com.shuaibu.repository.CustomerRepository;
-import com.shuaibu.repository.InvoiceRepository;
-import com.shuaibu.repository.ProductRepository;
-import com.shuaibu.repository.SaleRepository;
-import com.shuaibu.repository.UserRepository;
-import com.shuaibu.service.InvoiceService;
-
-import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
+import java.util.*;
 
 @Controller
 @RequestMapping("/invoices")
@@ -46,52 +31,46 @@ public class InvoiceController {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
 
+    // --- Invoice Listing and Creation ---
+
     @GetMapping
-    public String listInvoiceForm(Model model) {
+    public String showCreateInvoicePage(Model model) {
         model.addAttribute("invoice", new InvoiceModel());
         return "invoices/list";
     }
 
     @GetMapping("/list")
-    public String listInvoice(Model model) {
+    public String listAllInvoices(Model model) {
         model.addAttribute("invoices", invoiceRepository.findAll());
         return "invoices/list-invoices";
     }
 
     @GetMapping("/search")
-    public String getQuotationByQtnNum(@RequestParam String qtnNum, Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserModel userModel = userRepository.findByUsername(authentication.getName());
+    public String findByQtnNum(@RequestParam String qtnNum, Model model) {
+        UserModel user = getCurrentUser();
+        SaleModel quote = saleRepository.findByQtnNum(qtnNum);
 
-        SaleModel quotation = saleRepository.findByQtnNum(qtnNum);
-
-        if (quotation != null) {
-            // Create invoice with default value
+        if (quote != null) {
             InvoiceModel invoice = new InvoiceModel();
-            invoice.setInvoiceValue(quotation.getTotalAmount());
+            invoice.setInvoiceValue(quote.getTotalAmount());
 
-            model.addAttribute("quotation", quotation);
-            model.addAttribute("agent", userModel.getFullName());
-            model.addAttribute("invoice", invoice); // Pass the prepared invoice
+            model.addAttribute("quotation", quote);
+            model.addAttribute("invoice", invoice);
+            model.addAttribute("agent", user.getFullName());
         }
-        return "invoices/list"; // Return to the same view with the quotation and invoice form
+        return "invoices/list";
     }
 
     @PostMapping
-    public String createInvoice(@Valid @ModelAttribute("invoice") InvoiceDto invoice,
+    public String createInvoice(@Valid @ModelAttribute("invoice") InvoiceDto invoiceDto,
             BindingResult result, Model model) {
         if (result.hasErrors()) {
-            result.getAllErrors().forEach(error -> System.out.println(error.toString()));
-            model.addAttribute("invoice", invoice);
+            model.addAttribute("invoice", invoiceDto);
             return "invoices/list";
         }
 
-        // Add debug logging
-        System.out.println("Received invoice data: " + invoice);
-        System.out.println("Quotation ID: " + invoice.getQuotationId());
-
         try {
-            invoiceService.saveOrUpdateInvoice(invoice);
+            invoiceService.saveOrUpdateInvoice(invoiceDto);
             return "redirect:/invoices/success";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
@@ -99,23 +78,29 @@ public class InvoiceController {
         }
     }
 
+    @GetMapping("/success")
+    public String invoiceSuccess() {
+        return "invoices/invoice-success";
+    }
+
+    // --- Invoice Edit/Delete ---
+
     @GetMapping("/edit/{id}")
-    public String updateInvoiceForm(@PathVariable Long id, Model model) {
-        InvoiceDto invoice = invoiceService.getInvoiceById(id);
-        model.addAttribute("invoice", invoice);
+    public String showEditForm(@PathVariable Long id, Model model) {
+        model.addAttribute("invoice", invoiceService.getInvoiceById(id));
         return "invoices/edit";
     }
 
     @PostMapping("/update/{id}")
     public String updateInvoice(@PathVariable Long id,
-            @Valid @ModelAttribute("invoice") InvoiceDto invoice,
+            @Valid @ModelAttribute("invoice") InvoiceDto invoiceDto,
             BindingResult result, Model model) {
         if (result.hasErrors()) {
-            model.addAttribute("invoice", invoice);
+            model.addAttribute("invoice", invoiceDto);
             return "invoices/edit";
         }
-        invoice.setId(id);
-        invoiceService.saveOrUpdateInvoice(invoice);
+        invoiceDto.setId(id);
+        invoiceService.saveOrUpdateInvoice(invoiceDto);
         return "redirect:/invoices?updateSuccess";
     }
 
@@ -125,199 +110,162 @@ public class InvoiceController {
         return "redirect:/invoices/list?deleteSuccess";
     }
 
-    @GetMapping("/success")
-    public String invoiceSuccessPage() {
-        return "invoices/invoice-success";
-    }
+    // --- API ---
 
     @GetMapping("/latest")
     @ResponseBody
     public ResponseEntity<?> getLatestInvoice() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserModel userModel = userRepository.findByUsername(authentication.getName());
         try {
-            InvoiceDto invoiceDto = invoiceService.getLatestInvoice();
-            invoiceDto.setCashierAgent(userModel.getFullName());
-
-            return ResponseEntity.ok(invoiceDto);
+            InvoiceDto latest = invoiceService.getLatestInvoice();
+            latest.setCashierAgent(getCurrentUser().getFullName());
+            return ResponseEntity.ok(latest);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Collections.singletonMap("error", e.getMessage())); // Always return JSON
+            return ResponseEntity.notFound().build();
         }
     }
 
+    // --- Sales Return Handling ---
+
     @GetMapping("/sales-return/search")
-    public String searchForSalesReturn(
-            @RequestParam(required = false) String invNum,
+    public String searchForReturn(@RequestParam(required = false) String invNum,
             @RequestParam(required = false) String phone,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             Model model) {
 
         InvoiceModel invoice = null;
 
-        // Case 1: Invoice number provided (highest priority)
         if (invNum != null && !invNum.isBlank()) {
             invoice = invoiceRepository.findByInvNum(invNum);
-        }
-        // Case 2: Date + Phone (customer account-based)
-        else if (date != null && phone != null && !phone.isBlank()) {
+        } else if (phone != null && !phone.isBlank() && date != null) {
             CustomerModel customer = customerRepository.findByPhone(phone).orElse(null);
             if (customer != null) {
                 invoice = invoiceRepository.findFirstByCustomerIdAndInvoiceDateTime(customer.getId(), date);
             }
-        }
-        // Case 3: Only Date (walk-in customer)
-        else if (date != null) {
-            List<InvoiceModel> invoices = invoiceRepository.findByInvoiceDateTime(date);
-            model.addAttribute("invoices", invoices);
+        } else if (date != null) {
+            model.addAttribute("invoices", invoiceRepository.findByInvoiceDateTime(date));
             return "invoices/sales-return-list";
         }
 
         if (invoice != null) {
-            InvoiceDto invoiceDto = invoiceService.getInvoiceWithItems(invoice.getId());
-
-            // 🧹 Reset return values so the form starts clean
-            if (invoiceDto.getSaleDto() != null && invoiceDto.getSaleDto().getItems() != null) {
-                invoiceDto.getSaleDto().getItems().forEach(item -> {
-                    item.setReturnedQuantity(0);
-                    item.setReturnReason(null);
-                });
-            }
-
-            model.addAttribute("invoice", invoiceDto);
-            return "invoices/sales-return-process"; // Show the new return processing form
-        } else {
-            model.addAttribute("error", "No matching invoice found.");
-            return "invoices/sales-return";
+            return showReturnForm(invoice.getId(), model);
         }
+
+        model.addAttribute("error", "No matching invoice found.");
+        return "invoices/sales-return";
     }
 
     @GetMapping("/sales-return/process/{id}")
-    public String showSalesReturnForm(@PathVariable Long id, Model model) {
-        InvoiceDto invoiceDto = invoiceService.getInvoiceWithItems(id);
+    public String showReturnForm(@PathVariable Long id, Model model) {
+        InvoiceDto invoice = invoiceService.getInvoiceWithItems(id);
 
-        // 🧹 Reset return values so the form starts clean
-        if (invoiceDto.getSaleDto() != null && invoiceDto.getSaleDto().getItems() != null) {
-            invoiceDto.getSaleDto().getItems().forEach(item -> {
-                item.setReturnedQuantity(0);
-                item.setReturnReason(null);
-            });
-        }
+        invoice.getSaleDto().getItems().forEach(item -> {
+            item.setReturnedQuantity(0);
+            item.setReturnReason(null);
+        });
 
-        model.addAttribute("invoice", invoiceDto);
-        return "invoices/sales-return-process"; // This view contains the return form
+        model.addAttribute("invoice", invoice);
+        return "invoices/sales-return-process";
     }
 
     @PostMapping("/process-return/{id}")
-    public String processReturn(
-            @PathVariable Long id,
+    public String processReturn(@PathVariable Long id,
             @ModelAttribute("invoice") InvoiceDto invoiceDto,
             HttpSession session) {
-
         try {
-            double totalRefund = invoiceDto.getSaleDto().getItems().stream()
-                    .mapToDouble(item -> (item.getReturnedQuantity() != null ? item.getReturnedQuantity() : 0)
-                            * item.getPrice())
-                    .sum();
+            double totalRefund = 0.0;
+            List<SaleItemDto> items = invoiceDto.getSaleDto().getItems();
 
             InvoiceModel invoice = invoiceRepository.findById(id).orElseThrow();
+            SaleModel sale = saleRepository.findById(invoice.getQuotationId()).orElseThrow();
+            List<SaleItemModel> toRemove = new ArrayList<>();
+
+            for (SaleItemDto dto : items) {
+                if (dto.getReturnedQuantity() != null && dto.getReturnedQuantity() > 0) {
+                    totalRefund += dto.getReturnedQuantity() * dto.getPrice();
+
+                    SaleItemModel itemModel = sale.getItems().stream()
+                            .filter(i -> i.getId().equals(dto.getId()))
+                            .findFirst().orElse(null);
+
+                    if (itemModel != null) {
+                        itemModel.setReturnedQuantity(dto.getReturnedQuantity());
+                        itemModel.setReturnReason(dto.getReturnReason());
+
+                        int remainingQty = itemModel.getQuantity() - dto.getReturnedQuantity();
+                        itemModel.setQuantity(remainingQty);
+
+                        if (remainingQty <= 0) {
+                            toRemove.add(itemModel);
+                        }
+
+                        ProductModel product = productRepository.findByName(itemModel.getProductName());
+                        if (product != null) {
+                            product.setQuantity(
+                                    Optional.ofNullable(product.getQuantity()).orElse(0) + dto.getReturnedQuantity());
+                            productRepository.save(product);
+                        }
+                    }
+                }
+            }
+
+            sale.getItems().removeAll(toRemove);
+            sale.setTotalAmount(sale.getTotalAmount() - totalRefund);
             invoice.setTotalAmount(invoice.getTotalAmount() - totalRefund);
             invoice.setInvoiceValue(invoice.getInvoiceValue() - totalRefund);
 
-            SaleModel sale = saleRepository.findById(invoice.getQuotationId()).orElseThrow();
-
-            List<SaleItemModel> itemsToRemove = new ArrayList<>();
-
-            for (SaleItemDto dtoItem : invoiceDto.getSaleDto().getItems()) {
-                sale.getItems().stream()
-                        .filter(modelItem -> modelItem.getId().equals(dtoItem.getId()))
-                        .findFirst()
-                        .ifPresent(modelItem -> {
-                            Integer returnedQty = dtoItem.getReturnedQuantity();
-                            if (returnedQty != null && returnedQty > 0) {
-                                modelItem.setReturnedQuantity(returnedQty);
-                                modelItem.setReturnReason(dtoItem.getReturnReason());
-
-                                Integer soldQty = modelItem.getQuantity();
-                                if (soldQty != null) {
-                                    int remainingQty = soldQty - returnedQty;
-                                    modelItem.setQuantity(remainingQty);
-
-                                    if (remainingQty <= 0) {
-                                        itemsToRemove.add(modelItem);
-                                    }
-                                }
-
-                                ProductModel product = productRepository.findByName(modelItem.getProductName());
-                                if (product != null) {
-                                    int currentStock = product.getQuantity() != null ? product.getQuantity() : 0;
-                                    product.setQuantity(currentStock + returnedQty);
-                                    productRepository.save(product);
-                                }
-                            }
-                        });
-            }
-
-            sale.getItems().removeAll(itemsToRemove);
-            sale.setTotalAmount(sale.getTotalAmount() - totalRefund);
             saleRepository.save(sale);
             invoiceRepository.save(invoice);
 
             return "redirect:/invoices/return/success?id=" + id + "&refundAmount=" + totalRefund;
 
         } catch (Exception e) {
-            session.setAttribute("error", "Error processing return: " + e.getMessage());
+            session.setAttribute("error", "Return failed: " + e.getMessage());
             return "redirect:/invoices/return/" + id;
         }
     }
 
     @GetMapping("/return/success")
-    public String invoiceReturnSuccessPage(
-            @RequestParam Long id,
-            @RequestParam Double refundAmount,
-            Model model) {
-
-        InvoiceDto invoiceDto = invoiceService.getInvoiceWithItems(id);
-
-        model.addAttribute("invoice", invoiceDto);
+    public String returnSuccess(@RequestParam Long id, @RequestParam Double refundAmount, Model model) {
+        InvoiceDto invoice = invoiceService.getInvoiceWithItems(id);
+        model.addAttribute("invoice", invoice);
         model.addAttribute("refundAmount", refundAmount);
-        model.addAttribute("returnedItems", invoiceDto.getSaleDto().getItems());
+        model.addAttribute("returnedItems", invoice.getSaleDto().getItems());
         model.addAttribute("returnId", id);
-        model.addAttribute("returnNotes", invoiceDto.getReturnNotes()); // Optional if saved
-
+        model.addAttribute("returnNotes", invoice.getReturnNotes());
         return "invoices/return-confirmation";
     }
 
+    // --- Reporting ---
+
     @GetMapping("/sales-report")
-    public String salesReport(
-            @RequestParam(required = false) LocalDate startDate,
+    public String salesReport(@RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             Model model) {
 
-        // If no date range is selected, default to the last 7 days
         if (startDate == null || endDate == null) {
             endDate = LocalDate.now();
             startDate = endDate.minusDays(30);
         }
 
-        // Fetch invoices between selected dates
         List<InvoiceModel> invoices = invoiceRepository.findByInvoiceDateTimeBetween(startDate, endDate);
 
-        // Compute total sales and transaction count
         double totalSales = invoices.stream()
-                .mapToDouble(inv -> inv.getTotalAmount() != null ? inv.getTotalAmount() : 0.0)
+                .mapToDouble(inv -> Optional.ofNullable(inv.getTotalAmount()).orElse(0.0))
                 .sum();
 
-        int totalTransactions = invoices.size();
-
-        // Add to model
         model.addAttribute("salesReports", invoices);
         model.addAttribute("totalSales", totalSales);
-        model.addAttribute("totalTransactions", totalTransactions);
+        model.addAttribute("totalTransactions", invoices.size());
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
 
         return "invoices/sales-report";
     }
 
+    // --- Utility ---
+
+    private UserModel getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByUsername(username);
+    }
 }

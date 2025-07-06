@@ -1,12 +1,13 @@
 package com.shuaibu.dto;
 
 import java.time.LocalDate;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class LowStockDto {
     private Long id;

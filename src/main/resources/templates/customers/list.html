@@ -112,61 +112,62 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="customer : ${customers}">
-                            <td th:text="${customer.id}"></td>
-                            <td th:text="${customer.name}"></td>
-                            <td th:text="${customer.phone}"></td>
-                            <td th:text="${customer.address}"></td>
+                        <!-- Empty state -->
+                        <tr th:if="${#lists.isEmpty(customers)}">
+                            <td colspan="6" class="text-center">No customers found.</td>
+                        </tr>
+
+                        <!-- Customer rows -->
+                        <tr th:each="customer, iter : ${customers}" th:if="${not #lists.isEmpty(customers)}">
+                            <td th:text="${iter.index + 1}">1</td>
+                            <td th:text="${customer.name ?: 'N/A'}">N/A</td>
+                            <td th:text="${customer.phone ?: 'N/A'}">N/A</td>
+                            <td th:text="${customer.address ?: 'N/A'}">N/A</td>
                             <td>
                                 <span th:class="${customer.balance > 0} ? 'balance-creditor' : 'balance-debtor'"
-                                    th:text="'₦' + ${#numbers.formatDecimal(
-                                    (customer.balance > 0 ? -customer.balance : -1 * customer.balance),
-                                    1, 'COMMA', 2, 'POINT')}">
+                                    th:text="'₦' + ${#numbers.formatDecimal((customer.balance ?: 0 > 0 ? -customer.balance : -1 * (customer.balance ?: 0)), 0, 'COMMA', 2, 'POINT')}">
+                                    ₦0.00
                                 </span>
                                 <span th:if="${customer.balance > 0}">(Creditor)</span>
                                 <span th:if="${customer.balance < 0}">(Debtor)</span>
                             </td>
-                            </td>
                             <td>
-                                <a class="dynamic-link" th:href="@{'/customers/deposits/' + ${customer.id}}">
-                                    Deposit
-                                </a>
-                                <a class="dynamic-link" th:href="@{'/customers/deposits/history/' + ${customer.id}}">
-                                    Payments
-                                </a>
-                                <a class="dynamic-link" th:href="@{'/customers/invoices/history/' + ${customer.id}}">
-                                    Invoices
-                                </a>
-                                <a class="dynamic-link" th:href="@{'/customers/edit/' + ${customer.id}}">
-                                    Edit
-                                </a>
+                                <a class="dynamic-link" th:href="@{'/customers/deposits/' + ${customer.id}}">Deposit</a>
+                                <a class="dynamic-link"
+                                    th:href="@{'/customers/deposits/history/' + ${customer.id}}">Payments</a>
+                                <a class="dynamic-link"
+                                    th:href="@{'/customers/invoices/history/' + ${customer.id}}">Invoices</a>
+                                <a class="dynamic-link" th:href="@{'/customers/edit/' + ${customer.id}}">Edit</a>
                                 <a href="javascript:void(0);" class="dynamic-link"
-                                    th:onclick="'openDeleteModal(' + ${customer.id} + ')'">
-                                    Delete
-                                </a>
+                                    th:onclick="'openDeleteModal(' + ${customer.id} + ')'">Delete</a>
                             </td>
                         </tr>
                     </tbody>
-                    <tfoot>
+
+                    <!-- Totals (only show if customer list is not empty) -->
+                    <tfoot th:if="${not #lists.isEmpty(customers)}">
                         <tr>
                             <td colspan="4" style="text-align: right;"><strong>Total Debtors:</strong></td>
                             <td colspan="2" class="balance-debtor"
-                                th:text="'₦' + ${#numbers.formatDecimal(totalDebtors, 1, 'COMMA', 2, 'POINT')}"></td>
+                                th:text="'₦' + ${#numbers.formatDecimal(totalDebtors ?: 0, 0, 'COMMA', 2, 'POINT')}">
+                                ₦0.00</td>
                         </tr>
                         <tr>
                             <td colspan="4" style="text-align: right;"><strong>Total Creditors:</strong></td>
                             <td colspan="2" class="balance-creditor"
-                                th:text="'₦' + ${#numbers.formatDecimal(totalCreditors, 1, 'COMMA', 2, 'POINT')}"></td>
+                                th:text="'₦' + ${#numbers.formatDecimal(totalCreditors ?: 0, 0, 'COMMA', 2, 'POINT')}">
+                                ₦0.00</td>
                         </tr>
                         <tr>
                             <td colspan="4" style="text-align: right;"><strong>Total Balance:</strong></td>
                             <td colspan="2"
-                                th:text="'₦' + ${#numbers.formatDecimal(totalBalance, 1, 'COMMA', 2, 'POINT')}"></td>
+                                th:text="'₦' + ${#numbers.formatDecimal(totalBalance ?: 0, 0, 'COMMA', 2, 'POINT')}">
+                                ₦0.00</td>
                         </tr>
                     </tfoot>
-
                 </table>
             </div>
+
 
             <div class="report-actions">
                 <button class="btn" onclick="window.print()">Print Report</button>
