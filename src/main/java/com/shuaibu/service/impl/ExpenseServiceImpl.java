@@ -4,19 +4,19 @@ import com.shuaibu.dto.ExpenseDto;
 import com.shuaibu.mapper.ExpenseMapper;
 import com.shuaibu.repository.ExpenseRepository;
 import com.shuaibu.service.ExpenseService;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ExpenseServiceImpl implements ExpenseService {
 
     private final ExpenseRepository expenseRepository;
-
-    public ExpenseServiceImpl(ExpenseRepository expenseRepository) {
-        this.expenseRepository = expenseRepository;
-    }
 
     @Override
     public List<ExpenseDto> getAllExpenses() {

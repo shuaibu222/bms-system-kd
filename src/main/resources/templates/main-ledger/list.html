@@ -58,7 +58,7 @@
                         <th>Particulars</th>
                         <th>Debit (Purchases ₦)</th>
                         <th>Credit (Sales ₦)</th>
-                        <th>Closing Balance (₦)</th>
+                        <th>Opening Balance (₦)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,7 +81,7 @@
                             th:text="${(entry.credit ?: 0) > 0} ? '₦' + ${#numbers.formatDecimal(entry.credit, 0, 'COMMA', 2, 'POINT')} : '-'">
                             ₦0.00</td>
                         <td
-                            th:text="'₦' + ${#numbers.formatDecimal(entry.closingBalance ?: 0, 0, 'COMMA', 2, 'POINT')}">
+                            th:text="'₦' + ${#numbers.formatDecimal(entry.openingBalance ?: 0, 0, 'COMMA', 2, 'POINT')}">
                             ₦0.00
                         </td>
                     </tr>
@@ -117,7 +117,7 @@
                 </tr>
                 <tr>
                     <th>Profit/Loss:</th>
-                    <td th:classappend="${profitLoss ?: 0} <= 0 ? 'text-success' : 'text-danger'"
+                    <td th:classappend="${profitLoss ?: 0} <= 0 ? 'text-danger' : 'text-success'"
                         th:text="'₦' + ${#numbers.formatDecimal(profitLoss ?: 0, 0, 'COMMA', 2, 'POINT')}">₦0.00</td>
                 </tr>
             </table>

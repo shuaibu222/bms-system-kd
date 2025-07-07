@@ -8,7 +8,9 @@ import com.shuaibu.model.ProductModel;
 import com.shuaibu.repository.*;
 
 import com.shuaibu.service.ProductService;
-import org.springframework.mail.javamail.JavaMailSender;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -19,20 +21,11 @@ import java.util.stream.Collectors;
 import static com.shuaibu.mapper.ProductMapper.*;
 
 @Service
+@RequiredArgsConstructor
 public class ProductImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final LowStockRepository lowStockRepository;
-
-    public ProductImpl(ProductRepository productRepository,
-            LowStockRepository lowStockRepository,
-            JavaMailSender javaMailSender,
-            SaleRepository saleRepository,
-            InvoiceRepository invoiceRepository,
-            ExpenseRepository expenseRepository) {
-        this.productRepository = productRepository;
-        this.lowStockRepository = lowStockRepository;
-    }
 
     @Override
     public List<ProductDto> getAllProducts() {
@@ -126,4 +119,5 @@ public class ProductImpl implements ProductService {
 
         productRepository.save(product);
     }
+
 }

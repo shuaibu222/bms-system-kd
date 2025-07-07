@@ -125,14 +125,18 @@
                             <td th:text="${customer.address ?: 'N/A'}">N/A</td>
                             <td>
                                 <span th:class="${customer.balance > 0} ? 'balance-creditor' : 'balance-debtor'"
-                                    th:text="'₦' + ${#numbers.formatDecimal((customer.balance ?: 0 > 0 ? -customer.balance : -1 * (customer.balance ?: 0)), 0, 'COMMA', 2, 'POINT')}">
-                                    ₦0.00
-                                </span>
+                                    th:text="'₦' + ${#numbers.formatDecimal(
+                                                                        (customer.balance != 0 ? customer.balance * -1 : 0), 
+                                                                        0, 'COMMA', 2, 'POINT'
+                                                                    )}">
+                                    ₦0.00 </span>
                                 <span th:if="${customer.balance > 0}">(Creditor)</span>
                                 <span th:if="${customer.balance < 0}">(Debtor)</span>
                             </td>
                             <td>
                                 <a class="dynamic-link" th:href="@{'/customers/deposits/' + ${customer.id}}">Deposit</a>
+                                <a class="dynamic-link"
+                                    th:href="@{'/customers/statements/' + ${customer.id}}">Statements</a>
                                 <a class="dynamic-link"
                                     th:href="@{'/customers/deposits/history/' + ${customer.id}}">Payments</a>
                                 <a class="dynamic-link"

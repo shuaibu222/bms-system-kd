@@ -6,28 +6,23 @@ import com.shuaibu.model.*;
 import com.shuaibu.repository.*;
 import com.shuaibu.service.InvoiceService;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class InvoiceImpl implements InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
     private final SaleRepository saleRepository;
     private final ProductRepository productRepository;
     private final CustomerRepository customerRepository;
-
-    public InvoiceImpl(InvoiceRepository invoiceRepository,
-            SaleRepository saleRepository,
-            ProductRepository productRepository,
-            CustomerRepository customerRepository) {
-        this.invoiceRepository = invoiceRepository;
-        this.saleRepository = saleRepository;
-        this.productRepository = productRepository;
-        this.customerRepository = customerRepository;
-    }
+    private final CustomerStatementRepository customerStatementRepository;
 
     @Override
     public List<InvoiceDto> getAllInvoices() {
@@ -69,8 +64,23 @@ public class InvoiceImpl implements InvoiceService {
                 invoiceDto.setCustomerId(customer.getId());
 
                 double currentBalance = Optional.ofNullable(customer.getBalance()).orElse(0.0);
-                customer.setBalance(currentBalance - invoiceDto.getInvoiceValue());
+                double invoiceValue = invoiceDto.getInvoiceValue();
+
+                // Update balance
+                customer.setBalance(currentBalance - invoiceValue);
                 customerRepository.save(customer);
+
+                // Create statement record
+                CustomerStatementModel statement = new CustomerStatementModel();
+                statement.setCustomerId(customer.getId());
+                statement.setTransactionDate(LocalDateTime.now());
+                statement.setNarration("Sales (" + invoiceDto.getInvNum() + ")");
+                statement.setDebit(invoiceValue);
+                statement.setCredit(0.0);
+                statement.setBalance(currentBalance - invoiceValue); // new balance after sale
+
+                customerStatementRepository.save(statement);
+
             }, () -> {
                 throw new IllegalArgumentException("Customer with phone " + quotation.getPhone() + " not found");
             });

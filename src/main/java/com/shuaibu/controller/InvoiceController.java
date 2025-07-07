@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Controller
@@ -30,6 +31,7 @@ public class InvoiceController {
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
+    private final CustomerStatementRepository customerStatementRepository;
 
     // --- Invoice Listing and Creation ---
 
@@ -168,8 +170,7 @@ public class InvoiceController {
     }
 
     @PostMapping("/process-return/{id}")
-    public String processReturn(@PathVariable Long id,
-            @ModelAttribute("invoice") InvoiceDto invoiceDto,
+    public String processReturn(@PathVariable Long id, @ModelAttribute("invoice") InvoiceDto invoiceDto,
             HttpSession session) {
         try {
             double totalRefund = 0.0;
@@ -216,6 +217,27 @@ public class InvoiceController {
             saleRepository.save(sale);
             invoiceRepository.save(invoice);
 
+            // ✅ Update Customer balance and statement
+            CustomerModel customer = customerRepository.findById(invoice.getCustomerId())
+                    .orElse(null);
+            if (customer != null && totalRefund > 0) {
+                double currentBalance = Optional.ofNullable(customer.getBalance()).orElse(0.0);
+                double newBalance = currentBalance + totalRefund;
+
+                customer.setBalance(newBalance);
+                customerRepository.save(customer);
+
+                CustomerStatementModel statement = new CustomerStatementModel();
+                statement.setCustomerId(customer.getId());
+                statement.setTransactionDate(LocalDateTime.now());
+                statement.setNarration("Sales return (" + invoice.getInvNum() + ")");
+                statement.setDebit(0.0);
+                statement.setCredit(totalRefund);
+                statement.setBalance(newBalance);
+
+                customerStatementRepository.save(statement);
+            }
+
             return "redirect:/invoices/return/success?id=" + id + "&refundAmount=" + totalRefund;
 
         } catch (Exception e) {
@@ -236,7 +258,6 @@ public class InvoiceController {
     }
 
     // --- Reporting ---
-
     @GetMapping("/sales-report")
     public String salesReport(@RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
@@ -268,4 +289,5 @@ public class InvoiceController {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByUsername(username);
     }
+
 }

@@ -6,13 +6,12 @@ import com.shuaibu.model.CustomerModel;
 import com.shuaibu.model.SaleItemModel;
 import com.shuaibu.model.SaleModel;
 import com.shuaibu.repository.CustomerRepository;
-import com.shuaibu.repository.InvoiceRepository;
 import com.shuaibu.repository.SaleRepository;
 import com.shuaibu.service.SaleService;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -22,18 +21,11 @@ import java.util.stream.Collectors;
 import static com.shuaibu.mapper.SaleMapper.*;
 
 @Service
+@RequiredArgsConstructor
 public class SaleImpl implements SaleService {
 
     private final SaleRepository saleRepository;
     private final CustomerRepository customerRepository;
-
-    public SaleImpl(SaleRepository saleRepository,
-            JavaMailSender javaMailSender,
-            InvoiceRepository invoiceRepository,
-            CustomerRepository customerRepository) {
-        this.saleRepository = saleRepository;
-        this.customerRepository = customerRepository;
-    }
 
     @Override
     public List<SaleModel> getSalesByDateRange(LocalDate startDate, LocalDate endDate) {

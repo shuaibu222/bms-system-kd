@@ -10,33 +10,42 @@
     <section layout:fragment="body">
         <article class="dashboard-page">
             <h1>📊 Dashboard</h1>
+
+            <!-- Optional Error Message from Backend -->
+            <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
             <!-- Widgets Section -->
             <div class="dashboard-widgets">
+
                 <!-- Sales Widget -->
                 <div class="widget">
                     <h3>Today's Sales</h3>
-                    <p th:text="${totalSales}"></p>
+                    <p th:text="${totalSales != null ? totalSales : 0}"
+                        th:classappend="${totalSales == null} ? 'text-muted' : ''">0</p>
                     <a href="/sales">View Sales</a>
                 </div>
 
                 <!-- Purchases Widget -->
                 <div class="widget">
                     <h3>Today's Purchases</h3>
-                    <p th:text="${totalPurchases}"></p>
+                    <p th:text="${totalPurchases != null ? totalPurchases : 0}"
+                        th:classappend="${totalPurchases == null} ? 'text-muted' : ''">0</p>
                     <a href="/purchases">View Purchases</a>
                 </div>
 
                 <!-- Inventory Widget -->
                 <div class="widget">
                     <h3>Total Products</h3>
-                    <p th:text="${totalProducts}"></p>
+                    <p th:text="${totalProducts != null ? totalProducts : 0}"
+                        th:classappend="${totalProducts == null} ? 'text-muted' : ''">0</p>
                     <a href="/products">View Products</a>
                 </div>
 
                 <!-- Customers Widget -->
                 <div class="widget">
                     <h3>Current Customers</h3>
-                    <p th:text="${totalCustomers}"></p>
+                    <p th:text="${totalCustomers != null ? totalCustomers : 0}"
+                        th:classappend="${totalCustomers == null} ? 'text-muted' : ''">0</p>
                     <a href="/customers">View Customers</a>
                 </div>
 

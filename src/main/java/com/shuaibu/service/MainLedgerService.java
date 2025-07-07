@@ -2,6 +2,7 @@ package com.shuaibu.service;
 
 import com.shuaibu.model.InvoiceModel;
 import com.shuaibu.model.MainLedgerModel;
+import com.shuaibu.model.MainLedgerSummaryModel;
 import com.shuaibu.repository.CustomerRepository;
 import com.shuaibu.repository.DepositRepository;
 import com.shuaibu.repository.ExpenseRepository;
@@ -9,10 +10,12 @@ import com.shuaibu.repository.InvoiceRepository;
 import com.shuaibu.repository.LoanRepository;
 import com.shuaibu.repository.LowStockRepository;
 import com.shuaibu.repository.MainLedgerRepository;
+import com.shuaibu.repository.MainLedgerSummaryRepository;
 import com.shuaibu.repository.ProductRepository;
 import com.shuaibu.repository.SuspenseRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -22,28 +25,31 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 @Service
+@RequiredArgsConstructor
 public class MainLedgerService {
 
-    @Autowired
-    private MainLedgerRepository ledgerRepo;
-    @Autowired
-    private InvoiceRepository invoiceRepo;
-    @Autowired
-    private LowStockRepository lowStockRepo;
-    @Autowired
-    private ProductRepository productRepo;
-    @Autowired
-    private ExpenseRepository expenseRepos;
-    @Autowired
-    private DepositRepository depositRepo;
-    @Autowired
-    private SuspenseRepository suspenseRepo;
-    @Autowired
-    private LoanRepository loanRepo;
-    @Autowired
-    private CustomerRepository customerRepo;
+    private final MainLedgerRepository ledgerRepo;
+    private final InvoiceRepository invoiceRepo;
+    private final LowStockRepository lowStockRepo;
+    private final ProductRepository productRepo;
+    private final ExpenseRepository expenseRepos;
+    private final DepositRepository depositRepo;
+    private final SuspenseRepository suspenseRepo;
+    private final LoanRepository loanRepo;
+    private final CustomerRepository customerRepo;
+    private final MainLedgerSummaryRepository summaryRepo;
 
     public void generateLedger(LocalDate startDate, LocalDate endDate) {
+        // ✅ Check if any ledger entries already exist for the date range
+        List<MainLedgerModel> existingEntries = ledgerRepo.findAllByDateBetweenOrderByDateAsc(startDate, endDate);
+        if (!existingEntries.isEmpty()) {
+            throw new IllegalStateException("Ledger entries already exist between " + startDate + " and " + endDate);
+        }
+
+        // ✅ Optional: Check if monthly summary exists for endDate
+        if (summaryRepo.findBySummaryDate(endDate).isPresent()) {
+            throw new IllegalStateException("Monthly summary already exists for " + endDate);
+        }
 
         LocalDate prevDate = startDate.minusDays(1);
         List<MainLedgerModel> previousEntries = ledgerRepo.findAllByDateBetweenOrderByDateAsc(prevDate, prevDate);
@@ -104,9 +110,9 @@ public class MainLedgerService {
     }
 
     private double calculateOutstandingValuesBefore(LocalDate date) {
-        // Customer with positive accounts (receivables)
-        double customerReceivables = customerRepo.findAll().stream()
-                .filter(c -> c.getBalance() != null && c.getBalance() > 0)
+        // Customer with negative accounts (debts)
+        double customerDebts = customerRepo.findAll().stream()
+                .filter(c -> c.getBalance() != null && c.getBalance() < 0)
                 .mapToDouble(c -> Math.abs(c
                         .getBalance()))
                 .sum();
@@ -120,10 +126,11 @@ public class MainLedgerService {
         // Suspense total
         double suspense = suspenseRepo.findAll().stream()
                 .filter(s -> !s.getTransactionDate().isAfter(date))
+                .filter(s -> "Pending".equalsIgnoreCase(s.getStatus()) || "Resolved".equalsIgnoreCase(s.getStatus()))
                 .mapToDouble(s -> s.getAmount())
                 .sum();
 
-        return customerReceivables + staffLoans + suspense;
+        return customerDebts + staffLoans + suspense;
     }
 
     private double saveSalesEntry(LocalDate date, String label,
@@ -180,6 +187,7 @@ public class MainLedgerService {
 
         double suspense = suspenseRepo.findAll().stream()
                 .filter(s -> !s.getTransactionDate().isAfter(endDate))
+                .filter(s -> "Pending".equalsIgnoreCase(s.getStatus()) || "Resolved".equalsIgnoreCase(s.getStatus()))
                 .mapToDouble(s -> s.getAmount())
                 .sum();
 
@@ -191,7 +199,7 @@ public class MainLedgerService {
 
         // Customer debt (negative balance) and receivables (positive balance)
         double customerDebt = customerRepo.findAll().stream()
-                .mapToDouble(c -> c.getBalance() != null && c.getBalance() < 0 ? c.getBalance() : 0)
+                .mapToDouble(c -> c.getBalance() != null && c.getBalance() < 0 ? Math.abs(c.getBalance()) : 0)
                 .sum();
 
         // double customerReceivables = customerRepo.findAll().stream()
@@ -221,7 +229,7 @@ public class MainLedgerService {
         summary.put("profitLoss", profitOrLoss);
         summary.put("finalLedgerBalance", finalLedgerBalance);
         summary.put("stockValue", stockValue);
-        summary.put("customerDebt", Math.abs(customerDebt));
+        summary.put("customerDebt", customerDebt);
         // summary.put("customerReceivables", customerReceivables);
         summary.put("suspense", suspense);
         summary.put("staffLoans", staffLoans);
@@ -229,15 +237,18 @@ public class MainLedgerService {
     }
 
     public void saveEndOfMonthSummary(LocalDate monthEndDate) {
-        // Get summary data
+        if (summaryRepo.findBySummaryDate(monthEndDate).isPresent()) {
+            throw new IllegalStateException("Monthly summary already exists for " + monthEndDate);
+        }
+
         Map<String, Double> summary = calculateLedgerSummary(monthEndDate);
 
         double finalLedgerBalance = summary.getOrDefault("finalLedgerBalance", 0.0);
         double totalExpenses = summary.getOrDefault("totalExpenses", 0.0);
         double profitOrLoss = summary.getOrDefault("profitLoss", 0.0);
-
         double closingBalance = finalLedgerBalance - totalExpenses + profitOrLoss;
 
+        // Save to main ledger
         MainLedgerModel summaryEntry = MainLedgerModel.builder()
                 .date(monthEndDate)
                 .particulars("End of Month Summary")
@@ -246,8 +257,21 @@ public class MainLedgerService {
                 .openingBalance(finalLedgerBalance)
                 .closingBalance(closingBalance)
                 .build();
-
         ledgerRepo.save(summaryEntry);
+
+        // Save to summary snapshot table
+        MainLedgerSummaryModel snapshot = MainLedgerSummaryModel.builder()
+                .summaryDate(monthEndDate)
+                .totalExpenses(totalExpenses)
+                .customerPayments(summary.getOrDefault("customerPayments", 0.0))
+                .profitOrLoss(profitOrLoss)
+                .finalLedgerBalance(finalLedgerBalance)
+                .stockValue(summary.getOrDefault("stockValue", 0.0))
+                .customerDebt(summary.getOrDefault("customerDebt", 0.0))
+                .suspense(summary.getOrDefault("suspense", 0.0))
+                .staffLoans(summary.getOrDefault("staffLoans", 0.0))
+                .build();
+        summaryRepo.save(snapshot);
     }
 
 }

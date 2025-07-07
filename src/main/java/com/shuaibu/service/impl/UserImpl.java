@@ -6,6 +6,8 @@ import com.shuaibu.model.UserModel;
 import com.shuaibu.repository.UserRepository;
 import com.shuaibu.service.UserService;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,15 +17,11 @@ import java.util.stream.Collectors;
 import static com.shuaibu.mapper.UserMapper.*;
 
 @Service
+@RequiredArgsConstructor
 public class UserImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
-
-    public UserImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Override
     public void createAdminUserIfNotExists() {

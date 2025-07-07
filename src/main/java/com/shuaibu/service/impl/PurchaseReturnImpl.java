@@ -8,22 +8,19 @@ import com.shuaibu.repository.ProductRepository;
 import com.shuaibu.repository.PurchaseReturnRepository;
 import com.shuaibu.service.PurchaseReturnService;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PurchaseReturnImpl implements PurchaseReturnService {
 
     private final PurchaseReturnRepository purchaseReturnRepository;
     private final ProductRepository productRepository;
-
-    public PurchaseReturnImpl(PurchaseReturnRepository purchaseReturnRepository,
-            ProductRepository productRepository) {
-        this.purchaseReturnRepository = purchaseReturnRepository;
-        this.productRepository = productRepository;
-    }
 
     @Override
     public List<PurchaseReturnDto> getAllPurchaseReturns() {

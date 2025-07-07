@@ -1,6 +1,7 @@
 package com.shuaibu.controller;
 
 import com.shuaibu.dto.CustomerDto;
+import com.shuaibu.dto.CustomerStatementDto;
 import com.shuaibu.dto.DepositDto;
 import com.shuaibu.dto.InvoiceDto;
 import com.shuaibu.model.CustomerModel;
@@ -66,6 +67,19 @@ public class CustomerController {
         return "customers/debtors";
     }
 
+    // ----------------- LIST STATEMENTS OF ACCOUNTS OF CUSTOMER ------------------
+    @GetMapping("/statements/{customerId}")
+    public String viewCustomerStatements(@PathVariable Long customerId, Model model) {
+        CustomerModel customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+
+        List<CustomerStatementDto> statements = customerService.getStatementForCustomer(customerId);
+
+        model.addAttribute("customer", customer);
+        model.addAttribute("statements", statements);
+        return "customers/statements";
+    }
+
     // ----------------- CREATE CUSTOMER ------------------
     @PostMapping
     public String saveCustomer(@Valid @ModelAttribute("customer") CustomerDto customerDto, BindingResult result,
@@ -122,7 +136,7 @@ public class CustomerController {
         }
         depositDto.setCustomerId(id);
         customerService.makeDeposit(depositDto);
-        return "redirect:/customers?success";
+        return "redirect:/customers";
     }
 
     // ----------------- DEPOSIT HISTORY ------------------

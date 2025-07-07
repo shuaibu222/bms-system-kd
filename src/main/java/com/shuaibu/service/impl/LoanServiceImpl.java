@@ -8,21 +8,19 @@ import com.shuaibu.repository.LoanRepository;
 import com.shuaibu.repository.StaffRepository;
 import com.shuaibu.service.LoanService;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class LoanServiceImpl implements LoanService {
 
     private final LoanRepository loanRepository;
     private final StaffRepository staffRepository;
-
-    public LoanServiceImpl(LoanRepository loanRepository, StaffRepository staffRepository) {
-        this.loanRepository = loanRepository;
-        this.staffRepository = staffRepository;
-    }
 
     @Override
     public void saveOrUpdateLoan(LoanDto loanDto) {

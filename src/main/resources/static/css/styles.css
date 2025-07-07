@@ -2407,12 +2407,11 @@ form[enctype="multipart/form-data"] input[type="file"] {
 }
 
 form[enctype="multipart/form-data"] button[type="submit"] {
-    padding: 0.5rem 1rem;
     font-size: 0.875rem;
     background-color: var(--color-accent);
     color: var(--color-accent-foreground);
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    height: 36px;
+    height: 30px;
 }

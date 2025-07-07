@@ -6,19 +6,18 @@ import com.shuaibu.model.StaffModel;
 import com.shuaibu.repository.StaffRepository;
 import com.shuaibu.service.StaffService;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class StaffImpl implements StaffService {
 
     private final StaffRepository staffRepository;
-
-    public StaffImpl(StaffRepository staffRepository) {
-        this.staffRepository = staffRepository;
-    }
 
     @Override
     public List<StaffDto> getAllStaffs() {
