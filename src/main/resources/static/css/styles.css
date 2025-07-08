@@ -930,6 +930,9 @@ table tbody td:last-child {
 /* Search style */
 
 .search-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
     margin-bottom: 20px;
 }
 
@@ -2414,4 +2417,14 @@ form[enctype="multipart/form-data"] button[type="submit"] {
     border-radius: 4px;
     cursor: pointer;
     height: 30px;
+}
+
+.balance-debtor {
+    color: green;
+    font-weight: bold;
+}
+
+.balance-creditor {
+    color: red;
+    font-weight: bold;
 }

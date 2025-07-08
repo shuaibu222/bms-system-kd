@@ -6,21 +6,36 @@
     <title th:text="'Statements - ' + ${customer.name}">Customer Statements</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <script>
-        function searchStatements() {
-            const input = document.getElementById('searchInput').value.toLowerCase();
+        function filterStatementsByDate() {
+            const startInput = document.getElementById('startDate').value;
+            const endInput = document.getElementById('endDate').value;
+
+            const startDate = startInput ? new Date(startInput + "T00:00:00") : null;
+            const endDate = endInput ? new Date(endInput + "T23:59:59") : null;
+
             const rows = document.querySelectorAll('.statement-table tbody tr');
 
             rows.forEach(row => {
-                const date = row.cells[0].textContent.toLowerCase();
-                const narration = row.cells[1].textContent.toLowerCase();
+                const dateCell = row.cells[0];
+                if (!dateCell || row.querySelector('td[colspan]')) return; // Skip "no records" row
 
-                if (date.includes(input) || narration.includes(input)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
+                const cellText = dateCell.textContent.trim(); // e.g., "08-07-2025 09:30"
+                const [day, month, yearTime] = cellText.split("-");
+                const [year, time] = yearTime.split(" ");
+                const formattedDate = new Date(`${year}-${month}-${day}T${time}`);
+
+                let visible = true;
+
+                if (startDate && formattedDate < startDate) {
+                    visible = false;
                 }
+
+                if (endDate && formattedDate > endDate) {
+                    visible = false;
+                }
+
+                row.style.display = visible ? '' : 'none';
             });
         }
     </script>
@@ -35,8 +50,15 @@
             </div>
 
             <div class="search-container">
-                <input aria-label="Search statement" type="text" id="searchInput"
-                    placeholder="🔍 Search by date or narration..." onkeyup="searchStatements()" />
+                <div>
+                    <label for="startDate">Start:</label>
+                    <input type="date" id="startDate" oninput="filterStatementsByDate()" />
+                </div>
+
+                <div>
+                    <label for="endDate">End:</label>
+                    <input type="date" id="endDate" oninput="filterStatementsByDate()" />
+                </div>
             </div>
 
             <div class="table-container">
@@ -60,7 +82,12 @@
                             <td
                                 th:text="${s.credit > 0} ? '₦' + ${#numbers.formatDecimal(s.credit, 1, 'COMMA', 2, 'POINT')} : '-'">
                             </td>
-                            <td th:text="'₦' + ${#numbers.formatDecimal(s.balance, 1, 'COMMA', 2, 'POINT')}"></td>
+                            <!-- <td th:text="'₦' + ${#numbers.formatDecimal(s.balance, 1, 'COMMA', 2, 'POINT')}"></td> -->
+                            <td th:class="${s.balance > 0} ? 'balance-creditor' : 'balance-debtor'" th:text="'₦' + ${#numbers.formatDecimal(
+                                                                                                (s.balance != 0 ? s.balance * -1 : 0), 
+                                                                                                0, 'COMMA', 2, 'POINT'
+                                                                                            )}">
+                                ₦0.00 </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(statements)}">
                             <td colspan="5">No statement records found.</td>

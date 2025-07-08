@@ -1,6 +1,7 @@
 package com.shuaibu.controller;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,9 +10,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.shuaibu.model.InvoiceModel;
+import com.shuaibu.model.LowStockModel;
 import com.shuaibu.repository.CustomerRepository;
+import com.shuaibu.repository.InvoiceRepository;
+import com.shuaibu.repository.LowStockRepository;
 import com.shuaibu.repository.ProductRepository;
-import com.shuaibu.repository.SaleRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,9 +24,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DashboardController {
 
-    private final SaleRepository saleRepository;
+    private final InvoiceRepository invoiceRepository;
     private final ProductRepository productRepository;
     private final CustomerRepository customerRepository;
+    private final LowStockRepository lowStockRepository;
 
     @GetMapping
     public String dashboard(Model model) {
@@ -34,17 +39,16 @@ public class DashboardController {
                         : "Guest";
         model.addAttribute("userModel", username);
 
-        // Total metrics
-        model.addAttribute("totalSales", saleRepository.count());
-        model.addAttribute("totalProducts", productRepository.count());
-        model.addAttribute("totalCustomers", customerRepository.count());
-
         // Today's sales (start and end of day)
         LocalDate startOfDay = LocalDate.now();
         LocalDate endOfDay = LocalDate.now();
 
-        model.addAttribute("todaysSales",
-                saleRepository.findBySaleDateTimeBetween(startOfDay, endOfDay));
+        List<LowStockModel> purchases = lowStockRepository.findByLowStockDateBetween(startOfDay, endOfDay);
+        List<InvoiceModel> invoices = invoiceRepository.findByInvoiceDateTimeBetween(startOfDay, endOfDay);
+        model.addAttribute("totalPurchases", purchases.size());
+        model.addAttribute("totalSales", invoices.size());
+        model.addAttribute("totalProducts", productRepository.count());
+        model.addAttribute("totalCustomers", customerRepository.count());
 
         return "dashboard/dashboard";
     }
