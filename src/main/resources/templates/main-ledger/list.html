@@ -44,7 +44,7 @@
         <form class="filter-form" th:action="@{/main-ledger}" method="get">
             <input aria-label="start date" type="date" name="start" th:value="${startDate}" required />
             <input aria-label="end date" type="date" name="end" th:value="${endDate}" required />
-            <button type="submit" class="btn">Generate Report</button>
+            <button type="submit" class="btn">View Report</button>
         </form>
 
         <!-- Ledger Table -->
@@ -54,7 +54,7 @@
                     <tr>
                         <th>S/N</th>
                         <th>Date</th>
-                        <!-- <th>Opening Balance (₦)</th> -->
+                        <!-- <th>Closing Balance (₦)</th> -->
                         <th>Particulars</th>
                         <th>Debit (Purchases ₦)</th>
                         <th>Credit (Sales ₦)</th>
@@ -71,7 +71,7 @@
                     <tr th:each="entry, iterStat : ${entries}" th:if="${not #lists.isEmpty(entries)}">
                         <td th:text="${iterStat.count}">1</td>
                         <td th:text="${entry.date ?: 'N/A'}">N/A</td>
-                        <!-- <td th:text="'₦' + ${#numbers.formatDecimal(entry.openingBalance ?: 0, 0, 'COMMA', 2, 'POINT')}">₦0.00</td> -->
+                        <!-- <td th:text="'₦' + ${#numbers.formatDecimal(entry.closingBalance ?: 0, 0, 'COMMA', 2, 'POINT')}">₦0.00</td> -->
                         <td th:text="${entry.particulars ?: 'N/A'}">N/A</td>
 
                         <td

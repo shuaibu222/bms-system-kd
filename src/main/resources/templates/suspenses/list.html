@@ -87,8 +87,8 @@
                             <td th:text="${suspense.status ?: 'No status'}">No status</td>
                             <td th:text="${suspense.transactionDate ?: 'N/A'}">N/A</td>
                             <td>
-                                <a class="dynamic-link" th:href="@{'/suspenses/edit/' + ${suspense.id}}">Edit</a>
-                                <a href="javascript:void(0);" class="dynamic-link"
+                                <a class="btn" th:href="@{'/suspenses/edit/' + ${suspense.id}}">Edit</a>
+                                <a href="javascript:void(0);" class="btn"
                                     th:onclick="'openDeleteModal(' + ${suspense.id} + ')'">Delete</a>
                             </td>
                         </tr>

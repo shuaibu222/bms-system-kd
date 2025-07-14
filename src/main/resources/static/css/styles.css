@@ -839,24 +839,6 @@ table tbody td:last-child {
     /* background: rgb(255, 240, 242); */
 }
 
-
-.dynamic-link {
-    color: var(--color-background-secondary);
-    background: var(--color-text-primary);
-    text-decoration: none;
-    margin-right: 1rem;
-    padding: 0.3rem 1rem;
-    border: 2px solid transparent;
-    border-radius: 0.5rem;
-    transition: color 0.2s ease;
-}
-
-.dynamic-link:hover {
-    background: var(--color-background-secondary);
-    border-color: var(--color-text-primary);
-    color: var(--color-text-primary);
-}
-
 /* ============== */
 /* Modals */
 /* ============== */

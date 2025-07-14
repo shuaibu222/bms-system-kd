@@ -83,7 +83,7 @@
                     <input type="file" id="file" name="file" accept=".xlsx,.xls" required>
                 </div>
                 <div>
-                    <button type="submit">Import</button>
+                    <button class="btn" type="submit">Import</button>
                 </div>
             </form>
 
@@ -123,15 +123,12 @@
                                 <span th:if="${customer.balance < 0}">(Debtor)</span>
                             </td>
                             <td>
-                                <a class="dynamic-link" th:href="@{'/customers/deposits/' + ${customer.id}}">Deposit</a>
-                                <a class="dynamic-link"
-                                    th:href="@{'/customers/statements/' + ${customer.id}}">Statements</a>
-                                <a class="dynamic-link"
-                                    th:href="@{'/customers/deposits/history/' + ${customer.id}}">Payments</a>
-                                <a class="dynamic-link"
-                                    th:href="@{'/customers/invoices/history/' + ${customer.id}}">Invoices</a>
-                                <a class="dynamic-link" th:href="@{'/customers/edit/' + ${customer.id}}">Edit</a>
-                                <a href="javascript:void(0);" class="dynamic-link"
+                                <a class="btn" th:href="@{'/customers/deposits/' + ${customer.id}}">Deposit</a>
+                                <a class="btn" th:href="@{'/customers/statements/' + ${customer.id}}">Statements</a>
+                                <a class="btn" th:href="@{'/customers/deposits/history/' + ${customer.id}}">Payments</a>
+                                <a class="btn" th:href="@{'/customers/invoices/history/' + ${customer.id}}">Invoices</a>
+                                <a class="btn" th:href="@{'/customers/edit/' + ${customer.id}}">Edit</a>
+                                <a href="javascript:void(0);" class="btn"
                                     th:onclick="'openDeleteModal(' + ${customer.id} + ')'">Delete</a>
                             </td>
                         </tr>

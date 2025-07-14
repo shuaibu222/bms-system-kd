@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import java.awt.Desktop;
 import java.net.URI;
 
-import com.shuaibu.components.LedgerScheduler;
+// import com.shuaibu.components.LedgerScheduler;
 import com.shuaibu.service.UserService;
 
 @SpringBootApplication
@@ -20,7 +20,7 @@ public class PremiumPackageApplication implements CommandLineRunner {
     private UserService userService;
 
     @Autowired
-    private LedgerScheduler ledgerScheduler;
+    // private LedgerScheduler ledgerScheduler;
 
     public static void main(String[] args) {
         SpringApplication.run(PremiumPackageApplication.class, args);

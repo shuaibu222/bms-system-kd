@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
 <head>
     <title>Invoice Management</title>
     <script>
@@ -10,7 +12,7 @@
 
             // Set delete confirmation action
             const confirmBtn = document.getElementById('confirmDelete');
-            confirmBtn.onclick = function() {
+            confirmBtn.onclick = function () {
                 window.location.href = '/invoices/delete/' + invoiceId;
             };
         }
@@ -36,18 +38,20 @@
         }
     </script>
 </head>
+
 <body>
     <section layout:fragment="body">
         <article class="list-page">
             <div class="list-header">
                 <h1>Invoices List</h1>
             </div>
-            
+
             <!-- Search Bar -->
             <div class="search-container">
-                <input type="text" id="searchInput" placeholder="🔍 Search Invoices..." onkeyup="searchInvoice()">
+                <input type="text" id="searchInput" aria-label="search" placeholder="🔍 Search Invoices..."
+                    onkeyup="searchInvoice()">
             </div>
-            
+
 
             <!-- Success/Error Messages -->
             <div class="params success" th:if="${param.success}">
@@ -64,40 +68,53 @@
             <div class="table-container">
                 <table>
                     <thead>
-                    <tr>
-                        <th>S/N</th>
-                        <th>Invoice No.</th>
-                        <th>Cash Paid</th>
-                        <th>Card Paid</th>
-                        <th>Other Paid</th>
-                        <th>Total Paid</th>
-                        <th>Quotation Total</th>
-                        <th>Balance Due</th>
-                        <th>Payment Status</th>
-                        <th>Payment Method</th>
-                        <th>Date</th>
-                        <th>Actions</th>
-                    </tr>
+                        <tr>
+                            <th>S/N</th>
+                            <th>Invoice No.</th>
+                            <th>Cash Paid</th>
+                            <th>Card Paid</th>
+                            <th>Other Paid</th>
+                            <th>Total Paid</th>
+                            <th>Quotation Total</th>
+                            <th>Balance Due</th>
+                            <th>Payment Status</th>
+                            <th>Payment Method</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="invoice : ${invoices}">
-                        <td th:text="${invoice.id}"></td>
-                        <td th:text="${invoice.invNum}"></td>
-                        <td th:text="'₦' + ${#numbers.formatDecimal(invoice.cashPaid ?: 0, 0, 'COMMA', 2, 'POINT')}"></td>
-                        <td th:text="'₦' + ${#numbers.formatDecimal(invoice.cardPaid ?: 0, 0, 'COMMA', 2, 'POINT')}"></td>
-                        <td th:text="'₦' + ${#numbers.formatDecimal(invoice.otherPaid ?: 0, 0, 'COMMA', 2, 'POINT')}"></td>
-                        <td th:text="'₦' + ${#numbers.formatDecimal(invoice.totalPaid ?: 0, 0, 'COMMA', 2, 'POINT')}"></td>
-                        <td th:text="'₦' + ${#numbers.formatDecimal(invoice.totalAmount ?: 0, 0, 'COMMA', 2, 'POINT')}"></td>
-                        <td th:text="'₦' + ${#numbers.formatDecimal(invoice.balanceDue ?: 0, 0, 'COMMA', 2, 'POINT')}"></td>                        
-                        <td th:text="${invoice.paymentStatus}"></td>
-                        <td th:text="${invoice.paymentMethod}"></td>
-                        <td th:text="${invoice.invoiceDateTime}"></td>
-                        <td>
-                            <a href="javascript:void(0);" class="dynamic-link" th:onclick="'openDeleteModal(' + ${invoice.id} + ')'">
-                                <i class="fas fa-trash-alt"></i>
-                            </a>
-                        </td>
-                    </tr>
+                        <tr th:each="invoice : ${invoices}">
+                            <td th:text="${invoice.id}"></td>
+                            <td th:text="${invoice.invNum}"></td>
+                            <td
+                                th:text="'₦' + ${#numbers.formatDecimal(invoice.cashPaid ?: 0, 0, 'COMMA', 2, 'POINT')}">
+                            </td>
+                            <td
+                                th:text="'₦' + ${#numbers.formatDecimal(invoice.cardPaid ?: 0, 0, 'COMMA', 2, 'POINT')}">
+                            </td>
+                            <td
+                                th:text="'₦' + ${#numbers.formatDecimal(invoice.otherPaid ?: 0, 0, 'COMMA', 2, 'POINT')}">
+                            </td>
+                            <td
+                                th:text="'₦' + ${#numbers.formatDecimal(invoice.totalPaid ?: 0, 0, 'COMMA', 2, 'POINT')}">
+                            </td>
+                            <td
+                                th:text="'₦' + ${#numbers.formatDecimal(invoice.totalAmount ?: 0, 0, 'COMMA', 2, 'POINT')}">
+                            </td>
+                            <td
+                                th:text="'₦' + ${#numbers.formatDecimal(invoice.balanceDue ?: 0, 0, 'COMMA', 2, 'POINT')}">
+                            </td>
+                            <td th:text="${invoice.paymentStatus}"></td>
+                            <td th:text="${invoice.paymentMethod}"></td>
+                            <td th:text="${invoice.invoiceDateTime}"></td>
+                            <td>
+                                <a href="javascript:void(0);" class="btn"
+                                    th:onclick="'openDeleteModal(' + ${invoice.id} + ')'">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -115,4 +132,5 @@
         </div>
     </section>
 </body>
+
 </html>

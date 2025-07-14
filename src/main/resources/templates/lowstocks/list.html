@@ -74,8 +74,7 @@
                                 th:text="${product.updatedAt != null ? #temporals.format(product.updatedAt, 'yyyy-MM-dd HH:mm') : 'N/A'}">
                                 N/A</td>
                             <td>
-                                <a class="dynamic-link"
-                                    th:href="@{'/products/purchases/update/' + ${product.id}}">Purchase</a>
+                                <a class="btn" th:href="@{'/products/purchases/update/' + ${product.id}}">Purchase</a>
                             </td>
                         </tr>
                     </tbody>

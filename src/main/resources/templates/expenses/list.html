@@ -101,12 +101,12 @@
                                 ₦0.00</td>
                             <td th:text="${expense.date ?: 'N/A'}">N/A</td>
                             <td>
-                                <a class="dynamic-link" th:href="@{'/expenses/edit/' + ${expense.id}}">
-                                    <i class="fas fa-edit"></i>
+                                <a class="btn" th:href="@{'/expenses/edit/' + ${expense.id}}">
+                                    Edit
                                 </a>
-                                <a href="javascript:void(0);" class="dynamic-link"
+                                <a href="javascript:void(0);" class="btn"
                                     th:onclick="'openDeleteModal(' + ${expense.id} + ')'">
-                                    <i class="fas fa-trash-alt"></i>
+                                    Delete
                                 </a>
                             </td>
                         </tr>

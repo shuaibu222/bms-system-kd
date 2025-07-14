@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
 <head>
     <title>Purchase Return Management</title>
     <script>
@@ -20,7 +22,7 @@
 
             // Set delete confirmation action
             const confirmBtn = document.getElementById('confirmDelete');
-            confirmBtn.onclick = function() {
+            confirmBtn.onclick = function () {
                 window.location.href = '/purchase-returns/delete/' + purchaseReturnId;
             };
         }
@@ -47,6 +49,7 @@
         }
     </script>
 </head>
+
 <body>
     <section layout:fragment="body">
         <article class="list-page">
@@ -57,7 +60,8 @@
 
             <!-- Search Bar -->
             <div class="search-container">
-                <input type="text" id="searchInput" placeholder="🔍 Search Purchase Returns..." onkeyup="searchPurchaseReturn()">
+                <input type="text" id="searchInput" placeholder="🔍 Search Purchase Returns..."
+                    onkeyup="searchPurchaseReturn()">
             </div>
 
             <div class="params success" th:if="${param.success}">
@@ -74,37 +78,40 @@
             <div class="table-container">
                 <table>
                     <thead>
-                    <tr>
-                        <th>S/N</th>
-                        <th>Supplier Name</th>
-                        <th>Product Name</th>
-                        <th>Store Name</th>
-                        <th>Quantity</th>
-                        <th>Total Amount</th>
-                        <th>Reason</th>
-                        <th>Date & Time</th>
-                        <th>Actions</th>
-                    </tr>
+                        <tr>
+                            <th>S/N</th>
+                            <th>Supplier Name</th>
+                            <th>Product Name</th>
+                            <th>Store Name</th>
+                            <th>Quantity</th>
+                            <th>Total Amount</th>
+                            <th>Reason</th>
+                            <th>Date & Time</th>
+                            <th>Actions</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="purchaseReturn : ${purchaseReturns}">
-                        <td th:text="${purchaseReturn.id}"></td>
-                        <td th:text="${purchaseReturn.supplierName}"></td>
-                        <td th:text="${purchaseReturn.productName}"></td>
-                        <td th:text="${purchaseReturn.storeName}"></td>
-                        <td th:text="${purchaseReturn.quantity}"></td>
-                        <td th:text="'₦' + ${#numbers.formatDecimal(purchaseReturn.totalAmount, 0, 'COMMA', 2, 'POINT')}"></td>
-                        <td th:text="${purchaseReturn.reason}"></td>
-                        <td th:text="${#temporals.format(purchaseReturn.pReturnDateTime, 'yyyy-MM-dd HH:mm')}"></td>
-                        <td>
-                            <a class="dynamic-link" th:href="@{'/purchase-returns/edit/' + ${purchaseReturn.id}}">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a href="javascript:void(0);" class="dynamic-link" th:onclick="'openDeleteModal(' + ${purchaseReturn.id} + ')'">
-                                <i class="fas fa-trash-alt"></i>
-                            </a>
-                        </td>
-                    </tr>
+                        <tr th:each="purchaseReturn : ${purchaseReturns}">
+                            <td th:text="${purchaseReturn.id}"></td>
+                            <td th:text="${purchaseReturn.supplierName}"></td>
+                            <td th:text="${purchaseReturn.productName}"></td>
+                            <td th:text="${purchaseReturn.storeName}"></td>
+                            <td th:text="${purchaseReturn.quantity}"></td>
+                            <td
+                                th:text="'₦' + ${#numbers.formatDecimal(purchaseReturn.totalAmount, 0, 'COMMA', 2, 'POINT')}">
+                            </td>
+                            <td th:text="${purchaseReturn.reason}"></td>
+                            <td th:text="${#temporals.format(purchaseReturn.pReturnDateTime, 'yyyy-MM-dd HH:mm')}"></td>
+                            <td>
+                                <a class="btn" th:href="@{'/purchase-returns/edit/' + ${purchaseReturn.id}}">
+                                    Edit
+                                </a>
+                                <a href="javascript:void(0);" class="btn"
+                                    th:onclick="'openDeleteModal(' + ${purchaseReturn.id} + ')'">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -122,7 +129,8 @@
         </div>
 
         <!-- Modal for Adding a Purchase Return -->
-        <div id="addPurchaseReturnModal" class="modal" th:style="${#fields.hasErrors('purchaseReturn.*')} ? 'display:block;' : 'display:none;'">
+        <div id="addPurchaseReturnModal" class="modal"
+            th:style="${#fields.hasErrors('purchaseReturn.*')} ? 'display:block;' : 'display:none;'">
             <div class="modal-content">
                 <h2>Add Purchase Return</h2>
                 <form th:action="@{/purchase-returns}" th:object="${purchaseReturn}" method="post">
@@ -131,35 +139,44 @@
                             <label for="supplierName">Supplier Name:</label>
                             <select id="supplierName" th:field="*{supplierName}">
                                 <option value="" disabled selected>Select Supplier Name</option>
-                                <option th:each="supplierName : ${suppliers}" th:value="${supplierName.name}" th:text="${supplierName.name}"></option>
+                                <option th:each="supplierName : ${suppliers}" th:value="${supplierName.name}"
+                                    th:text="${supplierName.name}"></option>
                             </select>
-                            <p class="error-message" th:if="${#fields.hasErrors('supplierName')}" th:errors="*{supplierName}"></p>
+                            <p class="error-message" th:if="${#fields.hasErrors('supplierName')}"
+                                th:errors="*{supplierName}"></p>
                         </div>
                         <div class="form-group">
                             <label for="productName">Product Name:</label>
                             <select id="productName" th:field="*{productName}">
                                 <option value="" disabled selected>Select Product Name</option>
-                                <option th:each="productName : ${products}" th:value="${productName.name}" th:text="${productName.name}"></option>
+                                <option th:each="productName : ${products}" th:value="${productName.name}"
+                                    th:text="${productName.name}"></option>
                             </select>
-                            <p class="error-message" th:if="${#fields.hasErrors('productName')}" th:errors="*{productName}"></p>
+                            <p class="error-message" th:if="${#fields.hasErrors('productName')}"
+                                th:errors="*{productName}"></p>
                         </div>
                         <div class="form-group">
                             <label for="storeName">Store Name:</label>
                             <select id="storeName" th:field="*{storeName}">
                                 <option value="" disabled selected>Select Store Name</option>
-                                <option th:each="storeName : ${stores}" th:value="${storeName.name}" th:text="${storeName.name}"></option>
+                                <option th:each="storeName : ${stores}" th:value="${storeName.name}"
+                                    th:text="${storeName.name}"></option>
                             </select>
-                            <p class="error-message" th:if="${#fields.hasErrors('storeName')}" th:errors="*{storeName}"></p>
+                            <p class="error-message" th:if="${#fields.hasErrors('storeName')}" th:errors="*{storeName}">
+                            </p>
                         </div>
                         <div class="form-group">
                             <label for="quantity">Quantity:</label>
                             <input type="number" id="quantity" placeholder="e.g. 100" th:field="*{quantity}" />
-                            <p class="error-message" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></p>
+                            <p class="error-message" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}">
+                            </p>
                         </div>
                         <div class="form-group">
                             <label for="totalAmount">Total Amount:</label>
-                            <input type="number" step="0.01" id="totalAmount" placeholder="e.g. 100.00" th:field="*{totalAmount}" />
-                            <p class="error-message" th:if="${#fields.hasErrors('totalAmount')}" th:errors="*{totalAmount}"></p>
+                            <input type="number" step="0.01" id="totalAmount" placeholder="e.g. 100.00"
+                                th:field="*{totalAmount}" />
+                            <p class="error-message" th:if="${#fields.hasErrors('totalAmount')}"
+                                th:errors="*{totalAmount}"></p>
                         </div>
                         <div class="form-group">
                             <label for="reason">Reason:</label>
@@ -174,7 +191,8 @@
                         <div class="form-group">
                             <label for="pReturnDateTime">Date & Time:</label>
                             <input type="datetime-local" id="pReturnDateTime" th:field="*{pReturnDateTime}" />
-                            <p class="error-message" th:if="${#fields.hasErrors('pReturnDateTime')}" th:errors="*{pReturnDateTime}"></p>
+                            <p class="error-message" th:if="${#fields.hasErrors('pReturnDateTime')}"
+                                th:errors="*{pReturnDateTime}"></p>
                         </div>
                     </div>
                     <div class="modal-buttons">
@@ -186,4 +204,5 @@
         </div>
     </section>
 </body>
+
 </html>

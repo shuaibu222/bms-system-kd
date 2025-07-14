@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
 <head>
     <title>Sale Management</title>
     <script>
@@ -10,7 +12,7 @@
 
             // Set delete confirmation action
             const confirmBtn = document.getElementById('confirmDelete');
-            confirmBtn.onclick = function() {
+            confirmBtn.onclick = function () {
                 window.location.href = '/sales/delete/' + saleId;
             };
         }
@@ -36,18 +38,20 @@
         }
     </script>
 </head>
+
 <body>
     <section layout:fragment="body">
         <article class="list-page">
             <div class="list-header">
                 <h1>Sales List</h1>
             </div>
-            
+
             <!-- Search Bar -->
             <div class="search-container">
-                <input type="text" id="searchInput" placeholder="🔍 Search Sales..." onkeyup="searchSale()">
+                <input type="text" id="searchInput" aria-label="search" placeholder="🔍 Search Sales..."
+                    onkeyup="searchSale()">
             </div>
-            
+
 
             <!-- Success/Error Messages -->
             <div class="params success" th:if="${param.success}">
@@ -64,28 +68,30 @@
             <div class="table-container">
                 <table>
                     <thead>
-                    <tr>
-                        <th>S/N</th>
-                        <th>Quotation No.</th>
-                        <th>Customer Name</th>
-                        <th>Total Amount</th>
-                        <th>Date & Time</th>
-                        <th>Actions</th>
-                    </tr>
+                        <tr>
+                            <th>S/N</th>
+                            <th>Quotation No.</th>
+                            <th>Customer Name</th>
+                            <th>Total Amount</th>
+                            <th>Date & Time</th>
+                            <th>Actions</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="sale : ${sales}">
-                        <td th:text="${sale.id}"></td>
-                        <td th:text="${sale.qtnNum}"></td>
-                        <td th:text="${sale.customerName}"></td>
-                        <td th:text="'₦' + ${#numbers.formatDecimal(sale.totalAmount, 0, 'COMMA', 2, 'POINT')}"></td>
-                        <td th:text="${sale.saleDateTime}"></td>
-                        <td>
-                            <a href="javascript:void(0);" class="dynamic-link" th:onclick="'openDeleteModal(' + ${sale.id} + ')'">
-                                <i class="fas fa-trash-alt"></i>
-                            </a>
-                        </td>
-                    </tr>
+                        <tr th:each="sale : ${sales}">
+                            <td th:text="${sale.id}"></td>
+                            <td th:text="${sale.qtnNum}"></td>
+                            <td th:text="${sale.customerName}"></td>
+                            <td th:text="'₦' + ${#numbers.formatDecimal(sale.totalAmount, 0, 'COMMA', 2, 'POINT')}">
+                            </td>
+                            <td th:text="${sale.saleDateTime}"></td>
+                            <td>
+                                <a href="javascript:void(0);" class="btn"
+                                    th:onclick="'openDeleteModal(' + ${sale.id} + ')'">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -103,4 +109,5 @@
         </div>
     </section>
 </body>
+
 </html>

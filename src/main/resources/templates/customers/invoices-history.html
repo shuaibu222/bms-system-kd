@@ -108,7 +108,7 @@
                             <td th:text="${invoice.paymentStatus}"></td>
                             <td th:text="${invoice.paymentMethod}"></td>
                             <td>
-                                <a class="dynamic-link" th:href="@{'/customers/invoice/' + ${invoice.id}}">View</a>
+                                <a class="btn" th:href="@{'/customers/invoice/' + ${invoice.id}}">View</a>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(invoices)}">

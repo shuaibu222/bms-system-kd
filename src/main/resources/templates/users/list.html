@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
 <head>
     <title>User Management</title>
     <script>
@@ -14,9 +16,9 @@
         function openDeleteModal(userId) {
             const modal = document.getElementById('deleteModal');
             modal.style.display = 'block';
-            
+
             const confirmBtn = document.getElementById('confirmDelete');
-            confirmBtn.onclick = function() {
+            confirmBtn.onclick = function () {
                 window.location.href = '/users/delete/' + userId;
             };
         }
@@ -42,6 +44,7 @@
         }
     </script>
 </head>
+
 <body>
     <section layout:fragment="body">
         <article class="list-page">
@@ -49,11 +52,12 @@
                 <h1>👥 User Management</h1>
                 <button class="open-modal-btn" onclick="openAddUserModal()">+ Add User</button>
             </div>
-            
+
             <div class="search-container">
-                <input type="text" id="searchInput" placeholder="🔍 Search Users..." onkeyup="searchUser()">
+                <input type="text" id="searchInput" aria-label="search" placeholder="🔍 Search Users..."
+                    onkeyup="searchUser()">
             </div>
-            
+
             <div class="params success" th:if="${param.success}">User created successfully.</div>
             <div class="params success" th:if="${param.updateSuccess}">User updated successfully.</div>
             <div class="params error" th:if="${param.error}">User deleted successfully.</div>
@@ -61,29 +65,30 @@
             <div class="table-container">
                 <table>
                     <thead>
-                    <tr>
-                        <th>S/N</th>
-                        <th>Username</th>
-                        <th>Full Name</th>
-                        <th>Role</th>
-                        <th>Active</th>
-                        <th>Actions</th>
-                    </tr>
+                        <tr>
+                            <th>S/N</th>
+                            <th>Username</th>
+                            <th>Full Name</th>
+                            <th>Role</th>
+                            <th>Active</th>
+                            <th>Actions</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="user : ${users}">
-                        <td th:text="${user.id}"></td>
-                        <td th:text="${user.username}"></td>
-                        <td th:text="${user.fullName}"></td>
-                        <td th:text="${#strings.replace(user.role, 'ROLE_', '')}"></td>
-                        <td th:text="${user.isActive}"></td>
-                        <td>
-                            <a class="dynamic-link" th:href="@{'/users/edit/' + ${user.id}}">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a href="javascript:void(0);" class="dynamic-link" th:onclick="'openDeleteModal(' + ${user.id} + ')'"><i class="fas fa-trash-alt"></i></a>
-                        </td>
-                    </tr>
+                        <tr th:each="user : ${users}">
+                            <td th:text="${user.id}"></td>
+                            <td th:text="${user.username}"></td>
+                            <td th:text="${user.fullName}"></td>
+                            <td th:text="${#strings.replace(user.role, 'ROLE_', '')}"></td>
+                            <td th:text="${user.isActive}"></td>
+                            <td>
+                                <a class="btn" th:href="@{'/users/edit/' + ${user.id}}">
+                                    Edit
+                                </a>
+                                <a href="javascript:void(0);" class="btn"
+                                    th:onclick="'openDeleteModal(' + ${user.id} + ')'">Edit</a>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -99,7 +104,8 @@
             </div>
         </div>
 
-        <div id="addUserModal" class="modal" th:style="${#fields.hasErrors('user.*')} ? 'display:block;' : 'display:none;'">
+        <div id="addUserModal" class="modal"
+            th:style="${#fields.hasErrors('user.*')} ? 'display:block;' : 'display:none;'">
             <div class="modal-content">
                 <h2>Add User</h2>
                 <form th:action="@{/users}" th:object="${user}" method="post">
@@ -107,12 +113,14 @@
                         <div class="form-group">
                             <label for="username">Username:</label>
                             <input type="text" id="username" placeholder="e.g. johndoe" th:field="*{username}" />
-                            <p class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
+                            <p class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">
+                            </p>
                         </div>
                         <div class="form-group">
                             <label for="password">Password:</label>
                             <input type="password" id="password" placeholder="••••••" th:field="*{password}" />
-                            <p class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+                            <p class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">
+                            </p>
                         </div>
                         <div class="form-group">
                             <label for="fullName">Full Name:</label>
@@ -145,4 +153,5 @@
         </div>
     </section>
 </body>
+
 </html>
