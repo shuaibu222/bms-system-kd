@@ -93,7 +93,7 @@
                     <input type="file" id="file" name="file" accept=".xlsx,.xls" required>
                 </div>
                 <div>
-                    <button type="submit">Import</button>
+                    <button class="btn" type="submit">Import</button>
                 </div>
             </form>
 
@@ -163,10 +163,10 @@
                         </td>
 
                         <td>
-                            <a class="btn" th:href="@{'/products/edit/' + ${product.id}}">
+                            <a class="btn edit" th:href="@{'/products/edit/' + ${product.id}}">
                                 Edit
                             </a>
-                            <a href="javascript:void(0);" class="btn"
+                            <a href="javascript:void(0);" class="btn delete"
                                 th:onclick="'openDeleteModal(' + ${product.id} + ')'">
                                 Delete
                             </a>
@@ -182,7 +182,7 @@
             </div>
 
             <div class="report-actions">
-                <button class="btn" onclick="window.print()">Print Report</button>
+                <a href="#" class="btn" onclick="window.print()">Print Report</a>
             </div>
         </article>
 

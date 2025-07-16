@@ -127,8 +127,8 @@
                                 <a class="btn" th:href="@{'/customers/statements/' + ${customer.id}}">Statements</a>
                                 <a class="btn" th:href="@{'/customers/deposits/history/' + ${customer.id}}">Payments</a>
                                 <a class="btn" th:href="@{'/customers/invoices/history/' + ${customer.id}}">Invoices</a>
-                                <a class="btn" th:href="@{'/customers/edit/' + ${customer.id}}">Edit</a>
-                                <a href="javascript:void(0);" class="btn"
+                                <a class="btn edit" th:href="@{'/customers/edit/' + ${customer.id}}">Edit</a>
+                                <a href="javascript:void(0);" class="btn delete"
                                     th:onclick="'openDeleteModal(' + ${customer.id} + ')'">Delete</a>
                             </td>
                         </tr>
@@ -160,7 +160,7 @@
 
 
             <div class="report-actions">
-                <button class="btn" onclick="window.print()">Print Report</button>
+                <a href="#" class="btn" onclick="window.print()">Print Report</a>
             </div>
         </article>
 

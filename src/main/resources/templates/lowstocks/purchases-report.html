@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en-US"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org" lang="en-US" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
 <head>
     <title>Purchase Report</title>
 </head>
+
 <body>
     <section class="report-container" layout:fragment="body">
         <div class="report-header">
             <h1>Purchase Report</h1>
-            <p><strong>From:</strong> <span id="reportStartDate" th:text="${startDate}"></span> 
-                <strong>To:</strong> <span id="reportEndDate" th:text="${endDate}"></span></p>
+            <p><strong>From:</strong> <span id="reportStartDate" th:text="${startDate}"></span>
+                <strong>To:</strong> <span id="reportEndDate" th:text="${endDate}"></span>
+            </p>
         </div>
 
         <!-- Date Range Filter -->
@@ -24,7 +26,8 @@
         <div class="report-summary">
             <div class="metric">
                 <span class="label">Total Purchases:</span>
-                <span class="value" th:text="'₦' + ${#numbers.formatDecimal(totalPurchases, 0, 'COMMA', 2, 'POINT')}"></span>
+                <span class="value"
+                    th:text="'₦' + ${#numbers.formatDecimal(totalPurchases, 0, 'COMMA', 2, 'POINT')}"></span>
             </div>
             <div class="metric">
                 <span class="label">Total Transactions:</span>
@@ -61,15 +64,20 @@
                         <td th:text="${purchase.name}"></td>
                         <td th:text="'₦' + ${#numbers.formatDecimal(purchase.price, 0, 'COMMA', 2, 'POINT')}"></td>
                         <td th:text="${purchase.quantity}"></td>
-                        <td th:text="'₦' + ${#numbers.formatDecimal(purchase.price * purchase.quantity, 0, 'COMMA', 2, 'POINT')}"></td>
+                        <td
+                            th:text="'₦' + ${#numbers.formatDecimal(purchase.price * purchase.quantity, 0, 'COMMA', 2, 'POINT')}">
+                        </td>
                         <td th:text="${#temporals.format(purchase.lowStockDate, 'dd MMM yyyy')}"></td>
-                        <td th:text="${purchase.expiryDate != null} ? ${#temporals.format(purchase.expiryDate, 'dd MMM yyyy')} : 'N/A'"></td>
+                        <td
+                            th:text="${purchase.expiryDate != null} ? ${#temporals.format(purchase.expiryDate, 'dd MMM yyyy')} : 'N/A'">
+                        </td>
                         <td th:text="${purchase.nafdac} ?: 'N/A'"></td>
                     </tr>
                     <!-- Total Row -->
                     <tr class="total-row">
                         <td colspan="4" class="text-right"><strong>Total:</strong></td>
-                        <td th:text="'₦' + ${#numbers.formatDecimal(totalPurchases, 0, 'COMMA', 2, 'POINT')}" class="total-amount"></td>
+                        <td th:text="'₦' + ${#numbers.formatDecimal(totalPurchases, 0, 'COMMA', 2, 'POINT')}"
+                            class="total-amount"></td>
                     </tr>
                 </tbody>
             </table>
@@ -77,8 +85,9 @@
 
         <!-- Actions -->
         <div class="report-actions">
-            <button class="btn" onclick="window.print()">Print Report</button>
+            <a href="#" class="btn" onclick="window.print()">Print Report</a>
         </div>
     </section>
 </body>
+
 </html>

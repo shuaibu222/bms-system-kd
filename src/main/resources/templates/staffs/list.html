@@ -84,10 +84,10 @@
                             <td th:text="${staff.phone ?: 'N/A'}">09012345678</td>
                             <td th:text="${staff.address ?: 'N/A'}">Zaria</td>
                             <td>
-                                <a class="btn" th:href="@{'/staff/edit/' + ${staff.id}}">
+                                <a class="btn edit" th:href="@{'/staff/edit/' + ${staff.id}}">
                                     Edit
                                 </a>
-                                <a href="javascript:void(0);" class="btn"
+                                <a href="javascript:void(0);" class="btn delete"
                                     th:onclick="'openDeleteModal(' + ${staff.id} + ')'">
                                     Delete
                                 </a>

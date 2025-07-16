@@ -87,8 +87,8 @@
                             <td th:text="${suspense.status ?: 'No status'}">No status</td>
                             <td th:text="${suspense.transactionDate ?: 'N/A'}">N/A</td>
                             <td>
-                                <a class="btn" th:href="@{'/suspenses/edit/' + ${suspense.id}}">Edit</a>
-                                <a href="javascript:void(0);" class="btn"
+                                <a class="btn edit" th:href="@{'/suspenses/edit/' + ${suspense.id}}">Edit</a>
+                                <a href="javascript:void(0);" class="btn delete"
                                     th:onclick="'openDeleteModal(' + ${suspense.id} + ')'">Delete</a>
                             </td>
                         </tr>
@@ -104,7 +104,7 @@
 
 
             <div class="report-actions">
-                <button class="btn" onclick="window.print()">Print Report</button>
+                <a href="#" class="btn" onclick="window.print()">Print Report</a>
             </div>
         </article>
 

@@ -103,10 +103,10 @@
                             <td th:text="${purchaseReturn.reason}"></td>
                             <td th:text="${#temporals.format(purchaseReturn.pReturnDateTime, 'yyyy-MM-dd HH:mm')}"></td>
                             <td>
-                                <a class="btn" th:href="@{'/purchase-returns/edit/' + ${purchaseReturn.id}}">
+                                <a class="btn edit" th:href="@{'/purchase-returns/edit/' + ${purchaseReturn.id}}">
                                     Edit
                                 </a>
-                                <a href="javascript:void(0);" class="btn"
+                                <a href="javascript:void(0);" class="btn delete"
                                     th:onclick="'openDeleteModal(' + ${purchaseReturn.id} + ')'">
                                     Delete
                                 </a>

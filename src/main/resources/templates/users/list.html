@@ -82,11 +82,11 @@
                             <td th:text="${#strings.replace(user.role, 'ROLE_', '')}"></td>
                             <td th:text="${user.isActive}"></td>
                             <td>
-                                <a class="btn" th:href="@{'/users/edit/' + ${user.id}}">
+                                <a class="btn edit" th:href="@{'/users/edit/' + ${user.id}}">
                                     Edit
                                 </a>
-                                <a href="javascript:void(0);" class="btn"
-                                    th:onclick="'openDeleteModal(' + ${user.id} + ')'">Edit</a>
+                                <a href="javascript:void(0);" class="btn delete"
+                                    th:onclick="'openDeleteModal(' + ${user.id} + ')'">Delete</a>
                             </td>
                         </tr>
                     </tbody>

@@ -96,8 +96,8 @@
                                 ₦0.00</td>
                             <td th:text="${loan.date ?: 'N/A'}">N/A</td>
                             <td>
-                                <a class="btn" th:href="@{'/loans/edit/' + ${loan.id}}">Edit</a>
-                                <a href="javascript:void(0);" class="btn"
+                                <a class="btn edit" th:href="@{'/loans/edit/' + ${loan.id}}">Edit</a>
+                                <a href="javascript:void(0);" class="btn delete"
                                     th:onclick="'openDeleteModal(' + ${loan.id} + ')'">Delete</a>
                             </td>
                         </tr>
@@ -120,7 +120,7 @@
 
 
             <div class="report-actions">
-                <button class="btn" onclick="window.print()">Print Report</button>
+                <a href="#" class="btn" onclick="window.print()">Print Report</a>
             </div>
         </article>
 
