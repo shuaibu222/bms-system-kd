@@ -2400,3 +2400,31 @@ form[enctype="multipart/form-data"] button[type="submit"] {
     color: var(--color-destructive);
     font-weight: bold;
 }
+
+.ledger-filter-form {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.ledger-filter-form label {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #333;
+}
+
+.ledger-filter-form select {
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    background-color: #fff;
+    transition: border-color 0.3s ease;
+}
+
+.ledger-filter-form select:focus {
+    border-color: #007bff;
+    outline: none;
+}

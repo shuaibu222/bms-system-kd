@@ -41,6 +41,9 @@ public class MainLedgerController {
             month = monthOptions.keySet().iterator().next(); // Use latest
         }
 
+        String monthLabel = monthOptions.getOrDefault(month, "Unknown Month");
+        model.addAttribute("monthLabel", monthLabel);
+
         model.addAttribute("monthOptions", monthOptions);
         model.addAttribute("selectedMonth", month);
 

@@ -32,7 +32,7 @@
 <body>
     <section class="report-container" layout:fragment="body">
         <!-- Month Dropdown -->
-        <form method="get" th:action="@{/main-ledger}">
+        <form method="get" th:action="@{/main-ledger}" class="ledger-filter-form">
             <label for="month">Select Month:</label>
             <select name="month" id="month" onchange="this.form.submit()">
                 <option th:each="entry : ${monthOptions.entrySet()}" th:value="${entry.key}" th:text="${entry.value}"
@@ -51,6 +51,11 @@
 
         <!-- Ledger Table -->
         <div class="table-container">
+            <!-- Month and Year Title for Print -->
+            <div class="ledger-month-label" style="text-align: center; margin: 1rem 0;">
+                <h2 th:text="${monthLabel}">June 2025</h2>
+            </div>
+
             <table>
                 <thead>
                     <tr>
