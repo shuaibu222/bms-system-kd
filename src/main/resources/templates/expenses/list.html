@@ -47,6 +47,38 @@
                 }
             });
         }
+
+        function filterStatementsByDate() {
+            const startInput = document.getElementById('startDate').value;
+            const endInput = document.getElementById('endDate').value;
+
+            const startDate = startInput ? new Date(startInput) : null;
+            const endDate = endInput ? new Date(endInput) : null;
+
+            const rows = document.querySelectorAll('.date-range tbody tr');
+
+            rows.forEach(row => {
+                const dateCell = row.cells[3];
+                if (!dateCell || row.querySelector('td[colspan]')) return; // Skip "no records" row
+
+                const cellText = dateCell.textContent.trim(); // e.g., "08-07-2025"
+                const [day, month, yearTime] = cellText.split("-");
+                const [year, time] = yearTime.split(" ");
+                const formattedDate = new Date(`${day}-${month}-${year}`);
+
+                let visible = true;
+
+                if (startDate && formattedDate < startDate) {
+                    visible = false;
+                }
+
+                if (endDate && formattedDate > endDate) {
+                    visible = false;
+                }
+
+                row.style.display = visible ? '' : 'none';
+            });
+        }
     </script>
 </head>
 
@@ -54,14 +86,26 @@
     <section layout:fragment="body">
         <article class="list-page">
             <div class="list-header">
-                <h1>💰 Expense Management</h1>
+                <h1>Expenses Management</h1>
                 <button class="open-modal-btn" onclick="openAddExpenseModal()">+ Add Expense</button>
             </div>
 
             <!-- Search Bar -->
             <div class="search-container">
-                <input type="text" aria-label="search" id="searchInput" placeholder="🔍 Search Expenses..."
+                <input type="text" aria-label="search" id="searchInput" placeholder="🔍 Search by description"
                     onkeyup="searchExpense()">
+            </div>
+
+            <div class="search-container">
+                <div>
+                    <label for="startDate">Start:</label>
+                    <input type="date" id="startDate" oninput="filterStatementsByDate()" />
+                </div>
+
+                <div>
+                    <label for="endDate">End:</label>
+                    <input type="date" id="endDate" oninput="filterStatementsByDate()" />
+                </div>
             </div>
 
             <!-- Success/Error Messages -->
@@ -77,7 +121,7 @@
 
             <!-- Table Section -->
             <div class="table-container">
-                <table>
+                <table class="date-range">
                     <thead>
                         <tr>
                             <th>S/N</th>

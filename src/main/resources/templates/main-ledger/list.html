@@ -10,7 +10,6 @@
             justify-content: space-between;
             margin-top: 10px;
             padding: 5px;
-            /* background: #f5f5f5; */
             border-radius: 4px;
         }
 
@@ -32,6 +31,16 @@
 
 <body>
     <section class="report-container" layout:fragment="body">
+        <!-- Month Dropdown -->
+        <form method="get" th:action="@{/main-ledger}">
+            <label for="month">Select Month:</label>
+            <select name="month" id="month" onchange="this.form.submit()">
+                <option th:each="entry : ${monthOptions.entrySet()}" th:value="${entry.key}" th:text="${entry.value}"
+                    th:selected="${entry.key == selectedMonth}">
+                </option>
+            </select>
+        </form>
+
         <div class="report-header">
             <h1>Main Ledger Report</h1>
             <p>
@@ -40,13 +49,6 @@
             </p>
         </div>
 
-        <!-- Filter Form -->
-        <form class="filter-form" th:action="@{/main-ledger}" method="get">
-            <input aria-label="start date" type="date" name="start" th:value="${startDate}" required />
-            <input aria-label="end date" type="date" name="end" th:value="${endDate}" required />
-            <button type="submit" class="btn">View Report</button>
-        </form>
-
         <!-- Ledger Table -->
         <div class="table-container">
             <table>
@@ -54,7 +56,6 @@
                     <tr>
                         <th>S/N</th>
                         <th>Date</th>
-                        <!-- <th>Closing Balance (₦)</th> -->
                         <th>Particulars</th>
                         <th>Debit (Purchases ₦)</th>
                         <th>Credit (Sales ₦)</th>
@@ -62,24 +63,23 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Show message if entries list is empty -->
                     <tr th:if="${#lists.isEmpty(entries)}">
                         <td colspan="6" class="text-center">No ledger entries found.</td>
                     </tr>
 
-                    <!-- Show entries if list is not empty -->
                     <tr th:each="entry, iterStat : ${entries}" th:if="${not #lists.isEmpty(entries)}">
                         <td th:text="${iterStat.count}">1</td>
                         <td th:text="${entry.date ?: 'N/A'}">N/A</td>
-                        <!-- <td th:text="'₦' + ${#numbers.formatDecimal(entry.closingBalance ?: 0, 0, 'COMMA', 2, 'POINT')}">₦0.00</td> -->
                         <td th:text="${entry.particulars ?: 'N/A'}">N/A</td>
 
                         <td
                             th:text="${(entry.debit ?: 0) > 0} ? '₦' + ${#numbers.formatDecimal(entry.debit, 0, 'COMMA', 2, 'POINT')} : '-'">
-                            ₦0.00</td>
+                            ₦0.00
+                        </td>
                         <td
                             th:text="${(entry.credit ?: 0) > 0} ? '₦' + ${#numbers.formatDecimal(entry.credit, 0, 'COMMA', 2, 'POINT')} : '-'">
-                            ₦0.00</td>
+                            ₦0.00
+                        </td>
                         <td
                             th:text="'₦' + ${#numbers.formatDecimal(entry.openingBalance ?: 0, 0, 'COMMA', 2, 'POINT')}">
                             ₦0.00
@@ -122,7 +122,6 @@
                 </tr>
             </table>
         </div>
-
 
         <!-- Print Button -->
         <div class="report-actions">

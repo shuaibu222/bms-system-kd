@@ -22,13 +22,14 @@
             <div class="sidebar-content">
                 <ul class="nav-main">
                     <!-- Dashboard -->
-                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                    <li sec:authorize="hasRole('ADMIN') or hasRole('MANAGER')" class="nav-item">
                         <a href="/dashboard" class="nav-head dashboard">
                             <i class="fas fa-tachometer-alt"></i> Dashboard
                         </a>
                     </li>
                     <!-- Sales -->
-                    <li class="nav-item">
+                    <li class="nav-item"
+                        sec:authorize="hasRole('ADMIN') or hasRole('SALESPERSON') or hasRole('CASHIER')">
                         <a class="nav-head">
                             <i class="fas fa-cash-register"></i> Sales
                         </a>
@@ -52,7 +53,7 @@
                     </li>
                     <li sec:authorize="hasRole('ADMIN')" class="nav-item">
                         <a class="nav-head">
-                            <i class="fas fa-money-bill-wave"></i> Assets
+                            <i class="fas fa-money-bill-trend-up"></i> Assets
                         </a>
                         <ul class="submenu">
                             <li><a href="/loans">Staff Loan</a></li>

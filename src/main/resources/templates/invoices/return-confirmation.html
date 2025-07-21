@@ -68,10 +68,7 @@
         </div>
 
         <div class="actions">
-            <a th:href="@{'/invoices/' + ${invoice?.id}}" class="btn btn-primary">View Invoice</a>
-            <a th:href="@{/invoices/sales-return}" class="btn btn-secondary">Process Another Return</a>
-            <a th:href="@{'/invoices/print-return/' + ${returnId ?: 0}}" class="btn btn-info" target="_blank">Print
-                Return Receipt</a>
+            <a th:href="@{/invoices/sales-return/search}" class="btn">Process Another Return</a>
         </div>
     </section>
 </body>

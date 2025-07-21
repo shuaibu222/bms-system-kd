@@ -170,14 +170,24 @@ public class InvoiceController {
     }
 
     @PostMapping("/process-return/{id}")
-    public String processReturn(@PathVariable Long id, @ModelAttribute("invoice") InvoiceDto invoiceDto,
+    public String processReturn(@PathVariable Long id,
+            @ModelAttribute("invoice") InvoiceDto invoiceDto,
             HttpSession session) {
         try {
             double totalRefund = 0.0;
             List<SaleItemDto> items = invoiceDto.getSaleDto().getItems();
 
-            InvoiceModel invoice = invoiceRepository.findById(id).orElseThrow();
-            SaleModel sale = saleRepository.findById(invoice.getQuotationId()).orElseThrow();
+            InvoiceModel invoice = invoiceRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Invoice not found"));
+
+            Long quotationId = invoice.getQuotationId();
+
+            if (quotationId == null) {
+                throw new IllegalStateException("Quotation ID is null for invoice ID: " + id);
+            }
+
+            SaleModel sale = saleRepository.findById(quotationId).orElseThrow();
+
             List<SaleItemModel> toRemove = new ArrayList<>();
 
             for (SaleItemDto dto : items) {
@@ -201,8 +211,8 @@ public class InvoiceController {
 
                         ProductModel product = productRepository.findByName(itemModel.getProductName());
                         if (product != null) {
-                            product.setQuantity(
-                                    Optional.ofNullable(product.getQuantity()).orElse(0) + dto.getReturnedQuantity());
+                            product.setQuantity(Optional.ofNullable(product.getQuantity()).orElse(0)
+                                    + dto.getReturnedQuantity());
                             productRepository.save(product);
                         }
                     }
@@ -217,32 +227,34 @@ public class InvoiceController {
             saleRepository.save(sale);
             invoiceRepository.save(invoice);
 
-            // ✅ Update Customer balance and statement
-            CustomerModel customer = customerRepository.findById(invoice.getCustomerId())
-                    .orElse(null);
-            if (customer != null && totalRefund > 0) {
-                double currentBalance = Optional.ofNullable(customer.getBalance()).orElse(0.0);
-                double newBalance = currentBalance + totalRefund;
+            // ✅ Update customer balance and statement
+            if (invoice.getCustomerId() != null) {
+                CustomerModel customer = customerRepository.findById(invoice.getCustomerId()).orElse(null);
+                if (customer != null && totalRefund > 0) {
+                    double currentBalance = Optional.ofNullable(customer.getBalance()).orElse(0.0);
+                    double newBalance = currentBalance + totalRefund;
 
-                customer.setBalance(newBalance);
-                customerRepository.save(customer);
+                    customer.setBalance(newBalance);
+                    customerRepository.save(customer);
 
-                CustomerStatementModel statement = new CustomerStatementModel();
-                statement.setCustomerId(customer.getId());
-                statement.setTransactionDate(LocalDateTime.now());
-                statement.setNarration("Sales return (" + invoice.getInvNum() + ")");
-                statement.setDebit(0.0);
-                statement.setCredit(totalRefund);
-                statement.setBalance(newBalance);
+                    CustomerStatementModel statement = new CustomerStatementModel();
+                    statement.setCustomerId(customer.getId());
+                    statement.setTransactionDate(LocalDateTime.now());
+                    statement.setNarration("Sales return (" + invoice.getInvNum() + ")");
+                    statement.setDebit(0.0);
+                    statement.setCredit(totalRefund);
+                    statement.setBalance(newBalance);
 
-                customerStatementRepository.save(statement);
+                    customerStatementRepository.save(statement);
+                }
             }
 
             return "redirect:/invoices/return/success?id=" + id + "&refundAmount=" + totalRefund;
 
         } catch (Exception e) {
+            e.printStackTrace(); // ✅ Helpful for dev logs
             session.setAttribute("error", "Return failed: " + e.getMessage());
-            return "redirect:/invoices/return/" + id;
+            return "redirect:/invoices/sales-return/search";
         }
     }
 

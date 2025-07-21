@@ -241,7 +241,7 @@
                     <i class="fa-solid fa-arrow-left"></i> Back
                 </a>
             </div>
-            <div class="button-group" sec:authorize="hasRole('ADMIN') or hasRole('CASHIER')">
+            <div class="button-group" sec:authorize="hasRole('ADMIN') or hasRole('CASHIER') or hasRole('SALESPERSON')">
                 <a class="button send-email-btn" id="continuePaymentBtn" style="text-decoration: none; color: white;">
                     <i class="fa-solid fa-credit-card"></i> Continue to Payment
                 </a>

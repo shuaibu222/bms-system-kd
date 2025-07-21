@@ -1,4 +1,5 @@
 - salary module
 
   WHAT IF CUSTOMER DIDNT HAVE PHONE NUMBER
-  date range search in some places
+  rather than fetching main ledger, lets list them and can view and can print
+  the list shall be based on month

@@ -39,9 +39,9 @@
             rows.forEach(row => {
                 const name = row.cells[1].textContent.toLowerCase();
                 const phone = row.cells[2].textContent.toLowerCase();
-                const email = row.cells[3].textContent.toLowerCase();
+                const address = row.cells[3].textContent.toLowerCase();
 
-                if (name.includes(input) || phone.includes(input) || email.includes(input)) {
+                if (name.includes(input) || phone.includes(input) || address.includes(input)) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
@@ -55,13 +55,13 @@
     <section layout:fragment="body">
         <article class="list-page">
             <div class="list-header">
-                <h1>👥 Customer Management</h1>
+                <h1>Customers Management</h1>
                 <button class="open-modal-btn" onclick="openAddCustomerModal()">+ Add Customer</button>
             </div>
 
             <!-- Search Bar -->
             <div class="search-container">
-                <input aria-label="search" type="text" id="searchInput" placeholder="🔍 Search Customers..."
+                <input aria-label="search" type="text" id="searchInput" placeholder="🔍 Search by name/phone/address"
                     onkeyup="searchCustomers()">
             </div>
 

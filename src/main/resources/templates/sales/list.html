@@ -10,7 +10,7 @@
         let cart = [];
         let totalAmount = 0;
 
-        function addToCart(id, name, price) {
+        function addToCart(id, name, price, stock) {
             const quantityInput = document.getElementById('quantity-' + id);
             const quantity = parseInt(quantityInput.value) || 1;
 
@@ -19,11 +19,21 @@
                 return;
             }
 
+            if (quantity > stock) {
+                alert(`Only ${stock} items available in stock`);
+                return;
+            }
+
             const existingItem = cart.find(item => item.id === id);
             if (existingItem) {
+                const newTotalQuantity = existingItem.quantity + quantity;
+                if (newTotalQuantity > stock) {
+                    alert(`You already have ${existingItem.quantity} in cart. Only ${stock - existingItem.quantity} more available.`);
+                    return;
+                }
                 existingItem.quantity += quantity;
             } else {
-                cart.push({ id, name, price, quantity });
+                cart.push({ id, name, price, quantity, stock });
             }
             updateCart();
             quantityInput.value = '1'; // Reset quantity input
@@ -163,7 +173,7 @@
                         <input th:if="${product.quantity > 0}" type="number" th:id="'quantity-' + ${product.id}"
                             class="quantity-input" value="1" min="1" th:max="${product.quantity}">
                         <button
-                            th:attr="onclick='addToCart(' + ${product.id} + ', \'' + ${product.name} + '\', ' + ${product.price} + ')'"
+                            th:attr="onclick='addToCart(' + ${product.id} + ', \'' + ${product.name} + '\', ' + ${product.price} + ', ' + ${product.quantity} + ')'"
                             th:disabled="${product.quantity <= 0}">Add</button>
                     </div>
                 </div>

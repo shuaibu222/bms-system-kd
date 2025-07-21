@@ -163,7 +163,9 @@ public class InvoiceImpl implements InvoiceService {
 
         SaleDto saleDto = null;
         if (inv.getQuotationId() != null) {
-            SaleModel sale = saleRepository.findById(inv.getQuotationId()).orElse(null);
+            Long qtnId = inv.getQuotationId();
+
+            SaleModel sale = saleRepository.findById(qtnId).orElse(null);
 
             if (sale != null) {
                 saleDto = SaleDto.builder()
@@ -194,4 +196,5 @@ public class InvoiceImpl implements InvoiceService {
                 .saleDto(saleDto)
                 .build();
     }
+
 }

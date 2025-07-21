@@ -18,6 +18,7 @@ public class MainLedgerSummaryModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Temporal(TemporalType.DATE)
     private LocalDate summaryDate; // e.g., June 30, 2025
 
     private double totalExpenses;

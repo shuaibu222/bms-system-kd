@@ -41,6 +41,38 @@
                 }
             });
         }
+
+        function filterStatementsByDate() {
+            const startInput = document.getElementById('startDate').value;
+            const endInput = document.getElementById('endDate').value;
+
+            const startDate = startInput ? new Date(startInput) : null;
+            const endDate = endInput ? new Date(endInput) : null;
+
+            const rows = document.querySelectorAll('.date-range tbody tr');
+
+            rows.forEach(row => {
+                const dateCell = row.cells[5];
+                if (!dateCell || row.querySelector('td[colspan]')) return; // Skip "no records" row
+
+                const cellText = dateCell.textContent.trim(); // e.g., "08-07-2025"
+                const [day, month, yearTime] = cellText.split("-");
+                const [year, time] = yearTime.split(" ");
+                const formattedDate = new Date(`${day}-${month}-${year}`);
+
+                let visible = true;
+
+                if (startDate && formattedDate < startDate) {
+                    visible = false;
+                }
+
+                if (endDate && formattedDate > endDate) {
+                    visible = false;
+                }
+
+                row.style.display = visible ? '' : 'none';
+            });
+        }
     </script>
 </head>
 
@@ -48,7 +80,7 @@
     <section layout:fragment="body">
         <article class="list-page">
             <div class="list-header">
-                <h1>💼 Suspense Management</h1>
+                <h1>Suspenses Management</h1>
                 <button class="open-modal-btn" onclick="openAddSuspenseModal()">+ Add Suspense</button>
             </div>
 
@@ -57,12 +89,24 @@
                     placeholder="🔍 Search by Staff ID or Purpose..." onkeyup="searchSuspense()">
             </div>
 
+            <div class="search-container">
+                <div>
+                    <label for="startDate">Start:</label>
+                    <input type="date" id="startDate" oninput="filterStatementsByDate()" />
+                </div>
+
+                <div>
+                    <label for="endDate">End:</label>
+                    <input type="date" id="endDate" oninput="filterStatementsByDate()" />
+                </div>
+            </div>
+
             <div class="params success" th:if="${param.success}">Suspense successfully created.</div>
             <div class="params success" th:if="${param.updateSuccess}">Suspense successfully updated.</div>
             <div class="params error" th:if="${param.error}">Suspense deleted successfully.</div>
 
             <div class="table-container">
-                <table>
+                <table class="date-range">
                     <thead>
                         <tr>
                             <th>S/N</th>
