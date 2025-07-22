@@ -9,6 +9,8 @@ public interface UserService {
 
     void createAdminUserIfNotExists();
 
+    void createDeveloperUserIfNotExists();
+
     UserDto getUserById(Long id);
 
     void deleteUser(Long id);

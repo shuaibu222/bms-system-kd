@@ -34,12 +34,32 @@ public class UserImpl implements UserService {
             System.out.println("Warning: Multiple active admin users found. Manual cleanup may be needed.");
         } else if (activeAdmins.isEmpty()) {
             UserModel adminUser = new UserModel();
-            adminUser.setFullName("Shuaibu");
+            adminUser.setFullName("Administrator");
             adminUser.setUsername(adminUsername);
             adminUser.setPassword(passwordEncoder.encode("admin"));
             adminUser.setIsActive("true");
             adminUser.setRole(adminRole);
             userRepository.save(adminUser);
+        }
+    }
+
+    @Override
+    public void createDeveloperUserIfNotExists() {
+        String developerUsername = "Developer";
+        String developerRole = "ROLE_DEVELOPER";
+
+        List<UserModel> activeDevelopers = userRepository.findManyByUsernameAndIsActive(developerUsername, "true");
+
+        if (activeDevelopers.size() > 1) {
+            System.out.println("Warning: Multiple active developer users found. Manual cleanup may be needed.");
+        } else if (activeDevelopers.isEmpty()) {
+            UserModel developerUser = new UserModel();
+            developerUser.setFullName("Shuaibu");
+            developerUser.setUsername(developerUsername);
+            developerUser.setPassword(passwordEncoder.encode("developer"));
+            developerUser.setIsActive("true");
+            developerUser.setRole(developerRole);
+            userRepository.save(developerUser);
         }
     }
 

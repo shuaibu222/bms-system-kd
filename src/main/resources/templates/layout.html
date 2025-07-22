@@ -22,28 +22,29 @@
             <div class="sidebar-content">
                 <ul class="nav-main">
                     <!-- Dashboard -->
-                    <li sec:authorize="hasRole('ADMIN') or hasRole('MANAGER')" class="nav-item">
+                    <li sec:authorize="hasRole('ADMIN') or hasRole('MANAGER') or hasRole('DEVELOPER')" class="nav-item">
                         <a href="/dashboard" class="nav-head dashboard">
                             <i class="fas fa-tachometer-alt"></i> Dashboard
                         </a>
                     </li>
                     <!-- Sales -->
                     <li class="nav-item"
-                        sec:authorize="hasRole('ADMIN') or hasRole('SALESPERSON') or hasRole('CASHIER')">
+                        sec:authorize="hasRole('ADMIN') or hasRole('SALESPERSON') or hasRole('CASHIER') or hasRole('DEVELOPER')">
                         <a class="nav-head">
                             <i class="fas fa-cash-register"></i> Sales
                         </a>
                         <ul class="submenu">
                             <!-- Sales generate quotation -->
-                            <li sec:authorize="hasRole('ADMIN') or hasRole('SALESPERSON')"><a href="/sales">New Sale</a>
+                            <li sec:authorize="hasRole('SALESPERSON') or hasRole('DEVELOPER')"><a href="/sales">New
+                                    Sale</a>
                             </li>
-                            <li sec:authorize="hasRole('ADMIN') or hasRole('CASHIER')"><a href="/invoices">New
+                            <li sec:authorize="hasRole('CASHIER') or hasRole('DEVELOPER')"><a href="/invoices">New
                                     Invoice</a></li>
                             <!-- <li sec:authorize="hasRole('ADMIN')"><a href="/sales/list">Sales List</a></li>
                             <li sec:authorize="hasRole('ADMIN')"><a href="/invoices/list">Invoices List</a></li> -->
                         </ul>
                     </li>
-                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                    <li sec:authorize="hasRole('SALESPERSON') or hasRole('DEVELOPER')" class="nav-item">
                         <a class="nav-head">
                             <i class="fas fa-shopping-cart"></i> Returns
                         </a>
@@ -51,17 +52,18 @@
                             <li><a href="/invoices/sales-return/search">Sales Return</a></li>
                         </ul>
                     </li>
-                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                    <li sec:authorize="hasRole('ADMIN') or hasRole('MANAGER') or hasRole('DEVELOPER')" class="nav-item">
                         <a class="nav-head">
                             <i class="fas fa-money-bill-trend-up"></i> Assets
                         </a>
                         <ul class="submenu">
                             <li><a href="/loans">Staff Loan</a></li>
-                            <li><a href="/customers/debtors">Debtors</a></li>
+                            <li sec:authorize="hasRole('MANAGER') or hasRole('DEVELOPER')"><a
+                                    href="/customers/debtors">Debtors</a></li>
                             <li><a href="/suspenses">Suspenses</a></li>
                         </ul>
                     </li>
-                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                    <li sec:authorize="hasRole('ADMIN') or hasRole('DEVELOPER')" class="nav-item">
                         <a class="nav-head">
                             <i class="fas fa-money-bill-wave"></i> Expenses
                         </a>
@@ -70,7 +72,7 @@
                         </ul>
                     </li>
                     <!-- Inventory -->
-                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                    <li sec:authorize="hasRole('ADMIN') or hasRole('DEVELOPER')" class="nav-item">
                         <a class="nav-head">
                             <i class="fas fa-box"></i> Stock
                         </a>
@@ -81,7 +83,7 @@
                         </ul>
                     </li>
                     <!-- Customers -->
-                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                    <li sec:authorize="hasRole('ADMIN') or hasRole('DEVELOPER')" class="nav-item">
                         <a class="nav-head">
                             <i class="fas fa-users"></i> Customers
                         </a>
@@ -91,7 +93,7 @@
                         </ul>
                     </li>
                     <!-- Reports -->
-                    <li sec:authorize="hasRole('ADMIN') or hasRole('MANAGER')" class="nav-item">
+                    <li sec:authorize="hasRole('DEVELOPER') or hasRole('MANAGER')" class="nav-item">
                         <a class="nav-head">
                             <i class="fas fa-chart-bar"></i> Reports
                         </a>
@@ -103,7 +105,7 @@
                         </ul>
                     </li>
                     <!-- Employees -->
-                    <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                    <li sec:authorize="hasRole('ADMIN') or hasRole('DEVELOPER')" class="nav-item">
                         <a class="nav-head">
                             <i class="fas fa-user-cog"></i> Employees
                         </a>
@@ -142,14 +144,14 @@
                         Welcome, <span sec:authentication="name"></span>
                     </p>
                     <li class="bell-icon">
-                        <a href="#"><i class="fas fa-bell"></i></a>
+                        <a href="#"><i class="fas fa-bell"></i> Notifications</a>
                         <span class="spinner-dot" style="display: none;"></span>
                     </li>
                     <button id="theme-toggle" class="theme-toggle">
                         <i id="theme-icon" class="fas fa-moon"></i>
                     </button>
                     <li>
-                        <a href="/logout"><i class="fas fa-arrow-right-from-bracket"></i></a>
+                        <a href="/logout"><i class="fas fa-arrow-right-from-bracket"></i> Logout</a>
                     </li>
                 </ul>
             </nav>

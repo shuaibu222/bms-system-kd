@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import java.awt.Desktop;
 import java.net.URI;
 
-// import com.shuaibu.components.LedgerScheduler;
+import com.shuaibu.components.MachineLockUtil;
 import com.shuaibu.service.UserService;
 
 @SpringBootApplication
@@ -19,20 +19,26 @@ public class PremiumPackageApplication implements CommandLineRunner {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    // private LedgerScheduler ledgerScheduler;
-
     public static void main(String[] args) {
         SpringApplication.run(PremiumPackageApplication.class, args);
     }
 
     @Override
     public void run(String... args) throws Exception {
-        userService.createAdminUserIfNotExists();
-        // ledgerScheduler.generateMonthlyLedgerSummary();
+        // 🔐 Check machine fingerprint
+        boolean verified = MachineLockUtil.verifyMachine();
+        if (!verified) {
+            System.out.println("Access denied. Shutting down...");
+            System.exit(1);
+            return;
+        }
 
-        // Open browser after application starts
-        String url = "http://localhost:8080/dashboard"; // Change this to your desired URL
+        // 👤 Setup users
+        userService.createAdminUserIfNotExists();
+        userService.createDeveloperUserIfNotExists();
+
+        // 🌐 Open browser
+        String url = "http://localhost:8080/dashboard";
         openBrowser(url);
     }
 
