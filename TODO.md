@@ -1,4 +1,5 @@
 - salary module
 
   WHAT IF CUSTOMER DIDNT HAVE PHONE NUMBER
-  timing the main ledger for production in sha Allah in scheduler
+  emailing most places
+  online version of the bms softare with subscription

@@ -31,8 +31,6 @@ public class InvoiceModel {
     private Long quotationId;
     private Double totalAmount;
     private Double invoiceValue;
-    private Double balanceDue;
-    private String paymentStatus;
     private String paymentMethod;
     private LocalDate invoiceDateTime;
 

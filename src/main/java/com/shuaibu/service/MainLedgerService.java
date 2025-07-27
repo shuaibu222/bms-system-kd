@@ -22,7 +22,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 
 @Service
 @RequiredArgsConstructor
@@ -74,21 +73,12 @@ public class MainLedgerService {
 
             double openingBalance = rollingBalance;
 
-            Predicate<InvoiceModel> isPaidOrPartial = inv -> ("PAID".equalsIgnoreCase(inv.getPaymentStatus()) ||
-                    "PARTIAL".equalsIgnoreCase(inv.getPaymentStatus())) &&
-                    inv.getInvoiceDateTime().equals(currentDate);
-
             // SALES ENTRIES (credit)
             double totalSales = 0;
-            totalSales += saveSalesEntry(currentDate, "Cash", isPaidOrPartial, "CASH",
-                    openingBalance);
-            totalSales += saveSalesEntry(currentDate, "Card", isPaidOrPartial, "CARD",
-                    openingBalance);
-            totalSales += saveSalesEntry(currentDate, "Bank Transfer", isPaidOrPartial,
-                    "BANK TRANSFER",
-                    openingBalance);
-            totalSales += saveSalesEntry(currentDate, "POS", isPaidOrPartial, "POS",
-                    openingBalance);
+            totalSales += saveSalesEntry(currentDate, "Cash", "CASH", openingBalance);
+            totalSales += saveSalesEntry(currentDate, "Card", "CARD", openingBalance);
+            totalSales += saveSalesEntry(currentDate, "Bank Transfer", "BANK TRANSFER", openingBalance);
+            totalSales += saveSalesEntry(currentDate, "POS", "POS", openingBalance);
 
             rollingBalance -= totalSales;
 
@@ -133,11 +123,9 @@ public class MainLedgerService {
         return customerDebts + staffLoans + suspense;
     }
 
-    private double saveSalesEntry(LocalDate date, String label,
-            Predicate<InvoiceModel> baseFilter,
-            String paymentMethod, double openingBalance) {
+    private double saveSalesEntry(LocalDate date, String label, String paymentMethod, double openingBalance) {
         double salesAmount = invoiceRepo.findAll().stream()
-                .filter(baseFilter)
+                .filter(inv -> inv.getInvoiceDateTime().equals(date))
                 .filter(inv -> paymentMethod.equalsIgnoreCase(inv.getPaymentMethod()))
                 .mapToDouble(InvoiceModel::getInvoiceValue)
                 .sum();

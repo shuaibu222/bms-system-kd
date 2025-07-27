@@ -53,7 +53,7 @@
                         <td th:text="${index.count}"></td>
                         <!-- <td th:text="${invoice.invNum}"></td> -->
                         <td th:text="${invoice.paymentMethod}"></td>
-                        <td th:text="${invoice.paymentStatus}"></td>
+                        <td th:text="${invoice.}"></td>
                         <td th:text="'₦' + ${#numbers.formatDecimal(invoice.totalAmount, 0, 'COMMA', 2, 'POINT')}"></td>
                         <td th:text="${#temporals.format(invoice.invoiceDateTime, 'dd MMM yyyy')}"></td>
                     </tr>

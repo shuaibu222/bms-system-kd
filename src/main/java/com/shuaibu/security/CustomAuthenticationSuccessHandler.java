@@ -20,8 +20,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_SALESPERSON"))) {
             response.sendRedirect("/sales");
         } else if (authentication.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_CASHIER"))) {
-            response.sendRedirect("/invoices");
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_DEVELOPER"))) {
+            response.sendRedirect("/dashboard");
         } else if (authentication.getAuthorities().stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_MANAGER"))) {
             response.sendRedirect("/dashboard");

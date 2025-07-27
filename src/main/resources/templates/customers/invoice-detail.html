@@ -27,12 +27,16 @@
             color: #333;
         }
     </style>
+    <!-- ✅ Include the store info -->
+    <script src="/js/store-info.js"></script>
     <script>
         function printReceipt(invoiceId) {
             fetch(`/customers/api/invoices/${invoiceId}`)
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Invoice details:", data);
+                    const storeName = STORE_INFO.name || "My Store";
+                    const storeAddress = STORE_INFO.address || "No Address";
+
                     const printWindow = window.open("", "_blank");
                     printWindow.document.write(`
                         <html>
@@ -40,99 +44,100 @@
                             <title>Receipt</title>
                             <style>
                                 @media print {
-                                    @page {
-                                        margin: 0;
-                                        size: auto;
+                                    @page { 
+                                        margin: 0; 
+                                        size: 80mm auto;
                                     }
                                     body {
-                                        margin: 0;
-                                        padding: 0;
-                                    }
-                                    * {
-                                        margin: 0;
-                                        padding: 0;
-                                        box-sizing: border-box;
-                                    }
-                                    body {
-                                        font-family: 'Roboto', sans-serif;
-                                        font-size: 12px !important;
-                                        width: 70mm;
                                         margin: 0 auto;
-                                        padding: 10px;
+                                        padding: 15px 10px;
+                                        font-family: 'Arial', sans-serif;
+                                        font-size: 12px;
+                                        width: 70mm;
+                                        min-height: 100vh;
+                                        display: flex;
+                                        flex-direction: column;
+                                        justify-content: center;
+                                        align-items: center;
                                         background: #fff;
                                         color: #333;
                                     }
                                     .receipt-container {
+                                        width: 100%;
+                                        max-width: 70mm;
                                         display: flex;
                                         flex-direction: column;
                                         align-items: center;
-                                        border: 1px solid #ddd;
-                                        padding: 10px;
-                                        background: #fff;
+                                        border: 2px solid #f0f0f0;
                                         border-radius: 8px;
+                                        padding: 15px;
+                                        box-shadow: 0 0 10px rgba(0,0,0,0.05);
                                     }
                                     .store-name {
-                                        font-size: 16px;
-                                        font-weight: bold;
-                                        text-transform: uppercase;
-                                        margin-bottom: 10px;
-                                        color: #333;
+                                        font-size: 18px;
+                                        font-weight: 700;
+                                        margin-bottom: 5px;
+                                        color: #222;
+                                        text-align: center;
+                                        letter-spacing: 0.5px;
                                     }
                                     .store-address {
-                                        font-size: 0.7rem;
+                                        font-size: 11px;
                                         margin-bottom: 10px;
-                                        color: #333;
+                                        color: #555;
                                         text-align: center;
+                                        line-height: 1.4;
                                     }
                                     .divider {
-                                        border-top: 1px solid #ddd;
-                                        margin: 10px 0;
+                                        height: 1px;
                                         width: 100%;
+                                        background: linear-gradient(to right, transparent, #ddd, transparent);
+                                        margin: 10px 0;
                                     }
                                     .receipt-header {
                                         width: 100%;
-                                        font-size: 12px;
+                                        font-size: 11px;
                                         margin-bottom: 10px;
-                                        text-align: left;
                                     }
-                                    .quotation-title {
-                                        font-size: 0.8rem;
-                                        font-weight: bold;
+                                    .invoice-title {
+                                        font-size: 14px;
+                                        font-weight: 600;
                                         text-align: center;
-                                        margin-bottom: 0.5rem;
+                                        margin-bottom: 10px;
+                                        color: #222;
+                                        text-transform: uppercase;
                                     }
                                     .header-row {
                                         display: flex;
                                         justify-content: space-between;
                                         width: 100%;
-                                        margin-bottom: 5px;
+                                        margin-bottom: 4px;
+                                        line-height: 1.4;
                                     }
-                                    .header-row span {
-                                        font-family: 'Roboto', sans-serif;
+                                    .header-row span:first-child {
+                                        font-weight: 600;
                                         color: #555;
+                                    }
+                                    .header-row span:last-child {
+                                        color: #333;
                                     }
                                     table {
                                         width: 100%;
-                                        font-size: 10px;
+                                        font-size: 11px;
                                         border-collapse: collapse;
-                                        text-align: left;
-                                        margin-top: 10px;
-                                        background: #fff;
-                                        border: 1px solid #ddd;
-                                    }
-                                    th, td {
-                                        padding: 0.3rem;
-                                        border: 1px solid #ddd;
+                                        margin: 10px 0;
                                     }
                                     th {
-                                        font-weight: bold;
-                                        text-transform: uppercase;
+                                        padding: 6px 4px;
                                         text-align: left;
+                                        font-weight: 600;
                                         color: #333;
-                                        background: #f9f9f9;
+                                        border-bottom: 2px solid #eee;
                                     }
                                     td {
-                                        color: #555;
+                                        padding: 5px 4px;
+                                        border-bottom: 1px solid #eee;
+                                        color: #444;
                                     }
                                     .price, .total {
                                         text-align: right;
@@ -140,46 +145,46 @@
                                     .total-container {
                                         display: flex;
                                         justify-content: space-between;
-                                        font-weight: bold;
-                                        margin-top: 15px;
-                                        font-size: 14px;
-                                        color: #333;
-                                        padding: 10px;
-                                        border: 1px solid #ddd;
+                                        font-weight: 600;
+                                        margin: 15px 0 10px;
+                                        padding: 8px 10px;
                                         background: #f9f9f9;
                                         border-radius: 4px;
+                                        width: 100%;
+                                        font-size: 13px;
+                                    }
+                                    .balance-info {
+                                        display: flex;
+                                        justify-content: space-between;
+                                        width: 100%;
+                                        margin: 5px 0;
+                                        font-size: 12px;
                                     }
                                     .footer {
                                         font-size: 10px;
                                         margin-top: 15px;
                                         text-align: center;
                                         color: #777;
-                                        font-style: italic;
+                                        width: 100%;
+                                    }
+                                    .highlight {
+                                        font-weight: bold;
+                                        color: #d23c3c;
                                     }
                                 }
                             </style>
                         </head>
                         <body onload="window.print(); setTimeout(() => window.close(), 500);">
                             <div class="receipt-container">
-                                <div class="store-name">MY STORE</div>
-                                <div class="divider"></div>
-                                <div class="store-address">Garawa, Tsamiya Babba, Gezawa LGA, Kano, Kano State.</div>
+                                <div class="store-name">${storeName}</div>
+                                <div class="store-address">${storeAddress}</div>
                                 <div class="divider"></div>
 
                                 <div class="receipt-header">
-                                    <div class="quotation-title">Invoice Receipt</div>
-                                    <div class="header-row"><span>Invoice No.:</span> <span>${data.invNum}</span></div>
-                                    <div class="header-row"><span>Amount Paid:</span> <span>₦${data.totalAmount}</span></div>
-                                    <div class="header-row">
-                                        <span>Due Balance:</span>
-                                        <span>
-                                            ${(data.balanceDue) < 0 ? '-' : ''}₦${Math.abs(data.balanceDue)}
-                                        </span>
-                                    </div>
-                                    <div class="header-row"><span>Payment Status:</span> <span>${data.paymentStatus}</span></div>
-                                    <div class="header-row"><span>Payment Method:</span> <span>${data.paymentMethod}</span></div>
-                                    <div class="header-row"><span>Date:</span> <span>${data.invoiceDateTime}</span></div>
-                                    <div class="header-row"><span>Cashier:</span> <span>${data.cashierAgent}</span></div>
+                                    <div class="invoice-title">INVOICE RECEIPT</div>
+                                    <div class="header-row"><span>Invoice No.</span> <span>${data.invNum}</span></div>
+                                    <div class="header-row"><span>Date</span> <span>${data.invoiceDateTime}</span></div>
+                                    <div class="header-row"><span>Cashier</span> <span>${data.cashierAgent}</span></div>
                                 </div>
                                 <div class="divider"></div>
 
@@ -188,7 +193,7 @@
                                         <tr>
                                             <th>Item</th>
                                             <th>Qty</th>
-                                            <th>Unit Price</th>
+                                            <th>Price</th>
                                             <th>Total</th>
                                         </tr>
                                     </thead>
@@ -197,8 +202,8 @@
                                             <tr>
                                                 <td>${item.productName}</td>
                                                 <td>${item.quantity}</td>
-                                                <td class="price">₦${item.price}</td>
-                                                <td class="total">₦${(item.quantity * item.price)}</td>
+                                                <td class="price">₦${item.price.toLocaleString()}</td>
+                                                <td class="total">₦${(item.quantity * item.price).toLocaleString()}</td>
                                             </tr>
                                         `).join("")}
                                     </tbody>
@@ -206,12 +211,18 @@
 
                                 <div class="divider"></div>
                                 <div class="total-container">
-                                    <span>Total:</span> <span>₦${data.totalAmount}</span>
+                                    <span>TOTAL AMOUNT:</span> <span>₦${data.totalAmount.toLocaleString()}</span>
                                 </div>
-
+                                
+                                <div class="balance-info">
+                                    <span>Amount Paid:</span> <span>₦${data.totalAmount.toLocaleString()}</span>
+                                </div>
+                                <div class="balance-info">
+                                    <span>Payment Method:</span> <span>${data.paymentMethod}</span>
+                                </div>
                                 <div class="divider"></div>
 
-                                <p class="footer">Thank you for shopping with us!</p>
+                                <p class="footer">Thank you for your business!<br>Please come again</p>
                             </div>
                         </body>
                         </html>
@@ -220,8 +231,8 @@
                 })
                 .catch(error => console.error("Error fetching invoice details:", error));
         }
-
     </script>
+
 </head>
 
 <body>
@@ -238,9 +249,7 @@
             <p><strong>Customer Name:</strong> <span th:text="${invoice.saleDto.customerName}"></span></p>
             <p><strong>Date:</strong> <span th:text="${invoice.invoiceDateTime}"></span></p>
             <p><strong>Payment Method:</strong> <span th:text="${invoice.paymentMethod}"></span></p>
-            <p><strong>Status:</strong> <span th:text="${invoice.paymentStatus}"></span></p>
             <p><strong>Total:</strong> ₦<span th:text="${invoice.totalAmount}"></span></p>
-            <p><strong>Balance Due:</strong> ₦<span th:text="${invoice.balanceDue}"></span></p>
         </div>
 
         <h2 style="margin: 2rem 0;">🛒 Items Purchased</h2>

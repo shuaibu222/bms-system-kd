@@ -7,19 +7,21 @@ import java.util.*;
 
 public class MachineLockUtil {
 
-    private static final File LOCK_FILE = getLockFile();
+    private static final String LOCK_FILENAME = "machine.lock";
 
-    public static boolean verifyMachine() {
+    public static boolean verifyOrStoreMachine() {
         try {
             String fingerprint = getMachineFingerprint();
+            File jarDir = new File(MachineLockUtil.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+                    .getParentFile();
+            File lockFile = new File(jarDir, LOCK_FILENAME);
 
-            if (LOCK_FILE.exists()) {
-                String stored = Files.readString(LOCK_FILE.toPath()).trim();
+            if (lockFile.exists()) {
+                String stored = Files.readString(lockFile.toPath()).trim();
                 return stored.equals(fingerprint);
             } else {
-                Files.writeString(LOCK_FILE.toPath(), fingerprint);
-                hideFile(LOCK_FILE); // ✅ Make hidden
-                LOCK_FILE.setReadOnly(); // ✅ Make read-only
+                Files.writeString(lockFile.toPath(), fingerprint);
+                lockFile.setReadOnly(); // optional
                 return true;
             }
         } catch (Exception e) {
@@ -60,24 +62,6 @@ public class MachineLockUtil {
             return sb.toString();
         } catch (Exception e) {
             return input;
-        }
-    }
-
-    private static File getLockFile() {
-        String userHome = System.getProperty("user.home");
-        return new File(userHome, ".premium_machine.lock"); // dot = hidden on Linux/macOS
-    }
-
-    private static void hideFile(File file) {
-        try {
-            if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-                Process p = Runtime.getRuntime().exec(
-                        new String[] { "attrib", "+H", file.getAbsolutePath() });
-                p.waitFor();
-            }
-            // Dot-prefix makes it hidden on Unix/macOS already
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }

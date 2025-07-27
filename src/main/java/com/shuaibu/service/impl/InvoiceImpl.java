@@ -88,8 +88,6 @@ public class InvoiceImpl implements InvoiceService {
 
         // Set totals
         invoiceDto.setTotalAmount(quotation.getTotalAmount());
-        double balanceDue = quotation.getTotalAmount() - invoiceDto.getInvoiceValue();
-        invoiceDto.setBalanceDue(balanceDue);
 
         // Deduct stock
         for (SaleItemModel item : quotation.getItems()) {
@@ -146,10 +144,8 @@ public class InvoiceImpl implements InvoiceService {
                 .invNum(latestInvoice.getInvNum())
                 .quotationId(latestInvoice.getQuotationId())
                 .customerId(latestInvoice.getCustomerId())
-                .balanceDue(latestInvoice.getBalanceDue())
                 .totalAmount(latestInvoice.getTotalAmount())
                 .invoiceValue(latestInvoice.getInvoiceValue())
-                .paymentStatus(latestInvoice.getPaymentStatus())
                 .paymentMethod(latestInvoice.getPaymentMethod())
                 .invoiceDateTime(latestInvoice.getInvoiceDateTime())
                 .saleDto(saleDto)
@@ -187,10 +183,8 @@ public class InvoiceImpl implements InvoiceService {
                 .invNum(inv.getInvNum())
                 .quotationId(inv.getQuotationId())
                 .customerId(inv.getCustomerId())
-                .balanceDue(inv.getBalanceDue())
                 .totalAmount(inv.getTotalAmount())
                 .invoiceValue(inv.getInvoiceValue())
-                .paymentStatus(inv.getPaymentStatus())
                 .paymentMethod(inv.getPaymentMethod())
                 .invoiceDateTime(inv.getInvoiceDateTime())
                 .saleDto(saleDto)

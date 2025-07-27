@@ -13,8 +13,6 @@ public class InvoiceMapper {
                 .customerId(invoiceModel.getCustomerId())
                 .totalAmount(invoiceModel.getTotalAmount())
                 .invoiceValue(invoiceModel.getInvoiceValue())
-                .balanceDue(invoiceModel.getBalanceDue())
-                .paymentStatus(invoiceModel.getPaymentStatus())
                 .paymentMethod(invoiceModel.getPaymentMethod())
                 .invoiceDateTime(invoiceModel.getInvoiceDateTime())
                 .build();
@@ -29,8 +27,6 @@ public class InvoiceMapper {
                 .quotationId(invoiceDto.getQuotationId())
                 .totalAmount(invoiceDto.getTotalAmount())
                 .invoiceValue(invoiceDto.getInvoiceValue())
-                .balanceDue(invoiceDto.getBalanceDue())
-                .paymentStatus(invoiceDto.getPaymentStatus())
                 .paymentMethod(invoiceDto.getPaymentMethod())
                 .invoiceDateTime(invoiceDto.getInvoiceDateTime())
                 .build();

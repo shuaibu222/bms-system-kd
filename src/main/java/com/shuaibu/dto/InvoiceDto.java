@@ -22,8 +22,6 @@ public class InvoiceDto {
     private Long quotationId;
     private Double totalAmount;
     private Double invoiceValue;
-    private Double balanceDue;
-    private String paymentStatus;
     private String paymentMethod;
 
     @NotNull(message = "* Invoice date and time is required")

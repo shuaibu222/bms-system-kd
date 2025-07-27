@@ -76,8 +76,6 @@
                             <th>Other Paid</th>
                             <th>Total Paid</th>
                             <th>Quotation Total</th>
-                            <th>Balance Due</th>
-                            <th>Payment Status</th>
                             <th>Payment Method</th>
                             <th>Date</th>
                             <th>Actions</th>
@@ -102,10 +100,7 @@
                             <td
                                 th:text="'₦' + ${#numbers.formatDecimal(invoice.totalAmount ?: 0, 0, 'COMMA', 2, 'POINT')}">
                             </td>
-                            <td
-                                th:text="'₦' + ${#numbers.formatDecimal(invoice.balanceDue ?: 0, 0, 'COMMA', 2, 'POINT')}">
-                            </td>
-                            <td th:text="${invoice.paymentStatus}"></td>
+
                             <td th:text="${invoice.paymentMethod}"></td>
                             <td th:text="${invoice.invoiceDateTime}"></td>
                             <td>

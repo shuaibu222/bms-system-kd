@@ -25,21 +25,14 @@ public class PremiumPackageApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // 🔐 Check machine fingerprint
-        boolean verified = MachineLockUtil.verifyMachine();
-        if (!verified) {
-            System.out.println("Access denied. Shutting down...");
+        if (!MachineLockUtil.verifyOrStoreMachine()) {
+            System.out.println("❌ This application is locked to another computer.");
             System.exit(1);
-            return;
         }
 
-        // 👤 Setup users
         userService.createAdminUserIfNotExists();
         userService.createDeveloperUserIfNotExists();
-
-        // 🌐 Open browser
-        String url = "http://localhost:8080/dashboard";
-        openBrowser(url);
+        openBrowser("http://localhost:8080/dashboard");
     }
 
     private void openBrowser(String url) {
@@ -47,14 +40,12 @@ public class PremiumPackageApplication implements CommandLineRunner {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 Desktop.getDesktop().browse(new URI(url));
             } else {
-                // For environments where Desktop is not supported (e.g., some Linux servers)
                 Runtime runtime = Runtime.getRuntime();
                 if (System.getProperty("os.name").toLowerCase().contains("windows")) {
                     runtime.exec("rundll32 url.dll,FileProtocolHandler " + url);
                 } else if (System.getProperty("os.name").toLowerCase().contains("mac")) {
                     runtime.exec("open " + url);
                 } else {
-                    // Linux
                     runtime.exec("xdg-open " + url);
                 }
             }
@@ -62,5 +53,4 @@ public class PremiumPackageApplication implements CommandLineRunner {
             e.printStackTrace();
         }
     }
-
 }
