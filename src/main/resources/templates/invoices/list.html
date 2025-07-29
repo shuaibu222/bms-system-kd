@@ -67,16 +67,23 @@
                         <div class="form-group">
                             <label for="paymentMethod">Payment Method:</label>
                             <select id="paymentMethod" th:field="*{paymentMethod}">
-                                <option value="Card">Card</option>
-                                <option value="Cash">Cash</option>
-                                <option value="Bank Transfer">Bank Transfer</option>
-                                <option value="POS">POS</option>
+                                <!-- If NOT existing customer (no phone) -->
+                                <option th:if="${quotation.phone == ''}" value="Card">Card</option>
+                                <option th:if="${quotation.phone == ''}" value="Cash">Cash</option>
+                                <option th:if="${quotation.phone == ''}" value="Bank Transfer">Bank Transfer</option>
+                                <option th:if="${quotation.phone == ''}" value="POS">POS</option>
+
+                                <!-- If existing customer (has phone) -->
+                                <option th:if="${quotation.phone != ''}" value="Customer Account">
+                                    Customer Account (Pay Later)
+                                </option>
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label for="invoiceDateTime">Invoice Date:</label>
-                            <input type="date" id="invoiceDateTime" th:field="*{invoiceDateTime}" required />
+                            <input type="date" id="invoiceDateTime" name="invoiceDateTime"
+                                th:value="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}" required />
                         </div>
                     </div>
                     <div class="form-group-btn">

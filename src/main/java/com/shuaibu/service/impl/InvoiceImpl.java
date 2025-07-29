@@ -62,6 +62,8 @@ public class InvoiceImpl implements InvoiceService {
         if (quotation.getPhone() != null && !quotation.getPhone().trim().isEmpty()) {
             customerRepository.findByPhone(quotation.getPhone()).ifPresentOrElse(customer -> {
                 invoiceDto.setCustomerId(customer.getId());
+                invoiceDto.setCustomerName(customer.getName());
+                invoiceDto.setPhone(customer.getPhone());
 
                 double currentBalance = Optional.ofNullable(customer.getBalance()).orElse(0.0);
                 double invoiceValue = invoiceDto.getInvoiceValue();
@@ -84,9 +86,10 @@ public class InvoiceImpl implements InvoiceService {
             }, () -> {
                 throw new IllegalArgumentException("Customer with phone " + quotation.getPhone() + " not found");
             });
+        } else {
+            invoiceDto.setCustomerName(quotation.getCustomerName());
         }
 
-        // Set totals
         invoiceDto.setTotalAmount(quotation.getTotalAmount());
 
         // Deduct stock
@@ -144,6 +147,8 @@ public class InvoiceImpl implements InvoiceService {
                 .invNum(latestInvoice.getInvNum())
                 .quotationId(latestInvoice.getQuotationId())
                 .customerId(latestInvoice.getCustomerId())
+                .customerName(latestInvoice.getCustomerName())
+                .phone(latestInvoice.getPhone())
                 .totalAmount(latestInvoice.getTotalAmount())
                 .invoiceValue(latestInvoice.getInvoiceValue())
                 .paymentMethod(latestInvoice.getPaymentMethod())
@@ -183,6 +188,8 @@ public class InvoiceImpl implements InvoiceService {
                 .invNum(inv.getInvNum())
                 .quotationId(inv.getQuotationId())
                 .customerId(inv.getCustomerId())
+                .customerName(inv.getCustomerName())
+                .phone(inv.getPhone())
                 .totalAmount(inv.getTotalAmount())
                 .invoiceValue(inv.getInvoiceValue())
                 .paymentMethod(inv.getPaymentMethod())

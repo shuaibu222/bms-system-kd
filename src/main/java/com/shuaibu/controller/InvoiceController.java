@@ -277,7 +277,7 @@ public class InvoiceController {
 
         if (startDate == null || endDate == null) {
             endDate = LocalDate.now();
-            startDate = endDate.minusDays(30);
+            startDate = LocalDate.now();
         }
 
         List<InvoiceModel> invoices = invoiceRepository.findByInvoiceDateTimeBetween(startDate, endDate);

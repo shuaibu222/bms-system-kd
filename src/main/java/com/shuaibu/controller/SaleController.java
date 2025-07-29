@@ -1,5 +1,10 @@
 package com.shuaibu.controller;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -10,14 +15,16 @@ import com.shuaibu.dto.SaleDto;
 import com.shuaibu.model.SaleModel;
 import com.shuaibu.model.UserModel;
 import com.shuaibu.repository.CustomerRepository;
-import com.shuaibu.repository.InvoiceRepository;
 import com.shuaibu.repository.ProductRepository;
 import com.shuaibu.repository.SaleRepository;
 import com.shuaibu.repository.UserRepository;
 import com.shuaibu.service.SaleService;
 
+import lombok.RequiredArgsConstructor;
+
 @Controller
 @RequestMapping("/sales")
+@RequiredArgsConstructor
 public class SaleController {
 
     private final SaleService saleService;
@@ -25,19 +32,6 @@ public class SaleController {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
-
-    public SaleController(SaleService saleService,
-            SaleRepository saleRepository,
-            CustomerRepository customerRepository,
-            ProductRepository productRepository,
-            InvoiceRepository invoiceRepository, // can be removed if unused
-            UserRepository userRepository) {
-        this.saleService = saleService;
-        this.saleRepository = saleRepository;
-        this.customerRepository = customerRepository;
-        this.productRepository = productRepository;
-        this.userRepository = userRepository;
-    }
 
     @GetMapping
     public String listSalesForm(Model model) {
@@ -51,6 +45,20 @@ public class SaleController {
     public String listSales(Model model) {
         model.addAttribute("sales", saleRepository.findAll());
         return "sales/list-sales";
+    }
+
+    @GetMapping("/search-customers")
+    @ResponseBody
+    public List<Map<String, String>> searchCustomers(@RequestParam("query") String query) {
+        return customerRepository.findByNameContainingIgnoreCaseOrPhoneContaining(query, query)
+                .stream()
+                .map(customer -> {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("name", customer.getName());
+                    map.put("phone", customer.getPhone());
+                    return map;
+                })
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/checkout")

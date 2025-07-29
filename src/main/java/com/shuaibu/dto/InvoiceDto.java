@@ -19,6 +19,8 @@ public class InvoiceDto {
     private Long id;
     private String invNum;
     private Long customerId;
+    private String customerName;
+    private String phone;
     private Long quotationId;
     private Double totalAmount;
     private Double invoiceValue;

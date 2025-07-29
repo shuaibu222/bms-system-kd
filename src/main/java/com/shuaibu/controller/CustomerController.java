@@ -7,14 +7,17 @@ import com.shuaibu.dto.InvoiceDto;
 import com.shuaibu.model.CustomerModel;
 import com.shuaibu.model.DepositModel;
 import com.shuaibu.model.InvoiceModel;
+import com.shuaibu.model.UserModel;
 import com.shuaibu.repository.CustomerRepository;
 import com.shuaibu.repository.DepositRepository;
 import com.shuaibu.repository.InvoiceRepository;
+import com.shuaibu.repository.UserRepository;
 import com.shuaibu.service.CustomerService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -33,6 +36,7 @@ public class CustomerController {
     private final CustomerRepository customerRepository;
     private final DepositRepository depositRepository;
     private final InvoiceRepository invoiceRepository;
+    private final UserRepository userRepository;
 
     // ----------------- LIST CUSTOMERS ------------------
     @GetMapping
@@ -181,7 +185,13 @@ public class CustomerController {
     @ResponseBody
     public ResponseEntity<InvoiceDto> getInvoiceApi(@PathVariable Long id) {
         InvoiceDto invoice = customerService.getInvoiceWithItems(id);
+        invoice.setCashierAgent(getCurrentUser().getFullName());
         return invoice == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(invoice);
+    }
+
+    private UserModel getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByUsername(username);
     }
 
     // ----------------- CUSTOMER LEDGER ------------------
@@ -233,7 +243,7 @@ public class CustomerController {
 
         if (startDate == null || endDate == null) {
             endDate = LocalDate.now();
-            startDate = endDate.minusDays(30);
+            startDate = LocalDate.now();
         }
 
         List<DepositModel> deposits = depositRepository.findByDepositDateBetween(startDate, endDate);

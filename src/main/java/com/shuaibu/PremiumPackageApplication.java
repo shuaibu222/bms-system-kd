@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import java.awt.Desktop;
 import java.net.URI;
 
-import com.shuaibu.components.MachineLockUtil;
+// import com.shuaibu.components.MachineLockUtil;
 import com.shuaibu.service.UserService;
 
 @SpringBootApplication
@@ -25,10 +25,10 @@ public class PremiumPackageApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (!MachineLockUtil.verifyOrStoreMachine()) {
-            System.out.println("❌ This application is locked to another computer.");
-            System.exit(1);
-        }
+        // if (!MachineLockUtil.verifyOrStoreMachine()) {
+        // System.out.println("❌ This application is locked to another computer.");
+        // System.exit(1);
+        // }
 
         userService.createAdminUserIfNotExists();
         userService.createDeveloperUserIfNotExists();

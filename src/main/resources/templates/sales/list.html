@@ -6,6 +6,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POS Sales Page</title>
+    <style>
+        .suggestions-box {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ccc;
+            z-index: 1000;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .suggestion-item {
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
     <script defer>
         let cart = [];
         let totalAmount = 0;
@@ -152,6 +175,47 @@
         document.addEventListener('DOMContentLoaded', function () {
             toggleCustomerFields();
         });
+        async function searchCustomerSuggestions() {
+            const input = document.getElementById('customerPhone');
+            const suggestionsBox = document.getElementById('customerSuggestions');
+            const query = input.value.trim();
+
+            if (query.length < 2) {
+                suggestionsBox.innerHTML = '';
+                suggestionsBox.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/sales/search-customers?query=${encodeURIComponent(query)}`);
+                const customers = await response.json();
+
+                suggestionsBox.innerHTML = '';
+
+                if (customers.length === 0) {
+                    suggestionsBox.innerHTML = '<div class="suggestion-item">No match found</div>';
+                } else {
+                    customers.forEach(customer => {
+                        const div = document.createElement('div');
+                        div.className = 'suggestion-item';
+                        div.textContent = `${customer.name} (${customer.phone})`;
+                        div.onclick = () => {
+                            input.value = customer.phone;
+                            suggestionsBox.innerHTML = '';
+                            suggestionsBox.style.display = 'none';
+                        };
+                        suggestionsBox.appendChild(div);
+                    });
+                }
+
+                suggestionsBox.style.display = 'block';
+            } catch (error) {
+                console.error('Error fetching customer suggestions:', error);
+                suggestionsBox.innerHTML = '';
+                suggestionsBox.style.display = 'none';
+            }
+        }
+
     </script>
 </head>
 
@@ -161,7 +225,8 @@
             <div class="product-list">
                 <h2>Products</h2>
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Search products..." onkeyup="filterProducts()">
+                    <input type="text" aria-label="search" id="searchInput" placeholder="Search products..."
+                        onkeyup="filterProducts()">
                 </div>
                 <div id="productList">
                     <div th:each="product : ${products}" class="product-item">
@@ -170,8 +235,9 @@
                                 th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 2, 'POINT')}"></span></span>
                         <span th:class="${product.quantity > 0} ? 'stock-in' : 'stock-out'"
                             th:text="${product.quantity > 0} ? 'In Stock (' + ${product.quantity} + ')' : 'Out of Stock'"></span>
-                        <input th:if="${product.quantity > 0}" type="number" th:id="'quantity-' + ${product.id}"
-                            class="quantity-input" value="1" min="1" th:max="${product.quantity}">
+                        <input aria-label="Quantity" th:if="${product.quantity > 0}" type="number"
+                            th:id="'quantity-' + ${product.id}" class="quantity-input" value="1" min="1"
+                            th:max="${product.quantity}">
                         <button
                             th:attr="onclick='addToCart(' + ${product.id} + ', \'' + ${product.name} + '\', ' + ${product.price} + ', ' + ${product.quantity} + ')'"
                             th:disabled="${product.quantity <= 0}">Add</button>
@@ -189,14 +255,20 @@
                         Existing Customer
                     </label>
                     <label>
-                        <input type="radio" name="customerType" value="new" onclick="toggleCustomerFields()">
+                        <input type="radio" aria-label="search" name="customerType" value="new"
+                            onclick="toggleCustomerFields()">
                         New Customer
                     </label>
                 </div>
 
                 <div id="existingCustomerFields" class="customer-details">
                     <label for="customerPhone">Customer Phone Number:</label>
-                    <input type="text" id="customerPhone" placeholder="Enter customer phone number">
+                    <div style="position: relative;">
+                        <input type="text" id="customerPhone" name="customerPhone"
+                            placeholder="Start typing phone or name..." oninput="searchCustomerSuggestions()"
+                            autocomplete="off">
+                        <div id="customerSuggestions" class="suggestions-box"></div>
+                    </div>
                 </div>
 
                 <div id="newCustomerFields" class="customer-details" style="display: none;">

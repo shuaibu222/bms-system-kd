@@ -134,7 +134,7 @@ public class ProductController {
 
         if (startDate == null || endDate == null) {
             endDate = LocalDate.now();
-            startDate = endDate.minusDays(30);
+            startDate = LocalDate.now();
         }
 
         List<LowStockModel> purchases = lowStockRepository.findByLowStockDateBetween(startDate, endDate);
